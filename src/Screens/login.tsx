@@ -29,6 +29,7 @@ export default function Login() {
     const res = await axios.get(LOGIN_URL);
 
     const users = res.data.users;
+    console.log(users)
 
     const user = users.find(
       (u: any) => u.email === email && u.password === password,
