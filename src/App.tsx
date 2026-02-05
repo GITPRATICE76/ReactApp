@@ -5,12 +5,16 @@ import Managerdashboard from "./Screens/Managerdashboard";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MainLayout from "./layout/Mainlayout";
+import CreateAccount from "../../ReactApp/src/Screens/CreateAccount";
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/create-employee" element={<CreateAccount />} />
+
 
         <Route
           path="/manager"

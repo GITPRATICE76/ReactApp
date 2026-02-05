@@ -17,6 +17,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -112,9 +113,13 @@ export default function Login() {
 
               <p className="text-sm text-center text-gray-600">
                 Don’t have an account?{" "}
-                <span className="text-blue-600 font-medium cursor-pointer">
-                  Create account
-                </span>
+                <span
+  className="text-blue-600 font-medium cursor-pointer"
+  onClick={() => navigate("/create-employee")}
+>
+  Create account
+</span>
+
               </p>
             </CardFooter>
           </form>
