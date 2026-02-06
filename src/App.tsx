@@ -5,8 +5,7 @@ import Managerdashboard from "./Screens/Managerdashboard";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MainLayout from "./layout/Mainlayout";
-import CreateAccount from "../../ReactApp/src/Screens/CreateAccount";
-
+import CreateAccount from "../src/Screens/CreateAccount";
 
 function App() {
   return (
@@ -15,22 +14,10 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/create-employee" element={<CreateAccount />} />
 
-
         <Route
           path="/manager"
           element={
-            <ProtectedRoute role="MANAGER">
-              <MainLayout>
-                <Managerdashboard />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-
-         <Route
-          path="/manager"
-          element={
-            <ProtectedRoute role="RO">
+            <ProtectedRoute roles={["MANAGER", "RO"]}>
               <MainLayout>
                 <Managerdashboard />
               </MainLayout>
@@ -41,7 +28,7 @@ function App() {
         <Route
           path="/employee"
           element={
-            <ProtectedRoute role="EMPLOYEE">
+            <ProtectedRoute roles={["EMPLOYEE"]}>
               <MainLayout>
                 <Employeedashboard />
               </MainLayout>
