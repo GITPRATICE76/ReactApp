@@ -13,14 +13,21 @@ export default function MainLayout({
     const storedName = localStorage.getItem("username");
     if (storedName) setUsername(storedName);
   }, []);
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar - fixed height */}
       <Sidebar />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Navbar username={username} />
+      {/* Right Side */}
+      <div className="flex flex-col flex-1">
+        {/* Navbar - sticky */}
+        <div className="sticky top-0 z-50">
+          <Navbar username={username} />
+        </div>
 
-        <main style={{ flex: 1, padding: "30px", background: "#f1f5f9" }}>
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
           {children}
         </main>
       </div>
