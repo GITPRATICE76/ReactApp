@@ -1,163 +1,105 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  FiHome,
+  FiUsers,
+  FiLogOut,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
+  const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("role");
+    localStorage.clear();
     navigate("/");
   };
 
   return (
-    <>
-      <style>{styles}</style>
+    <aside
+      className={`${
+        open ? "w-60" : "w-20"
+      } h-screen bg-white border-r transition-all duration-300 flex flex-col`}
+    >
+      {/* Top */}
+      <div className="flex items-center justify-between px-4 h-16 border-b">
+        <span className="font-bold text-indigo-600 text-lg">
+          {open ? "Craft Silicon" : "CS"}
+        </span>
+        <button onClick={() => setOpen(!open)}>
+          {open ? <FiChevronLeft /> : <FiChevronRight />}
+        </button>
+      </div>
 
-      <aside className={`sidebar ${open ? "open" : "closed"}`}>
-        <div className="toggle-btn" onClick={() => setOpen(!open)}>
-          {open ? "⬅" : "➡"}
-        </div>
-
-        <div className="logo">{open ? "Craft Silicon" : "CS"}</div>
-
-        <div className="company-card">
-          <div className="company-logo">T</div>
+      {/* Team Card */}
+      <div className="px-4 py-4">
+        <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
+          <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
+            T
+          </div>
           {open && (
             <div>
-              <div className="company-name">Team Engineering</div>
-              <div className="company-meta">Team - 40 Members</div>
+              <p className="text-sm font-semibold">Team Engineering</p>
+              <p className="text-xs text-gray-500">40 Members</p>
             </div>
           )}
         </div>
+      </div>
 
-        <div className="section">
-          {open && <div className="section-header">MAIN MENU</div>}
-          <MenuItem label={open ? "Dashboard" : ""} icon="📊" />
-          <MenuItem label={open ? "Employee" : ""} icon="👥" />
-        </div>
+      {/* Menu */}
+      <nav className="flex-1 px-2 space-y-1">
+        <MenuItem
+          icon={<FiHome />}
+          label="Dashboard"
+          open={open}
+          active={active === "Dashboard"}
+          onClick={() => setActive("Dashboard")}
+        />
+        <MenuItem
+          icon={<FiUsers />}
+          label="Employee"
+          open={open}
+          active={active === "Employee"}
+          onClick={() => setActive("Employee")}
+        />
+      </nav>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          {open ? "Logout" : "🚪"}
+      {/* Logout */}
+      <div className="p-3">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 w-full text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg text-sm"
+        >
+          <FiLogOut />
+          {open && "Logout"}
         </button>
-      </aside>
-    </>
+      </div>
+    </aside>
   );
 }
 
-function MenuItem({ label, icon }: { label: string; icon: string }) {
+function MenuItem({
+  icon,
+  label,
+  open,
+  active,
+  onClick,
+}: any) {
   return (
-    <div className="menu-item">
-      <span className="icon">{icon}</span>
-      {label && <span>{label}</span>}
-    </div>
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm
+        ${
+          active
+            ? "bg-indigo-50 text-indigo-600 font-semibold"
+            : "text-gray-600 hover:bg-slate-100"
+        }`}
+    >
+      <span className="text-lg">{icon}</span>
+      {open && label}
+    </button>
   );
 }
-
-const styles = `
-.sidebar {
-  width: 270px;
-  background: #ffffff;
-  border-right: 1px solid #eee;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  transition: width 0.3s ease;
-  position: relative;
-}
-
-.sidebar.closed {
-  width: 80px;
-}
-
-.toggle-btn {
-  position: absolute;
-  top: 12px;
-  right: -12px;
-  background: #4f46e5;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.company-card {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  background: #f7f9fc;
-  padding: 12px;
-  border-radius: 12px;
-}
-
-.company-logo {
-  width: 40px;
-  height: 40px;
-  background: #111827;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.section-header {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9aa4b2;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.menu-item:hover {
-  background: #f1f5ff;
-}
-
-.icon {
-  font-size: 18px;
-}
-
-.logout-btn {
-  margin-top: auto;
-  height: 44px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(to right, #ef4444, #dc2626);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sidebar.closed .company-name,
-.sidebar.closed .company-meta,
-.sidebar.closed .section-header,
-.sidebar.closed .menu-item span:last-child {
-  display: none;
-}
-`;

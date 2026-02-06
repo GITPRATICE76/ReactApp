@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
-  role: "MANAGER" | "EMPLOYEE";
+  role: "MANAGER" | "EMPLOYEE" | "RO";
 }
 
 export default function ProtectedRoute({ children, role }: Props) {
