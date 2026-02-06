@@ -1,3 +1,4 @@
+import WorkHoursChart from "../components/ui/BarChart";
 import BarChart from "../components/ui/BarChart";
 import CardComp from "../components/ui/CardComp";
 
@@ -5,20 +6,25 @@ export default function Managerdashboard() {
   return (
     <div>
       <CardComp
-        title="Member Work Hours"
-        subtitle="Last 5 days performance"
+        title="What’s on in January?"
         rightContent={
-          <button className="text-sm font-medium text-blue-600 hover:underline">
-            View Report
-          </button>
+          <div className="flex bg-gray-100 rounded-lg p-1 text-sm">
+            <button className="px-3 py-1 rounded-md bg-white shadow text-blue-600 font-medium">
+              Time Off
+            </button>
+            <button className="px-3 py-1 rounded-md text-gray-500">
+              Birthday
+            </button>
+          </div>
         }
         children={undefined}
       ></CardComp>
-      <BarChart
-        title="Employees by Department"
-        categories={["Feb5", "Feb6", "Feb6", "Feb7", "Feb8"]}
-        data={[12, 8, 5, 4, 6]}
+
+      <WorkHoursChart
+        CasualLeave={[8, 7, 5, 6, 7, 0, 0]}
+        OFFICE={[1, 0, 2, 0, 1, 0, 0]}
       />
+
       <h1 className="text-3xl p-10">Manager Dashboard</h1>
     </div>
   );
