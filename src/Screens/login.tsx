@@ -17,40 +17,61 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
 
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   const res = await axios.get(LOGIN_URL);
+
+  //   const users = res.data.users;
+
+  //   const user = users.find(
+  //     (u: any) => u.email === email && u.password === password,
+  //   );
+
+  //   if (!user) {
+  //     toast.error("Invalid credentials");
+  //     return;
+  //   }
+
+  //   localStorage.setItem("isLoggedIn", "true");
+
+  //   localStorage.setItem("role", user.role);
+  //   localStorage.setItem("username", user.name);
+
+  //   if (user.role === "MANAGER") {
+  //     navigate("/manager");
+  //     toast.success("LoggedIn Successfully");
+  //   } else {
+  //     navigate("/employee");
+  //     toast.success("LoggedIn Successfully");
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await axios.get(LOGIN_URL);
+    try {
+      const res = await axios.post(LOGIN_URL, { email, password });
 
-    const users = res.data.users;
-    console.log(users)
+      const user = res.data;
 
-    const user = users.find(
-      (u: any) => u.email === email && u.password === password,
-    );
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("username", user.name);
 
-    if (!user) {
-      toast.error("Invalid credentials");
-      return;
-    }
+      toast.success("Logged in successfully");
 
-    localStorage.setItem("isLoggedIn", "true");
-
-    localStorage.setItem("role", user.role);
-    localStorage.setItem("username", user.name);
-
-    if (user.role === "MANAGER") {
-      navigate("/manager");
-      toast.success("LoggedIn Successfully");
-    } else {
-      navigate("/employee");
-      toast.success("LoggedIn Successfully");
+      if (user.role === "MANAGER" && "RO") {
+        navigate("/manager");
+      } else {
+        navigate("/employee");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Invalid credentials");
     }
   };
 
@@ -114,13 +135,9 @@ export default function Login() {
 
               <p className="text-sm text-center text-gray-600">
                 Don’t have an account?{" "}
-                <span
-  className="text-blue-600 font-medium cursor-pointer"
-  onClick={() => navigate("/create-employee")}
->
-  Create account
-</span>
-
+                <span className="text-blue-600 font-medium cursor-pointer">
+                  Create account
+                </span>
               </p>
             </CardFooter>
           </form>

@@ -17,24 +17,30 @@ export default function CardComp({
 }: DashboardCardProps) {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 ${className}`}
+      className={`
+        bg-white rounded-2xl border border-gray-200
+        shadow-[0_2px_8px_rgba(0,0,0,0.04)]
+        p-5 w-full max-w-sm h-[380px]
+        flex flex-col
+        ${className}
+      `}
     >
       {(title || rightContent) && (
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-5">
           <div>
             {title && (
-              <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 leading-tight">
+                {title}
+              </h2>
             )}
             {subtitle && (
               <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
             )}
           </div>
-
-          {rightContent && <div>{rightContent}</div>}
         </div>
       )}
 
-      <div>{children}</div>
+      <div className="space-y-4 overflow-y-auto">{children}</div>
     </div>
   );
 }
