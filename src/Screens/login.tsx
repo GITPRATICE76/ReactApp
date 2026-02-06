@@ -65,7 +65,7 @@ export default function Login() {
 
       toast.success("Logged in successfully");
 
-      if (user.role === "MANAGER" && "RO") {
+      if (["MANAGER", "RO"].includes(user.role)) {
         navigate("/manager");
       } else {
         navigate("/employee");
@@ -135,7 +135,10 @@ export default function Login() {
 
               <p className="text-sm text-center text-gray-600">
                 Don’t have an account?{" "}
-                <span className="text-blue-600 font-medium cursor-pointer">
+                <span
+                  className="text-blue-600 font-medium cursor-pointer"
+                  onClick={() => navigate("/create-employee")}
+                >
                   Create account
                 </span>
               </p>
