@@ -5,7 +5,7 @@ type NavbarProps = {
   companyName?: string;
   date?: string;
 };
-import companyLogo from "../../assets/craftsiliconlogo.jpg";
+import companyLogo from "../../assets/craftsiliconlogo-removebg-preview.png";
 
 export default function Navbar({ username, date }: NavbarProps) {
   const today =

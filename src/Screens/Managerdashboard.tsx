@@ -9,12 +9,7 @@ export default function Managerdashboard() {
         title="What’s on in January?"
         rightContent={
           <div className="flex bg-gray-100 rounded-lg p-1 text-sm">
-            <button className="px-3 py-1 rounded-md bg-white shadow text-blue-600 font-medium">
-              Time Off
-            </button>
-            <button className="px-3 py-1 rounded-md text-gray-500">
-              Birthday
-            </button>
+           
           </div>
         }
         children={undefined}

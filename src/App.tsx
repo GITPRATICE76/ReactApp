@@ -27,6 +27,17 @@ function App() {
           }
         />
 
+         <Route
+          path="/manager"
+          element={
+            <ProtectedRoute role="RO">
+              <MainLayout>
+                <Managerdashboard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/employee"
           element={
