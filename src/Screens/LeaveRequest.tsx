@@ -1,53 +1,56 @@
+import { useEffect, useState } from "react";
+
 import LeaveRequestCard from "../components/LeaveRequestCard";
 
+import axios from "axios";
+
+import { GET_LEAVES_URL } from "../services/userapi.service";
+
+type LeaveRequest = {
+  id: number;
+
+  employeeName: string;
+
+  leaveType: string;
+
+  status: "Pending" | "Approved" | "Rejected";
+
+  from: string;
+
+  to: string;
+
+  days: number;
+};
+
 export default function LeaveRequests() {
-  const leaveRequests = [
-    {
-      id: 1,
-      employeeName: "Ralph Edwards",
-      avatar: "https://i.pravatar.cc/100?img=12",
-      leaveType: "Sick Leave",
-      status: "Pending" as const,
-      from: "Jan 23, 2024",
-      to: "Jan 27, 2024",
-      days: 4,
-    },
-    {
-      id: 2,
-      employeeName: "Brooklyn Simmons",
-      avatar: "https://i.pravatar.cc/100?img=32",
-      leaveType: "Casual Leave",
-      status: "Pending" as const,
-      from: "Feb 02, 2024",
-      to: "Feb 04, 2024",
-      days: 3,
-    },
-    {
-      id: 3,
-      employeeName: "Brooklyn Simmons",
-      avatar: "https://i.pravatar.cc/100?img=32",
-      leaveType: "Casual Leave",
-      status: "Pending" as const,
-      from: "Feb 02, 2024",
-      to: "Feb 04, 2024",
-      days: 3,
-    },
-    {
-      id: 4,
-      employeeName: "Brooklyn Simmons",
-      avatar: "https://i.pravatar.cc/100?img=32",
-      leaveType: "Casual Leave",
-      status: "Pending" as const,
-      from: "Feb 02, 2024",
-      to: "Feb 04, 2024",
-      days: 3,
-    },
-  
-  ];
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+
+      .get(GET_LEAVES_URL)
+
+      .then((res) => {
+        setLeaveRequests(res.data);
+      })
+
+      .catch((err) => {
+        console.error("Failed to fetch leaves", err);
+      })
+
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <p>Loading leave requests...</p>;
+  }
 
   return (
     <div className="space-y-6">
-
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-semibold">Leave Requests</h1>
@@ -58,16 +61,25 @@ export default function LeaveRequests() {
 
       {/* Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {leaveRequests.map((leave) => (
-          <LeaveRequestCard
-            key={leave.id}
-            {...leave}
-            onApprove={() => console.log("Approved", leave.id)}
-            onReject={() => console.log("Rejected", leave.id)}
-          />
-        ))}
+        {leaveRequests.length === 0 ? (
+          <p>No pending leave requests</p>
+        ) : (
+          leaveRequests.map((leave) => (
+            <LeaveRequestCard
+              key={leave.id}
+              employeeName={leave.employeeName}
+              avatar={`https://i.pravatar.cc/100?u=${leave.employeeName}`}
+              leaveType={leave.leaveType}
+              status={leave.status}
+              from={leave.from}
+              to={leave.to}
+              days={leave.days}
+              onApprove={() => console.log("Approved", leave.id)}
+              onReject={() => console.log("Rejected", leave.id)}
+            />
+          ))
+        )}
       </div>
-
     </div>
   );
 }

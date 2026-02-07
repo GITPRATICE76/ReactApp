@@ -6,6 +6,7 @@ import {
   FiLogOut,
   FiChevronLeft,
   FiChevronRight,
+  FiCalendar,
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -56,32 +57,49 @@ export default function Sidebar() {
           label="Dashboard"
           open={open}
           active={active === "Dashboard"}
-          onClick={() =>{ setActive("Dashboard");
-             navigate("/manager");
+          onClick={() => {
+            setActive("Dashboard");
+
+            const role = localStorage.getItem("role");
+
+            if (role === "EMPLOYEE") {
+              navigate("/employee");
+            } else {
+              navigate("/manager");
+            }
+          }}
+        />
+
+        <MenuItem
+          icon={<FiUsers />}
+          label="Leave Requests"
+          open={open}
+          active={active === "Leave Requests"}
+          onClick={() => {
+            setActive("Leave Requests");
+            navigate("/manager/leave-requests");
           }}
         />
         <MenuItem
-  icon={<FiUsers />}
-  label="Leave Requests"
-  open={open}
-  active={active === "Leave Requests"}
-  onClick={() => {
-    setActive("Leave Requests");
-    navigate("/manager/leave-requests"); 
-  }}
-/>
-<MenuItem
-  icon={<FiUsers />}
-  label="Organization Chart"
-  open={open}
-  active={active === "Organization Chart"}
-  onClick={() => {
-    setActive("Organization Chart");
-    navigate("/manager/org-chart");
-  }}
-/>
-
-
+          icon={<FiUsers />}
+          label="Organization Chart"
+          open={open}
+          active={active === "Organization Chart"}
+          onClick={() => {
+            setActive("Organization Chart");
+            navigate("/manager/org-chart");
+          }}
+        />
+        <MenuItem
+          icon={<FiCalendar />}
+          label="Apply Leave"
+          open={open}
+          active={active === "Apply Leave"}
+          onClick={() => {
+            setActive("Apply Leave");
+            navigate("/employee/apply-leave");
+          }}
+        />
       </nav>
 
       {/* Logout */}
@@ -98,13 +116,7 @@ export default function Sidebar() {
   );
 }
 
-function MenuItem({
-  icon,
-  label,
-  open,
-  active,
-  onClick,
-}: any) {
+function MenuItem({ icon, label, open, active, onClick }: any) {
   return (
     <button
       onClick={onClick}
