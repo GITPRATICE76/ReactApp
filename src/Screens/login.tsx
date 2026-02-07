@@ -62,6 +62,7 @@ export default function Login() {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("role", user.role);
       localStorage.setItem("username", user.name);
+      localStorage.setItem("userid", user.id);
 
       toast.success("Logged in successfully");
 
@@ -71,7 +72,7 @@ export default function Login() {
         navigate("/employee");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid credentials");
+      toast.error("Invalid credentials");
     }
   };
 

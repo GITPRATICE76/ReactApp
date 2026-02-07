@@ -6,6 +6,7 @@ import {
   FiLogOut,
   FiChevronLeft,
   FiChevronRight,
+  FiCalendar,
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -37,9 +38,9 @@ export default function Sidebar() {
       {/* Team Card */}
       <div className="px-4 py-4">
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
-          <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
+          {/* <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
             T
-          </div>
+          </div> */}
           {open && (
             <div>
               <p className="text-sm font-semibold">Team Engineering</p>
@@ -56,14 +57,48 @@ export default function Sidebar() {
           label="Dashboard"
           open={open}
           active={active === "Dashboard"}
-          onClick={() => setActive("Dashboard")}
+          onClick={() => {
+            setActive("Dashboard");
+
+            const role = localStorage.getItem("role");
+
+            if (role === "EMPLOYEE") {
+              navigate("/employee");
+            } else {
+              navigate("/manager");
+            }
+          }}
+        />
+
+        <MenuItem
+          icon={<FiUsers />}
+          label="Leave Requests"
+          open={open}
+          active={active === "Leave Requests"}
+          onClick={() => {
+            setActive("Leave Requests");
+            navigate("/manager/leave-requests");
+          }}
         />
         <MenuItem
           icon={<FiUsers />}
-          label="Employee"
+          label="Organization Chart"
           open={open}
-          active={active === "Employee"}
-          onClick={() => setActive("Employee")}
+          active={active === "Organization Chart"}
+          onClick={() => {
+            setActive("Organization Chart");
+            navigate("/manager/org-chart");
+          }}
+        />
+        <MenuItem
+          icon={<FiCalendar />}
+          label="Apply Leave"
+          open={open}
+          active={active === "Apply Leave"}
+          onClick={() => {
+            setActive("Apply Leave");
+            navigate("/employee/apply-leave");
+          }}
         />
       </nav>
 
@@ -71,7 +106,7 @@ export default function Sidebar() {
       <div className="p-3">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg text-sm"
+          className="flex bg-red-100 items-center gap-3 w-full text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg text-sm"
         >
           <FiLogOut />
           {open && "Logout"}
@@ -81,20 +116,14 @@ export default function Sidebar() {
   );
 }
 
-function MenuItem({
-  icon,
-  label,
-  open,
-  active,
-  onClick,
-}: any) {
+function MenuItem({ icon, label, open, active, onClick }: any) {
   return (
     <button
       onClick={onClick}
       className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm
         ${
           active
-            ? "bg-indigo-50 text-indigo-600 font-semibold"
+            ? "bg-indigo-100 text-indigo-600 font-semibold"
             : "text-gray-600 hover:bg-slate-100"
         }`}
     >

@@ -2,10 +2,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Screens/login";
 import Employeedashboard from "./Screens/Employeedashboard";
 import Managerdashboard from "./Screens/Managerdashboard";
+import LeaveRequests from "../src/Screens/LeaveRequest";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MainLayout from "./layout/Mainlayout";
-import CreateAccount from "../src/Screens/CreateAccount";
+import CreateAccount from "./Screens/CreateAccount";
+import OrganizationChart from "./Screens/OrganizationChart";
+import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
 
 function App() {
   return (
@@ -25,12 +28,48 @@ function App() {
           }
         />
 
+        {/* LEAVE REQUESTS */}
+        <Route
+          path="/manager/leave-requests"
+          element={
+            <ProtectedRoute roles={["MANAGER", "RO"]}>
+              <MainLayout>
+                <LeaveRequests />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ ORGANIZATION CHART */}
+        <Route
+          path="/manager/org-chart"
+          element={
+            <ProtectedRoute roles={["MANAGER", "RO"]}>
+              <MainLayout>
+                <OrganizationChart />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* EMPLOYEE */}
         <Route
           path="/employee"
           element={
             <ProtectedRoute roles={["EMPLOYEE"]}>
               <MainLayout>
                 <Employeedashboard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employee/apply-leave"
+          element={
+            <ProtectedRoute roles={["EMPLOYEE"]}>
+              <MainLayout>
+                <EmployeeLeaveApply />
               </MainLayout>
             </ProtectedRoute>
           }

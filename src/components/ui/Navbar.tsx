@@ -37,8 +37,8 @@ export default function Navbar({ username, date }: NavbarProps) {
 
 const styles: { [key: string]: React.CSSProperties } = {
   navbar: {
-    height: "70px",
-    background: "#f0f7ff",
+    height: "64px",
+    // background: "#f0f7ff",
     borderBottom: "1px solid #dbeafe",
     display: "flex",
     alignItems: "center",
