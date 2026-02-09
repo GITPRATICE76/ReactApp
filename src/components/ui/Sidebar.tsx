@@ -14,6 +14,8 @@ export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("role"); // 🔥 EMPLOYEE / MANAGER
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -38,9 +40,6 @@ export default function Sidebar() {
       {/* Team Card */}
       <div className="px-4 py-4">
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
-          {/* <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
-            T
-          </div> */}
           {open && (
             <div>
               <p className="text-sm font-semibold">Team Engineering</p>
@@ -52,6 +51,7 @@ export default function Sidebar() {
 
       {/* Menu */}
       <nav className="flex-1 px-2 space-y-1">
+        {/* Dashboard – BOTH */}
         <MenuItem
           icon={<FiHome />}
           label="Dashboard"
@@ -59,9 +59,6 @@ export default function Sidebar() {
           active={active === "Dashboard"}
           onClick={() => {
             setActive("Dashboard");
-
-            const role = localStorage.getItem("role");
-
             if (role === "EMPLOYEE") {
               navigate("/employee");
             } else {
@@ -70,36 +67,47 @@ export default function Sidebar() {
           }}
         />
 
-        <MenuItem
-          icon={<FiUsers />}
-          label="Leave Requests"
-          open={open}
-          active={active === "Leave Requests"}
-          onClick={() => {
-            setActive("Leave Requests");
-            navigate("/manager/leave-requests");
-          }}
-        />
-        <MenuItem
-          icon={<FiUsers />}
-          label="Organization Chart"
-          open={open}
-          active={active === "Organization Chart"}
-          onClick={() => {
-            setActive("Organization Chart");
-            navigate("/manager/org-chart");
-          }}
-        />
-        <MenuItem
-          icon={<FiCalendar />}
-          label="Apply Leave"
-          open={open}
-          active={active === "Apply Leave"}
-          onClick={() => {
-            setActive("Apply Leave");
-            navigate("/employee/apply-leave");
-          }}
-        />
+        {/* Apply Leave – EMPLOYEE ONLY */}
+        {role === "EMPLOYEE" && (
+          <MenuItem
+            icon={<FiCalendar />}
+            label="Apply Leave"
+            open={open}
+            active={active === "Apply Leave"}
+            onClick={() => {
+              setActive("Apply Leave");
+              navigate("/employee/apply-leave");
+            }}
+          />
+        )}
+
+        {/* Leave Requests – MANAGER ONLY */}
+        {role === "MANAGER" && (
+          <MenuItem
+            icon={<FiUsers />}
+            label="Leave Requests"
+            open={open}
+            active={active === "Leave Requests"}
+            onClick={() => {
+              setActive("Leave Requests");
+              navigate("/manager/leave-requests");
+            }}
+          />
+        )}
+
+        {/* Organization Chart – MANAGER ONLY */}
+        {role === "MANAGER" && (
+          <MenuItem
+            icon={<FiUsers />}
+            label="Organization Chart"
+            open={open}
+            active={active === "Organization Chart"}
+            onClick={() => {
+              setActive("Organization Chart");
+              navigate("/manager/org-chart");
+            }}
+          />
+        )}
       </nav>
 
       {/* Logout */}

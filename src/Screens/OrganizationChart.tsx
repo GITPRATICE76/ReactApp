@@ -158,10 +158,10 @@ function OrgCard({
             compact ? "w-7 h-7" : "w-8 h-8"
           }`}
         >
-          <img
+          {/* <img
             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
             alt={name}
-          />
+          /> */}
 
           <img src={images} />
         </div>
