@@ -1,170 +1,173 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Card, CardContent } from "../components/ui/card";
 import { Edit3 } from "lucide-react";
+import { ORG_CHART_URL } from "../services/userapi.service";
+import images from "../assets/images.png";
+
+/* ================= TYPES ================= */
+
+type OrgUser = {
+  id: number;
+  name: string;
+  role: "MANAGER" | "RO" | "EMPLOYEE";
+  department: string;
+  team: string | null;
+};
+
+/* ================= MAIN ================= */
 
 export default function OrganizationChart() {
+  const [users, setUsers] = useState<OrgUser[]>([]);
+
+  useEffect(() => {
+    axios.get(ORG_CHART_URL).then((res) => {
+      setUsers(Array.isArray(res.data) ? res.data : []);
+    });
+  }, []);
+
+  const managers = users.filter((u) => u.role === "MANAGER");
+
+  const departments = Array.from(
+    new Set(users.filter((u) => u.role !== "MANAGER").map((u) => u.department)),
+  );
+
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-sans">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">
-          Organization Chart
-        </h1>
-        <button className="flex items-center gap-2 border bg-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-shadow shadow-sm">
-          <Edit3 size={16} />
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-slate-800">Organization Chart</h1>
+        <button className="flex items-center gap-2 border bg-white px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
+          <Edit3 size={14} />
           Edit Organization
         </button>
       </div>
 
-      <div
-        className="relative bg-white rounded-3xl border border-gray-200 p-12 shadow-sm min-w-max"
-        style={{
-          backgroundImage: "radial-gradient(#e5e7eb 1.5px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      >
-        {/* CEO Section */}
-        <div className="flex flex-col items-center mb-10">
-          <OrgCard name="Cameron Williamson" role="Founder - CEO" isLeader />
-          {/* Vertical line down from CEO to the horizontal bar */}
-          <div className="w-px h-10 bg-gray-400"></div>
+      <div className="flex flex-col items-center gap-5 mb-12">
+        {/* ================= MANAGERS (SAME LINE) ================= */}
+        <div className="bg-blue-600 text-white px-8 py-1.5 rounded-lg text-xs font-semibold">
+          MANAGERS
+        </div>
+        <div className="flex justify-center gap-6">
+          {managers.map((m) => (
+            <OrgCard
+              key={m.id}
+              name={m.name}
+              role={`${m.department} Manager`}
+              isLeader
+            />
+          ))}
         </div>
 
-        {/* Main Horizontal Connector */}
-        <div
-          className="relative h-px bg-gray-400 mb-10 mx-auto"
-          style={{ width: "66.6%" }}
-        >
-          {/* Drop lines to each department */}
-          <div className="absolute left-0 h-10 w-px bg-gray-400"></div>
-          <div className="absolute left-1/2 -translate-x-1/2 h-10 w-px bg-gray-400"></div>
-          <div className="absolute right-0 h-10 w-px bg-gray-400"></div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-8">
-          <Department
-            title="Business and Marketing"
-            color="bg-indigo-600"
-            members={[
-              {
-                name: "Leslie Alexander",
-                role: "Head of Project Manager",
-                isHead: true,
-              },
-              { name: "Cody Firmansyah", role: "Senior Project Manager" },
-              { name: "Jenni William", role: "Project Manager" },
-            ]}
-          />
-          <Department
-            title="Design"
-            color="bg-emerald-500"
-            members={[
-              {
-                name: "Brooklyn Simmons",
-                role: "Creative Director",
-                isHead: true,
-              },
-              { name: "Ralph Edwards", role: "Senior UIX Designer" },
-              { name: "Brooklyn Hehe", role: "Senior Graphic Design" },
-              { name: "Vidi Gutillerezz", role: "UIX Designer" },
-              { name: "Pablo Hive", role: "Graphic Design" },
-            ]}
-          />
-          <Department
-            title="Development"
-            color="bg-blue-500"
-            members={[
-              {
-                name: "Cody Fisher",
-                role: "Head of Development",
-                isHead: true,
-              },
-              { name: "Asther Mulyani", role: "Senior Front-End" },
-              { name: "Jenny Wilson", role: "QA Engineering" },
-              { name: "Eden Khoiruddin", role: "Back-End" },
-            ]}
-          />
+        {/* ================= DEPARTMENTS (SAME LINE) ================= */}
+        <div className="flex justify-center gap-16 items-start">
+          {departments.map((dept) => (
+            <Department key={dept} department={dept} users={users} />
+          ))}
         </div>
       </div>
     </div>
   );
 }
+
+/* ================= DEPARTMENT ================= */
 
 function Department({
-  title,
-  color,
-  members,
+  department,
+  users,
 }: {
-  title: string;
-  color: string;
-  members: any[];
+  department: string;
+  users: OrgUser[];
 }) {
-  const head = members.find((m) => m.isHead);
-  const staff = members.filter((m) => !m.isHead);
+  const ros = users
+    .filter((u) => u.role === "RO" && u.department === department)
+    .sort((a, b) => (a.team || "").localeCompare(b.team || ""));
 
   return (
-    <div className="flex flex-col items-center">
-      <div
-        className={`z-10 text-white text-[13px] font-medium px-10 py-2.5 rounded-xl shadow-md mb-6 ${color}`}
-      >
-        {title}
+    <div className="flex flex-col items-center gap-5 min-w-[220px]">
+      {/* Department Title */}
+      <div className="bg-blue-600 text-white px-6 py-1.5 rounded-lg text-xs font-semibold">
+        {department}
       </div>
 
-      {/* Head of Department Wrapper */}
-      <div className="relative w-full flex justify-center mb-6">
-        <OrgCard name={head.name} role={head.role} />
+      {/* Teams (horizontal) */}
+      <div className="flex gap-4 items-start">
+        {ros.map((ro) => {
+          const employees = users.filter(
+            (u) =>
+              u.role === "EMPLOYEE" &&
+              u.department === department &&
+              u.team === ro.team,
+          );
 
-        {/* The "Vertical Spine" starting from the Head's card down */}
-        {/* left-8 + w-12/2 (avatar center) = approx 32px or 40px depending on layout */}
-        {/* We use an absolute div that starts behind the Head card */}
-        <div className="absolute left-[20%] top-1/2 bottom-[-24px] w-px bg-gray-300 -z-10"></div>
-      </div>
+          return (
+            <div
+              key={ro.id}
+              className="flex flex-col items-center min-w-[160px]"
+            >
+              {/* RO */}
+              <OrgCard name={ro.name} role={`TL (${ro.team})`} />
 
-      {/* Staff Members List */}
-      <div className="relative w-full pl-[20%] space-y-4">
-        {/* Continuous vertical line for the staff list */}
-        <div className="absolute left-0 top-0 bottom-[22px] w-px bg-gray-300"></div>
-
-        {staff.map((m, i) => (
-          <div key={i} className="relative flex items-center">
-            {/* Horizontal Elbow */}
-            <div className="absolute -left-0 w-6 h-px bg-gray-300"></div>
-            <div className="pl-6 w-full">
-              <OrgCard name={m.name} role={m.role} />
+              {/* Employees (vertical) */}
+              <div className="mt-2 flex flex-col gap-1.5 items-center">
+                {employees.length === 0 ? (
+                  <p className="text-[10px] text-gray-400">No employees</p>
+                ) : (
+                  employees.map((emp) => (
+                    <OrgCard
+                      key={emp.id}
+                      name={emp.name}
+                      role={emp.team!}
+                      compact
+                    />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
+
+/* ================= CARD ================= */
 
 function OrgCard({
   name,
   role,
   isLeader,
+  compact,
 }: {
   name: string;
   role: string;
   isLeader?: boolean;
+  compact?: boolean;
 }) {
   return (
     <Card
-      className={`min-w-[200px] w-full rounded-2xl border-none shadow-lg bg-white z-10 transition-transform hover:scale-[1.02] ${isLeader ? "ring-1 ring-gray-200" : ""}`}
+      className={`rounded-lg bg-white shadow-sm ${
+        isLeader ? "ring-1 ring-gray-300" : ""
+      } ${compact ? "w-[150px]" : "w-[170px]"}`}
     >
-      <CardContent className="flex items-center gap-3 p-3">
-        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-100">
+      <CardContent
+        className={`flex items-center gap-2 ${compact ? "p-1.5" : "p-2"}`}
+      >
+        <div
+          className={`rounded-full bg-gray-200 overflow-hidden ${
+            compact ? "w-7 h-7" : "w-8 h-8"
+          }`}
+        >
           <img
             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
             alt={name}
           />
+
+          <img src={images} />
         </div>
         <div className="overflow-hidden">
-          <p className="font-bold text-slate-800 text-[13px] truncate leading-tight">
-            {name}
-          </p>
-          <p className="text-[10px] text-gray-500 font-medium truncate">
-            {role}
-          </p>
+          <p className="font-semibold text-[11px] truncate">{name}</p>
+          <p className="text-[10px] text-gray-500 truncate">{role}</p>
         </div>
       </CardContent>
     </Card>
