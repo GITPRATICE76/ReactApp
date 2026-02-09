@@ -5,47 +5,69 @@ import {
   CardFooter,
 } from "../components/ui/card";
 
-type LeaveRequestProps = {
+type LeaveRequestCardProps = {
   employeeName: string;
+
   avatar: string;
+
   leaveType: string;
-  status: "Pending" | "Approved" | "Rejected";
+
+  status: "PENDING" | "APPROVED" | "REJECTED";
+
   from: string;
+
   to: string;
+
   days: number;
-  onApprove?: () => void;
-  onReject?: () => void;
+
+  reason: string;
+
+  isEditing?: boolean;
+
+  onApprove: () => void;
+
+  onReject: () => void;
+
+  onEdit: () => void;
 };
 
 export default function LeaveRequestCard({
   employeeName,
+
   avatar,
+
   leaveType,
+
   status,
+
   from,
+
   to,
+
   days,
+
+  reason,
+
+  isEditing,
+
   onApprove,
+
   onReject,
-}: LeaveRequestProps) {
+
+  onEdit,
+}: LeaveRequestCardProps) {
   return (
     <Card className="rounded-2xl">
-
-      {/* HEADER */}
       <CardHeader className="flex-row items-center justify-between">
         <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
           {leaveType}
         </span>
-
         <span className="px-3 py-1 text-xs rounded-full bg-orange-100 text-orange-600">
           {status}
         </span>
       </CardHeader>
 
-      {/* CONTENT */}
       <CardContent className="space-y-4">
-
-        {/* Employee */}
         <div className="flex items-center gap-3">
           <img
             src={avatar}
@@ -60,37 +82,49 @@ export default function LeaveRequestCard({
           </div>
         </div>
 
-        {/* Dates */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-xs text-muted-foreground">Leave From</p>
+            <p className="text-xs text-muted-foreground">From</p>
             <p className="font-medium">{from}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Leave To</p>
+            <p className="text-xs text-muted-foreground">To</p>
             <p className="font-medium">{to}</p>
           </div>
         </div>
 
+        <div>
+          <p className="text-xs text-muted-foreground">Reason</p>
+          <p className="font-medium">{reason}</p>
+        </div>
       </CardContent>
 
-      {/* FOOTER */}
       <CardFooter className="gap-3">
-        <button
-          onClick={onApprove}
-          className="flex-1 border border-green-500 text-green-600 rounded-lg py-2 text-sm font-medium hover:bg-green-50"
-        >
-          Approve
-        </button>
+        {status === "PENDING" || isEditing ? (
+          <>
+            <button
+              onClick={onApprove}
+              className="flex-1 border border-green-500 text-green-600 rounded-lg py-2 text-sm"
+            >
+              Approve
+            </button>
 
-        <button
-          onClick={onReject}
-          className="flex-1 border border-red-500 text-red-600 rounded-lg py-2 text-sm font-medium hover:bg-red-50"
-        >
-          Reject
-        </button>
+            <button
+              onClick={onReject}
+              className="flex-1 border border-red-500 text-red-600 rounded-lg py-2 text-sm"
+            >
+              Reject
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={onEdit}
+            className="flex-1 border border-blue-500 text-blue-600 rounded-lg py-2 text-sm"
+          >
+            Edit
+          </button>
+        )}
       </CardFooter>
-
     </Card>
   );
 }

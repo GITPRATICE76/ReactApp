@@ -60,7 +60,7 @@ export default function EmployeeLeaveApply() {
 
       setReason("");
 
-      setLeaveType("SICK");
+      setLeaveType("");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }
