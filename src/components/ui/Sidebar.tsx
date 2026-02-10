@@ -14,7 +14,7 @@ export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
 
-  const role = localStorage.getItem("role"); // 🔥 EMPLOYEE / MANAGER
+  const role = localStorage.getItem("role");
 
   const handleLogout = () => {
     localStorage.clear();
@@ -96,7 +96,7 @@ export default function Sidebar() {
         )}
 
         {/* Organization Chart – MANAGER ONLY */}
-        {role === "MANAGER" && (
+        {/* {role === "MANAGER" && (
           <MenuItem
             icon={<FiUsers />}
             label="Organization Chart"
@@ -105,6 +105,25 @@ export default function Sidebar() {
             onClick={() => {
               setActive("Organization Chart");
               navigate("/manager/org-chart");
+            }}
+          />
+        )} */}
+
+        {/* Organization Chart – MANAGER & RO */}
+        {(role === "MANAGER" || role === "RO") && (
+          <MenuItem
+            icon={<FiUsers />}
+            label="Organization Chart"
+            open={open}
+            active={active === "Organization Chart"}
+            onClick={() => {
+              setActive("Organization Chart");
+
+              if (role === "MANAGER") {
+                navigate("/manager/org-chart");
+              } else {
+                navigate("/ro/org-chart");
+              }
             }}
           />
         )}

@@ -63,6 +63,7 @@ export default function Login() {
       localStorage.setItem("role", user.role);
       localStorage.setItem("username", user.name);
       localStorage.setItem("userid", user.id);
+      localStorage.setItem("team", user.team);
 
       toast.success("Logged in successfully");
 
