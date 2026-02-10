@@ -9,6 +9,7 @@ import MainLayout from "./layout/Mainlayout";
 import CreateAccount from "./Screens/CreateAccount";
 import OrganizationChart from "./Screens/OrganizationChart";
 import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
+import ROOrganizationChart from "./Screens/ROOrganization";
 
 function App() {
   return (
@@ -44,9 +45,20 @@ function App() {
         <Route
           path="/manager/org-chart"
           element={
-            <ProtectedRoute roles={["MANAGER", "RO"]}>
+            <ProtectedRoute roles={["MANAGER"]}>
               <MainLayout>
                 <OrganizationChart />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ro/org-chart"
+          element={
+            <ProtectedRoute roles={["RO"]}>
+              <MainLayout>
+                <ROOrganizationChart />
               </MainLayout>
             </ProtectedRoute>
           }
