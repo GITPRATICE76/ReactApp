@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
 import { useNavigate } from "react-router-dom";
@@ -53,53 +54,87 @@ export default function CreateAccount() {
     return !message;
   };
 
+  // const handleCreateEmployee = async () => {
+  //   const fields: (keyof Errors)[] = ["name", "email", "password", "department", "team"];
+  //   const values = [name, email, password, department, team];
+
+  //   const results = fields.map((f, i) => validateField(f, values[i]));
+  //   if (results.includes(false)) return;
+
+  //   const payload = { name, email, password, department, team };
+
+  //   try {
+  //     const response = await  fetch(CREATEACCOUNT_URL, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     if (response.status === 409) {
+  //       setErrors((prev) => ({ ...prev, email: "Email already exists" }));
+  //       return;
+  //     }
+
+  //     if (!response.ok) throw new Error();
+  //     toast.success("Employee created!");
+  //     navigate("/");
+  //   } catch {
+  //     toast.error("Network error occurred");
+  //   }
+  // };
   const handleCreateEmployee = async () => {
-    const fields: (keyof Errors)[] = ["name", "email", "password", "department", "team"];
+    const fields: (keyof Errors)[] = [
+      "name",
+      "email",
+      "password",
+      "department",
+      "team",
+    ];
     const values = [name, email, password, department, team];
-    
+
     const results = fields.map((f, i) => validateField(f, values[i]));
     if (results.includes(false)) return;
 
     const payload = { name, email, password, department, team };
 
     try {
-      const response = await fetch(CREATEACCOUNT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      await axiosInstance.post(CREATEACCOUNT_URL, payload);
 
-      if (response.status === 409) {
-        setErrors((prev) => ({ ...prev, email: "Email already exists" }));
-        return;
-      }
-
-      if (!response.ok) throw new Error();
       toast.success("Employee created!");
       navigate("/");
-    } catch {
-      toast.error("Network error occurred");
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        setErrors((prev) => ({ ...prev, email: "Email already exists" }));
+      } else {
+        toast.error("Network error occurred");
+      }
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       {/* Decorative background elements like the Org Chart dots */}
-      <div className="fixed inset-0 pointer-events-none opacity-40" 
-           style={{ backgroundImage: 'radial-gradient(#e5e7eb 1.5px, transparent 0)', backgroundSize: '24px 24px' }}>
-      </div>
+      <div
+        className="fixed inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage: "radial-gradient(#e5e7eb 1.5px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
+      ></div>
 
       <Card className="w-full max-w-md border-none shadow-2xl rounded-[24px] bg-white relative z-10 overflow-hidden">
         <div className="h-2 bg-indigo-600 w-full" /> {/* Top accent line */}
-        
         <CardHeader className="space-y-1 pt-8">
           <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-2">
             <UserPlus className="text-indigo-600" size={24} />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">Create Employee</CardTitle>
-          <CardDescription className="text-slate-500 font-medium">Add a new member to the organization</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+            Create Employee
+          </CardTitle>
+          <CardDescription className="text-slate-500 font-medium">
+            Add a new member to the organization
+          </CardDescription>
         </CardHeader>
-
         <CardContent className="space-y-5">
           {/* Name Field */}
           <div className="space-y-2">
@@ -108,11 +143,18 @@ export default function CreateAccount() {
             </Label>
             <Input
               placeholder="e.g. Leslie Alexander"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.name ? 'border-red-400' : ''}`}
+              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.name ? "border-red-400" : ""}`}
               value={name}
-              onChange={(e) => { setName(e.target.value); validateField("name", e.target.value); }}
+              onChange={(e) => {
+                setName(e.target.value);
+                validateField("name", e.target.value);
+              }}
             />
-            {errors.name && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-[10px] font-bold text-red-500 uppercase">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           {/* Email Field */}
@@ -123,11 +165,18 @@ export default function CreateAccount() {
             <Input
               type="email"
               placeholder="leslie@company.com"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.email ? 'border-red-400' : ''}`}
+              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.email ? "border-red-400" : ""}`}
               value={email}
-              onChange={(e) => { setEmail(e.target.value); validateField("email", e.target.value); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                validateField("email", e.target.value);
+              }}
             />
-            {errors.email && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-[10px] font-bold text-red-500 uppercase">
+                {errors.email}
+              </p>
+            )}
           </div>
 
           {/* Department & Team (Grid Layout) */}
@@ -158,12 +207,17 @@ export default function CreateAccount() {
               <select
                 className="w-full border border-slate-200 rounded-xl p-2 text-sm bg-white disabled:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={team}
-                onChange={(e) => { setTeam(e.target.value); validateField("team", e.target.value); }}
+                onChange={(e) => {
+                  setTeam(e.target.value);
+                  validateField("team", e.target.value);
+                }}
                 disabled={!department}
               >
                 <option value="">Select...</option>
                 {getTeams().map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </select>
             </div>
@@ -177,16 +231,22 @@ export default function CreateAccount() {
             <Input
               type="password"
               placeholder="••••••••"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.password ? 'border-red-400' : ''}`}
+              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.password ? "border-red-400" : ""}`}
               value={password}
-              onChange={(e) => { setPassword(e.target.value); validateField("password", e.target.value); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validateField("password", e.target.value);
+              }}
             />
-            {errors.password && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-[10px] font-bold text-red-500 uppercase">
+                {errors.password}
+              </p>
+            )}
           </div>
         </CardContent>
-
         <CardFooter className="pb-8 pt-4">
-          <Button 
+          <Button
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 font-bold text-base shadow-lg shadow-indigo-100 transition-all active:scale-[0.98]"
             onClick={handleCreateEmployee}
           >
