@@ -23,11 +23,11 @@ export default function MainLayout({
       <div className="flex flex-col flex-1">
         {/* Navbar - sticky */}
         <div className="sticky top-0 z-50">
-          <Navbar username={username} />
+          <Navbar />
         </div>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
+        <main className="flex-1 overflow-y-auto bg-slate-100 p-6 pb-24 md:pb-6">
           {children}
         </main>
       </div>

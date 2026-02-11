@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import { Edit3 } from "lucide-react";
 import { ORG_CHART_URL } from "../services/userapi.service";
 import images from "../assets/images.png";
-
-/* ================= TYPES ================= */
 
 type OrgUser = {
   id: number;
@@ -15,13 +13,11 @@ type OrgUser = {
   team: string | null;
 };
 
-/* ================= MAIN ================= */
-
 export default function OrganizationChart() {
   const [users, setUsers] = useState<OrgUser[]>([]);
 
   useEffect(() => {
-    axios.get(ORG_CHART_URL).then((res) => {
+    axiosInstance.get(ORG_CHART_URL).then((res) => {
       setUsers(Array.isArray(res.data) ? res.data : []);
     });
   }, []);

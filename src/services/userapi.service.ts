@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "../Routes/axiosInstance";
 
 export const LOGIN_URL = "http://localhost:8080/api/login";
 

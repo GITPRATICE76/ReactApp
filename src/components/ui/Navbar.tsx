@@ -1,27 +1,44 @@
 import React from "react";
-
-type NavbarProps = {
-  username: string;
-  companyName?: string;
-  date?: string;
-};
+import { jwtDecode } from "jwt-decode";
 import companyLogo from "../../assets/craftsiliconlogo-removebg-preview.png";
 
-export default function Navbar({ username, date }: NavbarProps) {
-  const today =
-    date ||
-    new Date().toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+interface MyToken {
+  id: number;
+  name: string;
+  role: string;
+  exp: number;
+}
+
+export default function Navbar() {
+  const token = localStorage.getItem("token");
+
+  let username = "";
+
+  if (token) {
+    try {
+      const decoded = jwtDecode<MyToken>(token);
+      username = decoded.name;
+    } catch {
+      username = "";
+    }
+  }
+
+  const today = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div style={styles.navbar}>
       <div style={styles.left}></div>
+
       <div style={styles.right}>
         <span style={styles.date}>{today}</span>
-        <span style={styles.welcome}>Welcome, {username}!</span>
+
+        <span style={styles.welcome}>
+          Welcome{username ? `, ${username}` : ""}!
+        </span>
 
         <div style={styles.company}>
           <img
@@ -38,7 +55,6 @@ export default function Navbar({ username, date }: NavbarProps) {
 const styles: { [key: string]: React.CSSProperties } = {
   navbar: {
     height: "64px",
-    // background: "#f0f7ff",
     borderBottom: "1px solid #dbeafe",
     display: "flex",
     alignItems: "center",
@@ -50,19 +66,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     gap: "14px",
   },
-  menuIcon: {
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-
   companyImage: {
     height: "120px",
     width: "140px",
-  },
-  brand: {
-    fontSize: "20px",
-    fontWeight: 700,
-    color: "#1e3a8a",
   },
   right: {
     display: "flex",
@@ -83,15 +89,5 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-  },
-
-  companyName: {
-    fontWeight: 700,
-    fontSize: "14px",
-    color: "#1e3a8a",
-  },
-  tagline: {
-    fontSize: "10px",
-    color: "#6b7280",
   },
 };
