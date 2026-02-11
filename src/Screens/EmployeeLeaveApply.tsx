@@ -9,8 +9,7 @@ import {
 
 import { APPLY_LEAVE_URL } from "../services/userapi.service";
 
-import axios from "axios";
-
+import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 
 export default function EmployeeLeaveApply() {
@@ -38,7 +37,7 @@ export default function EmployeeLeaveApply() {
     }
 
     try {
-      await axios.post(APPLY_LEAVE_URL, {
+      await axiosInstance.post(APPLY_LEAVE_URL, {
         user_id: Number(userId),
 
         leave_type: leaveType,
