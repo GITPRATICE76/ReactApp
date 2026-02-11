@@ -22,7 +22,6 @@ export default function Sidebar() {
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
 
-  // ✅ Decode role from JWT
   const token = localStorage.getItem("token");
   let role: MyToken["role"] | null = null;
 

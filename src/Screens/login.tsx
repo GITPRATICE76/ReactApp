@@ -57,6 +57,36 @@ export default function Login() {
   //     toast.error("Invalid credentials");
   //   }
   // };
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const res = await axiosInstance.post(LOGIN_URL, { email, password });
+
+  //     const { token } = res.data;
+
+  //     localStorage.setItem("token", token);
+
+  //     const decoded: any = jwtDecode(token);
+
+  //     console.log("Decoded Token:", decoded);
+
+  //     toast.success("Logged in successfully");
+
+  //     console.log("Role is:", decoded.role);
+
+  //     if (decoded.role === "MANAGER" || decoded.role === "RO") {
+  //       console.log("Navigating to manager");
+  //       navigate("/manager");
+  //     } else {
+  //       console.log("Navigating to employee");
+
+  //       navigate("/employee");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Invalid credentials");
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -65,22 +95,24 @@ export default function Login() {
 
       const { token } = res.data;
 
+      // ✅ Store token
       localStorage.setItem("token", token);
 
+      // ✅ Decode token
       const decoded: any = jwtDecode(token);
 
-      console.log("Decoded Token:", decoded);
+      // ✅ Store decoded values
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("role", decoded.role);
+      localStorage.setItem("username", decoded.name);
+      localStorage.setItem("userid", decoded.id.toString());
+      localStorage.setItem("team", decoded.team ?? "");
 
       toast.success("Logged in successfully");
 
-      console.log("Role is:", decoded.role);
-
       if (decoded.role === "MANAGER" || decoded.role === "RO") {
-        console.log("Navigating to manager");
         navigate("/manager");
       } else {
-        console.log("Navigating to employee");
-
         navigate("/employee");
       }
     } catch (error) {
