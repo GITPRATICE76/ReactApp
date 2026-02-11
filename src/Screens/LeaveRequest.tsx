@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import axios from "axios";
+import axiosInstance from "../Routes/axiosInstance";
 
 import { toast } from "react-toastify";
 
@@ -50,7 +50,7 @@ export default function LeaveRequests() {
   // Fetch leaves
 
   useEffect(() => {
-    axios
+    axiosInstance
 
       .get(GET_LEAVES_URL)
 
@@ -101,7 +101,7 @@ export default function LeaveRequests() {
     }
 
     try {
-      await axios.post(ACTION_URL, {
+      await axiosInstance.post(ACTION_URL, {
         user_id: managerId,
 
         leave_id: selectedLeaveId,

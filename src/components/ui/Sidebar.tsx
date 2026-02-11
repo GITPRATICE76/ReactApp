@@ -8,16 +8,35 @@ import {
   FiChevronRight,
   FiCalendar,
 } from "react-icons/fi";
+import { jwtDecode } from "jwt-decode";
+
+interface MyToken {
+  id: number;
+  name: string;
+  role: "MANAGER" | "EMPLOYEE" | "RO";
+  exp: number;
+}
 
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
 
-  const role = localStorage.getItem("role");
+  // ✅ Decode role from JWT
+  const token = localStorage.getItem("token");
+  let role: MyToken["role"] | null = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode<MyToken>(token);
+      role = decoded.role;
+    } catch {
+      role = null;
+    }
+  }
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
     navigate("/");
   };
 
@@ -59,6 +78,7 @@ export default function Sidebar() {
           active={active === "Dashboard"}
           onClick={() => {
             setActive("Dashboard");
+
             if (role === "EMPLOYEE") {
               navigate("/employee");
             } else {
@@ -67,7 +87,7 @@ export default function Sidebar() {
           }}
         />
 
-        {/* Apply Leave – EMPLOYEE ONLY */}
+        {/* Apply Leave – EMPLOYEE */}
         {role === "EMPLOYEE" && (
           <MenuItem
             icon={<FiCalendar />}
@@ -81,7 +101,7 @@ export default function Sidebar() {
           />
         )}
 
-        {/* Leave Requests – MANAGER ONLY */}
+        {/* Leave Requests – MANAGER */}
         {role === "MANAGER" && (
           <MenuItem
             icon={<FiUsers />}
@@ -94,20 +114,6 @@ export default function Sidebar() {
             }}
           />
         )}
-
-        {/* Organization Chart – MANAGER ONLY */}
-        {/* {role === "MANAGER" && (
-          <MenuItem
-            icon={<FiUsers />}
-            label="Organization Chart"
-            open={open}
-            active={active === "Organization Chart"}
-            onClick={() => {
-              setActive("Organization Chart");
-              navigate("/manager/org-chart");
-            }}
-          />
-        )} */}
 
         {/* Organization Chart – MANAGER & RO */}
         {(role === "MANAGER" || role === "RO") && (

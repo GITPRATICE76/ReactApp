@@ -13,9 +13,18 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosInstance from "../Routes/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
+import { jwtDecode } from "jwt-decode";
+
+interface MyToken {
+  id: number;
+  name: string;
+  role: string;
+  department: string;
+  exp: number;
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,54 +34,56 @@ export default function Login() {
   // const handleSubmit = async (e: React.FormEvent) => {
   //   e.preventDefault();
 
-  //   const res = await axios.get(LOGIN_URL);
+  //   try {
+  //     const res = await axios.post(LOGIN_URL, { email, password });
 
-  //   const users = res.data.users;
+  //     const { token } = res.data;
 
-  //   const user = users.find(
-  //     (u: any) => u.email === email && u.password === password,
-  //   );
+  //     // ✅ Store only token
+  //     localStorage.setItem("token", token);
 
-  //   if (!user) {
+  //     // ✅ Decode token
+  //     const decoded = jwtDecode<MyToken>(token);
+
+  //     toast.success("Logged in successfully");
+
+  //     // ✅ Navigate based on role
+  //     if (decoded.role === "MANAGER" || decoded.role === "RO") {
+  //       navigate("/manager");
+  //     } else {
+  //       navigate("/employee");
+  //     }
+  //   } catch (error: any) {
   //     toast.error("Invalid credentials");
-  //     return;
-  //   }
-
-  //   localStorage.setItem("isLoggedIn", "true");
-
-  //   localStorage.setItem("role", user.role);
-  //   localStorage.setItem("username", user.name);
-
-  //   if (user.role === "MANAGER") {
-  //     navigate("/manager");
-  //     toast.success("LoggedIn Successfully");
-  //   } else {
-  //     navigate("/employee");
-  //     toast.success("LoggedIn Successfully");
   //   }
   // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(LOGIN_URL, { email, password });
+      const res = await axiosInstance.post(LOGIN_URL, { email, password });
 
-      const user = res.data;
+      const { token } = res.data;
 
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("role", user.role);
-      localStorage.setItem("username", user.name);
-      localStorage.setItem("userid", user.id);
-      localStorage.setItem("team", user.team);
+      localStorage.setItem("token", token);
+
+      const decoded: any = jwtDecode(token);
+
+      console.log("Decoded Token:", decoded);
 
       toast.success("Logged in successfully");
 
-      if (["MANAGER", "RO"].includes(user.role)) {
+      console.log("Role is:", decoded.role);
+
+      if (decoded.role === "MANAGER" || decoded.role === "RO") {
+        console.log("Navigating to manager");
         navigate("/manager");
       } else {
+        console.log("Navigating to employee");
+
         navigate("/employee");
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error("Invalid credentials");
     }
   };
@@ -83,8 +94,9 @@ export default function Login() {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl"></div>
 
       <div className="relative z-10 w-full max-w-6xl grid md:grid-cols-2 gap-12 px-6 items-center">
+        {/* Animation Section */}
         <div className="hidden md:flex flex-col items-center justify-center text-white">
-          <div className=" h-90 backdrop-blur-md flex items-center justify-center overflow-hidden">
+          <div className="h-90 backdrop-blur-md flex items-center justify-center overflow-hidden">
             <Lottie
               animationData={animationData}
               loop={true}
@@ -93,6 +105,7 @@ export default function Login() {
           </div>
         </div>
 
+        {/* Login Card */}
         <Card className="w-full max-w-md mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-md rounded-2xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
@@ -109,6 +122,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
+                  required
                 />
               </div>
 
@@ -119,6 +133,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  required
                 />
               </div>
 

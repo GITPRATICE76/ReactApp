@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import images from "../assets/images.png";
 
@@ -25,7 +25,7 @@ export default function ROOrganizationChart() {
   const team = String(localStorage.getItem("team"));
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get("http://localhost:8080/api/org-chart")
       .then((res) => setUsers(res.data || []))
       .finally(() => setLoading(false));
