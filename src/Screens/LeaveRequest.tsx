@@ -4,6 +4,8 @@ import axiosInstance from "../Routes/axiosInstance";
 
 import { toast } from "react-toastify";
 
+import images from "../assets/images.jpg";
+
 import LeaveRequestCard from "../components/LeaveRequestCard";
 
 import { GET_LEAVES_URL, ACTION_URL } from "../services/userapi.service";
@@ -150,7 +152,7 @@ export default function LeaveRequests() {
       </div>
 
       {/* Leave Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {leaveRequests.length === 0 ? (
           <p>No leave requests found</p>
         ) : (
@@ -158,7 +160,8 @@ export default function LeaveRequests() {
             <LeaveRequestCard
               key={leave.id}
               employeeName={leave.employeeName}
-              avatar={`https://i.pravatar.cc/100?u=${leave.employeeName}`}
+              // avatar={`https://i.pravatar.cc/100?u=${leave.employeeName}`}
+              avatar={images}
               leaveType={leave.leaveType}
               status={leave.status}
               from={leave.from}

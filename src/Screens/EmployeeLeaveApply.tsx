@@ -13,7 +13,7 @@ import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 
 export default function EmployeeLeaveApply() {
-  const [leaveType, setLeaveType] = useState("SICK");
+  const [leaveType, setLeaveType] = useState("");
 
   const [fromDate, setFromDate] = useState("");
 
@@ -65,6 +65,14 @@ export default function EmployeeLeaveApply() {
   //   }
   // };
   const handleApplyLeave = async () => {
+    if (!leaveType) {
+      toast.error("Please select leave type");
+      return;
+    }
+    if (!reason) {
+      toast.error("Please select Reason");
+      return;
+    }
     if (!fromDate || !toDate) {
       toast.error("Please select from and to date");
       return;
@@ -131,6 +139,8 @@ export default function EmployeeLeaveApply() {
               value={leaveType}
               onChange={(e) => setLeaveType(e.target.value)}
             >
+              <option value="">Select Leave Type</option>
+
               <option value="SICK">Sick Leave</option>
               <option value="CASUAL">Casual Leave</option>
             </select>
