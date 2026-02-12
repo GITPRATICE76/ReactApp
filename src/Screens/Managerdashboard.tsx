@@ -16,7 +16,7 @@ export default function Managerdashboard() {
       try {
         const today = new Date();
         const end = new Date();
-        end.setDate(today.getDate() + 6);
+        end.setDate(today.getDate() + 30);
 
         const format = (d: Date) => d.toISOString().split("T")[0];
 
@@ -48,62 +48,98 @@ export default function Managerdashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 w-full">
-        {/* LEFT DETAIL PANEL */}
-        <div className="col-span-12 lg:col-span-3">
-          <CardComp title="Selected Day Details">
-            {selectedDay ? (
-              <div className="space-y-3">
-                <Detail label="Date" value={selectedDay.date} />
-                <Detail
-                  label="Total Resources"
-                  value={`${selectedDay.total_resources}`}
-                />
-                <Detail label="On Leave" value={`${selectedDay.on_leave}`} />
-                <Detail
-                  label="% On Leave"
-                  value={`${selectedDay.leave_percentage}%`}
-                />
-                <Detail
-                  label="% Available"
-                  value={`${selectedDay.available_percentage}%`}
-                />
-                <Detail
-                  label="Remaining Allowed %"
-                  value={`${selectedDay.remaining_allowed_percentage}%`}
-                />
+      {/* ================= GRID SECTION ================= */}
+      <div className="grid grid-cols-12 gap-6 w-full items-stretch">
 
-                {/* Employee Names */}
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-2">
-                    Employees On Leave
-                  </p>
+        {/* ================= LEFT DETAIL PANEL ================= */}
+        <div className="col-span-12 lg:col-span-4 flex">
+          <div className="flex-1">
+            <CardComp title="Selected Day Details">
+              {selectedDay ? (
+                <div className="space-y-5">
 
-                  {selectedDay.employees_on_leave.length === 0 ? (
-                    <p className="text-sm text-green-600">
-                      No employees on leave 🎉
+                  {/* DATE SECTION */}
+                  <div className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl p-4 shadow">
+                    <p className="text-xs opacity-80">Date</p>
+                    <p className="text-xl font-semibold">
+                      {selectedDay.date}
                     </p>
-                  ) : (
-                    <ul className="text-sm space-y-1 max-h-32 overflow-y-auto">
-                      {selectedDay.employees_on_leave.map((name, index) => (
-                        <li key={index} className="text-gray-700">
-                          • {name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  </div>
+
+                  {/* MAIN STATS GRID */}
+                  <div className="grid grid-cols-2 gap-4">
+
+                    <InfoCard
+                      label="Total Resources"
+                      value={selectedDay.total_resources}
+                    />
+
+                    <InfoCard
+                      label="On Leave"
+                      value={selectedDay.on_leave}
+                      highlight="text-red-500"
+                    />
+
+                    <InfoCard
+                      label="% On Leave"
+                      value={`${selectedDay.leave_percentage}%`}
+                    />
+
+                    <InfoCard
+                      label="% Available"
+                      value={`${selectedDay.available_percentage}%`}
+                      highlight="text-green-600"
+                    />
+
+                  </div>
+
+                  {/* REMAINING ALLOWED */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <p className="text-xs text-yellow-700">
+                      Remaining Allowed %
+                    </p>
+                    <p className="text-lg font-semibold text-yellow-800">
+                      {selectedDay.remaining_allowed_percentage}%
+                    </p>
+                  </div>
+
+                  {/* EMPLOYEE LIST */}
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <p className="text-xs text-gray-500 mb-3 uppercase tracking-wide">
+                      Employees On Leave
+                    </p>
+
+                    {!selectedDay.employees_on_leave ||
+                    selectedDay.employees_on_leave.length === 0 ? (
+                      <div className="text-center py-4 text-green-600 text-sm font-medium">
+                        No employees on leave
+                      </div>
+                    ) : (
+                      <ul className="space-y-2 max-h-40 overflow-y-auto">
+                        {selectedDay.employees_on_leave.map((name, index) => (
+                          <li
+                            key={index}
+                            className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm shadow-sm"
+                          >
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
                 </div>
-              </div>
-            ) : (
-              <div className="text-gray-400 text-sm h-[200px] flex items-center justify-center">
-                Click a bar to view details
-              </div>
-            )}
-          </CardComp>
+              ) : (
+                <div className="text-gray-400 text-sm h-[300px] flex items-center justify-center">
+                  Click a bar to view details
+                </div>
+              )}
+            </CardComp>
+          </div>
         </div>
 
-        {/* RIGHT CHART */}
-        <div className="col-span-12 lg:col-span-9">
+        {/* ================= RIGHT CHART ================= */}
+        <div className="col-span-12 lg:col-span-8 flex">
           <WorkHoursChart
             analytics={analyticsData}
             onBarClick={(day) => setSelectedDay(day)}
@@ -116,13 +152,23 @@ export default function Managerdashboard() {
   );
 }
 
-/* ================= SMALL DETAIL COMPONENT ================= */
+/* ================= SMALL INFO CARD COMPONENT ================= */
 
-function Detail({ label, value }: { label: string; value: string }) {
+function InfoCard({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string | number;
+  highlight?: string;
+}) {
   return (
-    <div className="bg-slate-50 rounded-lg p-3">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-lg font-semibold">{value}</p>
+    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className={`text-lg font-semibold ${highlight || "text-gray-800"}`}>
+        {value}
+      </p>
     </div>
   );
 }
