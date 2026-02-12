@@ -21,10 +21,60 @@ export default function EmployeeLeaveApply() {
 
   const [reason, setReason] = useState("");
 
+  // const handleApplyLeave = async () => {
+  //   if (!fromDate || !toDate) {
+  //     toast.error("Please select from and to date");
+
+  //     return;
+  //   }
+
+  //   const userId = localStorage.getItem("userid");
+
+  //   if (!userId) {
+  //     toast.error("User not logged in");
+
+  //     return;
+  //   }
+
+  //   try {
+  //     await axiosInstance.post(APPLY_LEAVE_URL, {
+  //       user_id: Number(userId),
+
+  //       leave_type: leaveType,
+
+  //       from_date: fromDate,
+
+  //       to_date: toDate,
+
+  //       reason: reason,
+  //     });
+
+  //     toast.success("Leave applied successfully");
+
+  //     // Reset form
+
+  //     setFromDate("");
+
+  //     setToDate("");
+
+  //     setReason("");
+
+  //     setLeaveType("");
+  //   } catch (err: any) {
+  //     toast.error(err.response?.data?.message || "Failed to apply leave");
+  //   }
+  // };
   const handleApplyLeave = async () => {
     if (!fromDate || !toDate) {
       toast.error("Please select from and to date");
+      return;
+    }
 
+    const today = new Date().toISOString().split("T")[0];
+
+    // ❌ Block casual leave for today
+    if (leaveType === "CASUAL" && fromDate === today) {
+      toast.error("Cannot apply Casual Leave for today itself");
       return;
     }
 
@@ -32,34 +82,24 @@ export default function EmployeeLeaveApply() {
 
     if (!userId) {
       toast.error("User not logged in");
-
       return;
     }
 
     try {
       await axiosInstance.post(APPLY_LEAVE_URL, {
         user_id: Number(userId),
-
         leave_type: leaveType,
-
         from_date: fromDate,
-
         to_date: toDate,
-
         reason: reason,
       });
 
       toast.success("Leave applied successfully");
 
-      // Reset form
-
       setFromDate("");
-
       setToDate("");
-
       setReason("");
-
-      setLeaveType("");
+      setLeaveType("SICK");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }
@@ -69,7 +109,7 @@ export default function EmployeeLeaveApply() {
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold">Apply Leave</h1>
+        <h1 className="text-2xl font-semibold text-[#1e40af]">Apply Leave</h1>
         <p className="text-sm text-gray-500">
           Submit your leave request for approval
         </p>
@@ -83,7 +123,9 @@ export default function EmployeeLeaveApply() {
 
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Leave Type</label>
+            <label className="text-sm font-medium text-[#1e40af]">
+              Leave Type
+            </label>
             <select
               className="w-full mt-1 border rounded-lg px-3 py-2"
               value={leaveType}
@@ -97,17 +139,30 @@ export default function EmployeeLeaveApply() {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">From</label>
+              <label className="text-sm font-medium text-[#1e40af]">From</label>
+              {/* <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full mt-1 border rounded-lg px-3 py-2"
+              /> */}
               <input
                 type="date"
                 value={fromDate}
+                min={
+                  leaveType === "CASUAL"
+                    ? new Date(Date.now() + 86400000)
+                        .toISOString()
+                        .split("T")[0]
+                    : undefined
+                }
                 onChange={(e) => setFromDate(e.target.value)}
                 className="w-full mt-1 border rounded-lg px-3 py-2"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">To</label>
+              <label className="text-sm font-medium  text-[#1e40af]">To</label>
               <input
                 type="date"
                 value={toDate}
@@ -119,7 +174,9 @@ export default function EmployeeLeaveApply() {
 
           {/* Reason */}
           <div>
-            <label className="text-sm font-medium">Reason</label>
+            <label className="text-sm font-medium  text-[#1e40af]">
+              Reason
+            </label>
             <textarea
               rows={3}
               value={reason}
@@ -132,7 +189,7 @@ export default function EmployeeLeaveApply() {
           {/* Button */}
           <button
             onClick={handleApplyLeave}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm"
+            className="bg-[#1e40af] text-white px-6 py-2 rounded-lg text-sm"
           >
             Apply Leave
           </button>

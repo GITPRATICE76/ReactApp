@@ -21,7 +21,7 @@ export default function Managerdashboard() {
         const format = (d: Date) => d.toISOString().split("T")[0];
 
         const res = await axiosInstance.get(
-          `/leave/analytics?start=${format(today)}&end=${format(end)}`
+          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
         );
 
         setAnalyticsData(res.data);
@@ -35,29 +35,39 @@ export default function Managerdashboard() {
 
   return (
     <div className="space-y-6 w-full">
-
       {/* ================= TOP SUMMARY ================= */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-lg font-semibold">Team Overview</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Live Resource Availability Analytics
-        </p>
+      <div className="bg-white rounded-xl shadow-sm border  p-6 overflow-hidden">
+        <h2 className="text-lg  text-center font-semibold text-black-400">
+          TEAM OVERVIEW
+        </h2>
+
+        <div className="relative mt-2">
+          <div className="whitespace-nowrap animate-marquee text-lg font-extrabold text-[#1e40af]">
+            LIVE RESOURCE AVAILABILITY ANALYTICS — MONITOR TEAM LEAVE TRENDS
+          </div>
+        </div>
       </div>
 
-      {/* ================= GRID SECTION ================= */}
       <div className="grid grid-cols-12 gap-6 w-full">
-
         {/* LEFT DETAIL PANEL */}
         <div className="col-span-12 lg:col-span-3">
           <CardComp title="Selected Day Details">
             {selectedDay ? (
               <div className="space-y-3">
-
                 <Detail label="Date" value={selectedDay.date} />
-                <Detail label="Total Resources" value={`${selectedDay.total_resources}`} />
+                <Detail
+                  label="Total Resources"
+                  value={`${selectedDay.total_resources}`}
+                />
                 <Detail label="On Leave" value={`${selectedDay.on_leave}`} />
-                <Detail label="% On Leave" value={`${selectedDay.leave_percentage}%`} />
-                <Detail label="% Available" value={`${selectedDay.available_percentage}%`} />
+                <Detail
+                  label="% On Leave"
+                  value={`${selectedDay.leave_percentage}%`}
+                />
+                <Detail
+                  label="% Available"
+                  value={`${selectedDay.available_percentage}%`}
+                />
                 <Detail
                   label="Remaining Allowed %"
                   value={`${selectedDay.remaining_allowed_percentage}%`}
@@ -83,7 +93,6 @@ export default function Managerdashboard() {
                     </ul>
                   )}
                 </div>
-
               </div>
             ) : (
               <div className="text-gray-400 text-sm h-[200px] flex items-center justify-center">
@@ -100,7 +109,6 @@ export default function Managerdashboard() {
             onBarClick={(day) => setSelectedDay(day)}
           />
         </div>
-
       </div>
 
       <EmployeeListCard />
