@@ -5,9 +5,24 @@ import type { DayAnalytics } from "../shared/analytics";
 import CardComp from "../components/ui/CardComp";
 import EmployeeListCard from "../components/EmployeeListCard";
 
+/* ================= TYPES ================= */
+
+type DashboardSummary = {
+  highest_leave_date: { date: string; count: number };
+  team_highest_leave: { team: string; count: number };
+  peak_leave_week: {
+    week_number: number;
+    start: string;
+    end: string;
+    count: number;
+  };
+  top_leave_taker: { name: string; count: number };
+};
+
 export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
+  const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
 
   /* ================= FETCH ANALYTICS ================= */
 
@@ -21,10 +36,10 @@ export default function Managerdashboard() {
         const format = (d: Date) => d.toISOString().split("T")[0];
 
         const res = await axiosInstance.get(
-          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
+          `/leave/analytics?start=${format(today)}&end=${format(end)}`
         );
 
-        setAnalyticsData(res.data);
+        setAnalyticsData(res.data || []);
       } catch (error) {
         console.error("Analytics load failed", error);
       }
@@ -33,25 +48,84 @@ export default function Managerdashboard() {
     fetchAnalytics();
   }, []);
 
+  /* ================= FETCH DASHBOARD SUMMARY ================= */
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const today = new Date();
+
+        const res = await axiosInstance.get(
+          `/dashboard/summary?year=${today.getFullYear()}&month=${today.getMonth() + 1}`
+        );
+
+        setSummaryData(res.data);
+      } catch (error) {
+        console.error("Summary load failed", error);
+      }
+    };
+
+    fetchSummary();
+  }, []);
+
   return (
     <div className="space-y-6 w-full">
+
       {/* ================= TOP SUMMARY ================= */}
-      <div className="bg-white rounded-xl shadow-sm border  p-6 overflow-hidden">
-        <h2 className="text-lg  text-center font-semibold text-black-400">
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h2 className="text-lg font-semibold text-center">
           TEAM OVERVIEW
         </h2>
 
-        <div className="relative mt-2">
-          <div className="whitespace-nowrap animate-marquee text-lg font-extrabold text-[#1e40af]">
-            LIVE RESOURCE AVAILABILITY ANALYTICS — MONITOR TEAM LEAVE TRENDS
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+
+          <SummaryCard
+            label="Highest Leave Date"
+            value={
+              summaryData
+                ? `${summaryData.highest_leave_date.count} (${summaryData.highest_leave_date.date || "-"})`
+                : "-"
+            }
+            highlight="text-red-500"
+          />
+
+          <SummaryCard
+            label="Team With Highest Leave"
+            value={
+              summaryData
+                ? `${summaryData.team_highest_leave.team || "-"} (${summaryData.team_highest_leave.count})`
+                : "-"
+            }
+            highlight="text-purple-600"
+          />
+
+          <SummaryCard
+            label="Peak Leave Week"
+            value={
+              summaryData
+                ? `W${summaryData.peak_leave_week.week_number} (${summaryData.peak_leave_week.start} - ${summaryData.peak_leave_week.end})`
+                : "-"
+            }
+            highlight="text-yellow-600"
+          />
+
+          <SummaryCard
+            label="Top Leave Taker"
+            value={
+              summaryData
+                ? `${summaryData.top_leave_taker.name || "-"} (${summaryData.top_leave_taker.count})`
+                : "-"
+            }
+            highlight="text-blue-600"
+          />
+
         </div>
       </div>
 
       {/* ================= GRID SECTION ================= */}
       <div className="grid grid-cols-12 gap-6 w-full items-stretch">
 
-        {/* ================= LEFT DETAIL PANEL ================= */}
+        {/* LEFT DETAIL PANEL (OLD DESIGN KEPT) */}
         <div className="col-span-12 lg:col-span-4 flex">
           <div className="flex-1">
             <CardComp title="Selected Day Details">
@@ -82,12 +156,12 @@ export default function Managerdashboard() {
 
                     <InfoCard
                       label="% On Leave"
-                      value={`${selectedDay.leave_percentage}%`}
+                      value={`${selectedDay.leave_percentage.toFixed(3)}%`}
                     />
 
                     <InfoCard
                       label="% Available"
-                      value={`${selectedDay.available_percentage}%`}
+                      value={`${selectedDay.available_percentage.toFixed(3)}%`}
                       highlight="text-green-600"
                     />
 
@@ -99,7 +173,7 @@ export default function Managerdashboard() {
                       Remaining Allowed %
                     </p>
                     <p className="text-lg font-semibold text-yellow-800">
-                      {selectedDay.remaining_allowed_percentage}%
+                      {selectedDay.remaining_allowed_percentage.toFixed(3)}%
                     </p>
                   </div>
 
@@ -110,7 +184,7 @@ export default function Managerdashboard() {
                     </p>
 
                     {!selectedDay.employees_on_leave ||
-                    selectedDay.employees_on_leave.length === 0 ? (
+                      selectedDay.employees_on_leave.length === 0 ? (
                       <div className="text-center py-4 text-green-600 text-sm font-medium">
                         No employees on leave
                       </div>
@@ -138,13 +212,14 @@ export default function Managerdashboard() {
           </div>
         </div>
 
-        {/* ================= RIGHT CHART ================= */}
+        {/* RIGHT CHART */}
         <div className="col-span-12 lg:col-span-8 flex">
           <WorkHoursChart
             analytics={analyticsData}
             onBarClick={(day) => setSelectedDay(day)}
           />
         </div>
+
       </div>
 
       <EmployeeListCard />
@@ -152,7 +227,7 @@ export default function Managerdashboard() {
   );
 }
 
-/* ================= SMALL INFO CARD COMPONENT ================= */
+/* ================= INFO CARD ================= */
 
 function InfoCard({
   label,
@@ -165,6 +240,27 @@ function InfoCard({
 }) {
   return (
     <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className={`text-lg font-semibold ${highlight || "text-gray-800"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/* ================= SUMMARY CARD ================= */
+
+function SummaryCard({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string | number;
+  highlight?: string;
+}) {
+  return (
+    <div className="bg-slate-50 rounded-xl p-4 border shadow-sm">
       <p className="text-xs text-gray-500 mb-1">{label}</p>
       <p className={`text-lg font-semibold ${highlight || "text-gray-800"}`}>
         {value}

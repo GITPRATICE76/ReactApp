@@ -2,19 +2,16 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import type { DayAnalytics } from "../../shared/analytics";
 
-/* ================= PROPS ================= */
-
 type WorkHoursChartProps = {
   analytics: DayAnalytics[];
   onBarClick: (data: DayAnalytics) => void;
 };
 
-/* ================= COMPONENT ================= */
-
 export default function WorkHoursChart({
   analytics,
   onBarClick,
 }: WorkHoursChartProps) {
+
   const categories = analytics.map((d) => {
     const date = new Date(d.date);
     return date.toLocaleDateString("en-US", {
@@ -23,17 +20,19 @@ export default function WorkHoursChart({
     });
   });
 
-  // const categories = analytics.map((d) => d.date);
   const leaveData = analytics.map((d) => d.on_leave);
-  const availableData = analytics.map((d) => d.total_resources - d.on_leave);
+  const availableData = analytics.map(
+    (d) => d.total_resources - d.on_leave
+  );
 
   const options: Highcharts.Options = {
     chart: {
       type: "column",
-      height: 300,
-      spacing: [10, 10, 10, 10],
+      height: 276,
+      spacing: [20, 20, 20, 20],
+      marginRight: 30,
       scrollablePlotArea: {
-        minWidth: analytics.length * 70,
+        minWidth: analytics.length * 80,
         scrollPositionX: 0,
       },
     },
@@ -46,6 +45,7 @@ export default function WorkHoursChart({
       tickWidth: 0,
       labels: {
         style: { fontSize: "11px", color: "#6B7280" },
+        overflow: "justify",
       },
     },
 
@@ -62,27 +62,23 @@ export default function WorkHoursChart({
       itemStyle: { fontSize: "12px" },
     },
 
-    /* ================= SAFE TOOLTIP ================= */
-
     tooltip: {
       shared: true,
       formatter: function () {
         const ctx = this as any;
-
         if (!ctx.points || ctx.points.length === 0) return "";
 
         const index = ctx.points[0].point.index;
         const day = analytics[index];
-
         if (!day) return "";
 
         return `
-      <b>${day.date}</b><br/>
-      On Leave: ${day.on_leave}<br/>
-      Available: ${day.total_resources - day.on_leave}<br/>
-      Leave %: ${day.leave_percentage.toFixed(1)}%<br/>
-      Available %: ${day.available_percentage.toFixed(1)}%
-    `;
+          <b>${day.date}</b><br/>
+          On Leave: ${day.on_leave}<br/>
+          Available: ${day.total_resources - day.on_leave}<br/>
+          Leave %: ${Number(day.leave_percentage).toFixed(3)}%<br/>
+          Available %: ${Number(day.available_percentage).toFixed(3)}%
+        `;
       },
     },
 
@@ -91,13 +87,13 @@ export default function WorkHoursChart({
         stacking: "normal",
         borderRadius: 6,
         cursor: "pointer",
-
+        groupPadding: 0.1,
+        pointPadding: 0.05,
         point: {
           events: {
             click: function () {
               const index = this.index;
               const day = analytics[index];
-
               if (day) {
                 onBarClick(day);
               }
