@@ -145,7 +145,9 @@ export default function LeaveRequests() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold">Leave Requests</h1>
+        <h1 className="text-2xl font-semibold text-[#1e40af]">
+          Leave Requests
+        </h1>
         <p className="text-sm text-muted-foreground">
           Review and manage employee leave requests
         </p>
@@ -169,9 +171,23 @@ export default function LeaveRequests() {
               days={leave.days}
               reason={leave.reason}
               isEditing={leave.isEditing}
-              onApprove={() => openActionModal(leave.id, "APPROVED")}
-              onReject={() => openActionModal(leave.id, "REJECTED")}
-              onEdit={() => enableEditMode(leave.id)}
+              onApprove={() =>
+                leave.status === "PENDING" ||
+                (leave.status === "REJECTED" && leave.isEditing)
+                  ? () => openActionModal(leave.id, "APPROVED")
+                  : undefined
+              }
+              onReject={() =>
+                leave.status === "PENDING" ||
+                (leave.status === "APPROVED" && leave.isEditing)
+                  ? () => openActionModal(leave.id, "REJECTED")
+                  : undefined
+              }
+              onEdit={() =>
+                leave.status !== "PENDING" && !leave.isEditing
+                  ? () => enableEditMode(leave.id)
+                  : undefined
+              }
             />
           ))
         )}
