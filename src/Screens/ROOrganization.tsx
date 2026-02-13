@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
-import images from "../assets/images.png";
+import images from "../assets/images.jpg";
 
 /* ================= TYPES ================= */
 
@@ -115,7 +115,7 @@ function OrgCard({
             compact ? "w-7 h-7" : "w-8 h-8"
           }`}
         >
-          <img src={images} alt={name} />
+          <img src={images} />
         </div>
 
         <div className="overflow-hidden">
