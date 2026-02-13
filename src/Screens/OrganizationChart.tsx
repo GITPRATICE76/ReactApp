@@ -3,7 +3,7 @@ import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import { Edit3 } from "lucide-react";
 import { ORG_CHART_URL } from "../services/userapi.service";
-import images from "../assets/images.png";
+import images from "../assets/images.jpg";
 
 type OrgUser = {
   id: number;
@@ -33,10 +33,10 @@ export default function OrganizationChart() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-800">Organization Chart</h1>
-        <button className="flex items-center gap-2 border bg-white px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
+        {/* <button className="flex items-center gap-2 border bg-white px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
           <Edit3 size={14} />
           Edit Organization
-        </button>
+        </button> */}
       </div>
 
       <div className="flex flex-col items-center gap-5 mb-12">

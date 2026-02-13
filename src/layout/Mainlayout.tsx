@@ -1,6 +1,7 @@
 import Sidebar from "../components/ui/Sidebar";
 import Navbar from "../components/ui/Navbar";
 import { useEffect, useState } from "react";
+import BottomNavbar from "../components/BottomNavbar";
 
 export default function MainLayout({
   children,
@@ -27,9 +28,10 @@ export default function MainLayout({
         </div>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto bg-slate-100 p-6 pb-24 md:pb-6">
+        <main className="flex-1 overflow-y-auto bg-slate-100 p-6 pb-20">
           {children}
         </main>
+        <BottomNavbar />
       </div>
     </div>
   );
