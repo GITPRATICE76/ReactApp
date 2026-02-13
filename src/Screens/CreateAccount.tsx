@@ -142,7 +142,7 @@ export default function CreateAccount() {
               <Mail size={14} /> Full Name
             </Label>
             <Input
-              placeholder="e.g. Leslie Alexander"
+              placeholder="Enter your Name"
               className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.name ? "border-red-400" : ""}`}
               value={name}
               onChange={(e) => {
@@ -164,7 +164,7 @@ export default function CreateAccount() {
             </Label>
             <Input
               type="email"
-              placeholder="leslie@company.com"
+              placeholder="Enter your Email"
               className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.email ? "border-red-400" : ""}`}
               value={email}
               onChange={(e) => {

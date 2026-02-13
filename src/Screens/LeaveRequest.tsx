@@ -1,90 +1,63 @@
 import { useEffect, useState } from "react";
-
 import axiosInstance from "../Routes/axiosInstance";
-
 import { toast } from "react-toastify";
 
 import images from "../assets/images.jpg";
-
 import LeaveRequestCard from "../components/LeaveRequestCard";
 
 import { GET_LEAVES_URL, ACTION_URL } from "../services/userapi.service";
 
 type LeaveRequest = {
   id: number;
-
   employeeName: string;
-
   leaveType: string;
-
   status: "PENDING" | "APPROVED" | "REJECTED";
-
   from: string;
-
   to: string;
-
   days: number;
-
   reason: string;
-
-  isEditing?: boolean; // frontend-only
+  isEditing?: boolean;
 };
 
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
-
   const [loading, setLoading] = useState(true);
 
   // Modal state
-
   const [showModal, setShowModal] = useState(false);
-
   const [selectedLeaveId, setSelectedLeaveId] = useState<number | null>(null);
-
   const [selectedAction, setSelectedAction] = useState<
     "APPROVED" | "REJECTED" | null
   >(null);
-
   const [remarks, setRemarks] = useState("");
 
   const managerId = Number(localStorage.getItem("userid"));
 
-  // Fetch leaves
-
+  // ✅ Fetch leaves
   useEffect(() => {
     axiosInstance
-
       .get(GET_LEAVES_URL)
-
       .then((res) => {
         setLeaveRequests(Array.isArray(res.data) ? res.data : []);
       })
-
       .catch(() => {
         toast.error("Failed to fetch leave requests");
       })
-
       .finally(() => setLoading(false));
   }, []);
 
-  // Open approve / reject modal
-
+  // ✅ Open approve / reject modal
   const openActionModal = (
     leaveId: number,
-
     action: "APPROVED" | "REJECTED",
   ) => {
     setSelectedLeaveId(leaveId);
-
     setSelectedAction(action);
-
     setRemarks("");
-
     setShowModal(true);
   };
 
-  // Enable edit mode
-
+  // ✅ Enable edit mode
   const enableEditMode = (leaveId: number) => {
     setLeaveRequests((prev) =>
       prev.map((leave) =>
@@ -93,23 +66,18 @@ export default function LeaveRequests() {
     );
   };
 
-  // Submit approve / reject
-
+  // ✅ Submit approve / reject
   const submitAction = async () => {
     if (!remarks.trim()) {
       toast.error("Remarks are required");
-
       return;
     }
 
     try {
       await axiosInstance.post(ACTION_URL, {
         user_id: managerId,
-
         leave_id: selectedLeaveId,
-
         action: selectedAction,
-
         remarks: remarks,
       });
 
@@ -118,9 +86,7 @@ export default function LeaveRequests() {
           leave.id === selectedLeaveId
             ? {
                 ...leave,
-
                 status: selectedAction!,
-
                 isEditing: false,
               }
             : leave,
@@ -162,7 +128,6 @@ export default function LeaveRequests() {
             <LeaveRequestCard
               key={leave.id}
               employeeName={leave.employeeName}
-              // avatar={`https://i.pravatar.cc/100?u=${leave.employeeName}`}
               avatar={images}
               leaveType={leave.leaveType}
               status={leave.status}
@@ -171,21 +136,11 @@ export default function LeaveRequests() {
               days={leave.days}
               reason={leave.reason}
               isEditing={leave.isEditing}
-              onApprove={() =>
-                leave.status === "PENDING" ||
-                (leave.status === "REJECTED" && leave.isEditing)
-                  ? () => openActionModal(leave.id, "APPROVED")
-                  : undefined
-              }
-              onReject={() =>
-                leave.status === "PENDING" ||
-                (leave.status === "APPROVED" && leave.isEditing)
-                  ? () => openActionModal(leave.id, "REJECTED")
-                  : undefined
-              }
+              onApprove={() => openActionModal(leave.id, "APPROVED")}
+              onReject={() => openActionModal(leave.id, "REJECTED")}
               onEdit={() =>
                 leave.status !== "PENDING" && !leave.isEditing
-                  ? () => enableEditMode(leave.id)
+                  ? enableEditMode(leave.id)
                   : undefined
               }
             />
@@ -193,8 +148,7 @@ export default function LeaveRequests() {
         )}
       </div>
 
-      {/* Modal */}
-
+      {/* ✅ Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">

@@ -15,9 +15,9 @@ type LeaveRequestCardProps = {
   days: number;
   reason: string;
   isEditing?: boolean;
-  onApprove: () => void;
-  onReject: () => void;
-  onEdit: () => void;
+  onApprove?: () => void;
+  onReject?: () => void;
+  onEdit?: () => void;
 };
 
 export default function LeaveRequestCard({
@@ -47,9 +47,7 @@ export default function LeaveRequestCard({
   };
 
   return (
-    <Card
-      className={`rounded-2xl border-l-4 ${borderStyles[status]}`}
-    >
+    <Card className={`rounded-2xl border-l-4 ${borderStyles[status]}`}>
       <CardHeader className="flex-row items-center justify-between">
         <span className="px-3 py-1 text-xs rounded-full bg-slate-100 text-slate-700">
           {leaveType}
@@ -95,7 +93,8 @@ export default function LeaveRequestCard({
       </CardContent>
 
       <CardFooter className="gap-3">
-        {status === "PENDING" || isEditing ? (
+        {/* ✅ Pending */}
+        {status === "PENDING" && (
           <>
             <button
               onClick={onApprove}
@@ -111,12 +110,43 @@ export default function LeaveRequestCard({
               Reject
             </button>
           </>
-        ) : (
+        )}
+
+        {/* ✅ Approved */}
+        {status === "APPROVED" && !isEditing && (
           <button
             onClick={onEdit}
             className="flex-1 border border-blue-500 text-blue-600 rounded-lg py-2 text-sm hover:bg-blue-50"
           >
             Edit
+          </button>
+        )}
+
+        {status === "APPROVED" && isEditing && (
+          <button
+            onClick={onReject}
+            className="flex-1 border border-red-500 text-red-600 rounded-lg py-2 text-sm hover:bg-red-50"
+          >
+            Reject
+          </button>
+        )}
+
+        {/* ✅ Rejected */}
+        {status === "REJECTED" && !isEditing && (
+          <button
+            onClick={onEdit}
+            className="flex-1 border border-blue-500 text-blue-600 rounded-lg py-2 text-sm hover:bg-blue-50"
+          >
+            Edit
+          </button>
+        )}
+
+        {status === "REJECTED" && isEditing && (
+          <button
+            onClick={onApprove}
+            className="flex-1 border border-green-500 text-green-600 rounded-lg py-2 text-sm hover:bg-green-50"
+          >
+            Approve
           </button>
         )}
       </CardFooter>
