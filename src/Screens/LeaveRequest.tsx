@@ -46,6 +46,11 @@ export default function LeaveRequests() {
       .finally(() => setLoading(false));
   }, []);
 
+  // ✅ Group leaves by status
+  const pendingLeaves = leaveRequests.filter((l) => l.status === "PENDING");
+  const approvedLeaves = leaveRequests.filter((l) => l.status === "APPROVED");
+  const rejectedLeaves = leaveRequests.filter((l) => l.status === "REJECTED");
+
   // ✅ Open approve / reject modal
   const openActionModal = (
     leaveId: number,
@@ -119,33 +124,31 @@ export default function LeaveRequests() {
         </p>
       </div>
 
-      {/* Leave Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {leaveRequests.length === 0 ? (
-          <p>No leave requests found</p>
-        ) : (
-          leaveRequests.map((leave) => (
-            <LeaveRequestCard
-              key={leave.id}
-              employeeName={leave.employeeName}
-              avatar={images}
-              leaveType={leave.leaveType}
-              status={leave.status}
-              from={leave.from}
-              to={leave.to}
-              days={leave.days}
-              reason={leave.reason}
-              isEditing={leave.isEditing}
-              onApprove={() => openActionModal(leave.id, "APPROVED")}
-              onReject={() => openActionModal(leave.id, "REJECTED")}
-              onEdit={() =>
-                leave.status !== "PENDING" && !leave.isEditing
-                  ? enableEditMode(leave.id)
-                  : undefined
-              }
-            />
-          ))
-        )}
+      {/* ✅ 3 Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <LeaveColumn
+          title="Pending"
+          leaves={pendingLeaves}
+          borderColor="border-yellow-400"
+          openActionModal={openActionModal}
+          enableEditMode={enableEditMode}
+        />
+
+        <LeaveColumn
+          title="Approved"
+          leaves={approvedLeaves}
+          borderColor="border-green-500"
+          openActionModal={openActionModal}
+          enableEditMode={enableEditMode}
+        />
+
+        <LeaveColumn
+          title="Rejected"
+          leaves={rejectedLeaves}
+          borderColor="border-red-500"
+          openActionModal={openActionModal}
+          enableEditMode={enableEditMode}
+        />
       </div>
 
       {/* ✅ Modal */}
@@ -184,6 +187,61 @@ export default function LeaveRequests() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+type LeaveColumnProps = {
+  title: string;
+  leaves: LeaveRequest[];
+  borderColor: string;
+  openActionModal: (id: number, action: "APPROVED" | "REJECTED") => void;
+  enableEditMode: (id: number) => void;
+};
+
+function LeaveColumn({
+  title,
+  leaves,
+  borderColor,
+  openActionModal,
+  enableEditMode,
+}: LeaveColumnProps) {
+  return (
+    <div className="bg-gray-50 rounded-xl p-4">
+      <h2 className="text-lg font-semibold mb-4">
+        {title} ({leaves.length})
+      </h2>
+
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 hide-scrollbar">
+        {leaves.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No {title.toLowerCase()} leaves
+          </p>
+        ) : (
+          leaves.map((leave) => (
+            <div key={leave.id} className={`${borderColor} border rounded-xl`}>
+              <LeaveRequestCard
+                employeeName={leave.employeeName}
+                avatar={images}
+                leaveType={leave.leaveType}
+                status={leave.status}
+                from={leave.from}
+                to={leave.to}
+                days={leave.days}
+                reason={leave.reason}
+                isEditing={leave.isEditing}
+                onApprove={() => openActionModal(leave.id, "APPROVED")}
+                onReject={() => openActionModal(leave.id, "REJECTED")}
+                onEdit={() =>
+                  leave.status !== "PENDING" && !leave.isEditing
+                    ? enableEditMode(leave.id)
+                    : undefined
+                }
+              />
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
