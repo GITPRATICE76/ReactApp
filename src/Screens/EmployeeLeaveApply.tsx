@@ -21,49 +21,6 @@ export default function EmployeeLeaveApply() {
 
   const [reason, setReason] = useState("");
 
-  // const handleApplyLeave = async () => {
-  //   if (!fromDate || !toDate) {
-  //     toast.error("Please select from and to date");
-
-  //     return;
-  //   }
-
-  //   const userId = localStorage.getItem("userid");
-
-  //   if (!userId) {
-  //     toast.error("User not logged in");
-
-  //     return;
-  //   }
-
-  //   try {
-  //     await axiosInstance.post(APPLY_LEAVE_URL, {
-  //       user_id: Number(userId),
-
-  //       leave_type: leaveType,
-
-  //       from_date: fromDate,
-
-  //       to_date: toDate,
-
-  //       reason: reason,
-  //     });
-
-  //     toast.success("Leave applied successfully");
-
-  //     // Reset form
-
-  //     setFromDate("");
-
-  //     setToDate("");
-
-  //     setReason("");
-
-  //     setLeaveType("");
-  //   } catch (err: any) {
-  //     toast.error(err.response?.data?.message || "Failed to apply leave");
-  //   }
-  // };
   const handleApplyLeave = async () => {
     if (!leaveType) {
       toast.error("Please select leave type");
@@ -83,6 +40,17 @@ export default function EmployeeLeaveApply() {
     // ❌ Block casual leave for today
     if (leaveType === "CASUAL" && fromDate === today) {
       toast.error("Cannot apply Casual Leave for today itself");
+      return;
+    }
+
+    // ❌ Block Sick Leave for past/future
+    if (leaveType === "SICK" && fromDate !== today) {
+      toast.error("Sick Leave can only be applied for today");
+      return;
+    }
+
+    if (leaveType === "SICK" && toDate !== today) {
+      toast.error("Sick Leave must be for today only");
       return;
     }
 
@@ -112,6 +80,8 @@ export default function EmployeeLeaveApply() {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }
   };
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -150,12 +120,7 @@ export default function EmployeeLeaveApply() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-[#1e40af]">From</label>
-              {/* <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full mt-1 border rounded-lg px-3 py-2"
-              /> */}
+
               <input
                 type="date"
                 value={fromDate}
@@ -164,8 +129,11 @@ export default function EmployeeLeaveApply() {
                     ? new Date(Date.now() + 86400000)
                         .toISOString()
                         .split("T")[0]
-                    : undefined
+                    : leaveType === "SICK"
+                      ? today
+                      : undefined
                 }
+                max={leaveType === "SICK" ? today : undefined}
                 onChange={(e) => setFromDate(e.target.value)}
                 className="w-full mt-1 border rounded-lg px-3 py-2"
               />
@@ -176,6 +144,8 @@ export default function EmployeeLeaveApply() {
               <input
                 type="date"
                 value={toDate}
+                min={leaveType === "SICK" ? today : fromDate}
+                max={leaveType === "SICK" ? today : undefined}
                 onChange={(e) => setToDate(e.target.value)}
                 className="w-full mt-1 border rounded-lg px-3 py-2"
               />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Lottie from "lottie-react";
@@ -9,6 +9,7 @@ import axiosInstance from "../Routes/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
 import companyLogo from "../assets/craftsiliconlogo-removebg-preview.png";
+import Logo from "../assets/ChatGPT_Image_Feb_16__2026__09_53_46_AM-removebg-preview.png";
 
 import { jwtDecode } from "jwt-decode";
 
@@ -28,6 +29,25 @@ export default function Login() {
   const [showVersion, setShowVersion] = useState(false);
 
   const navigate = useNavigate();
+  const versionRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        versionRef.current &&
+        !versionRef.current.contains(event.target as Node)
+      ) {
+        setShowVersion(false);
+      }
+    }
+
+    if (showVersion) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showVersion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,14 +102,18 @@ export default function Login() {
         <Card className="w-full max-w-md mx-auto shadow-none border-0 bg-transparent rounded-2xl">
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div style={styles.company}>
-                <img
-                  src={companyLogo}
-                  alt="Company Logo"
-                  style={styles.companyImage1}
-                />
+              <div className="h-60 backdrop-blur-md flex flex-col items-center justify-center gap-0 overflow-hidden">
+                <div style={styles.company}>
+                  <img
+                    src={companyLogo}
+                    alt="Company Logo"
+                    style={styles.companyImage1}
+                  />
+                </div>
+                <div style={styles.logo}>
+                  <img src={Logo} alt="Company Logo" style={styles.logo1} />
+                </div>
               </div>
-
               {/* USERNAME */}
               <div className="bg-white h-12 rounded-xl flex items-center px-4 shadow-sm">
                 <i className="ri-user-line text-blue-600 text-lg mr-3"></i>
@@ -109,7 +133,7 @@ export default function Login() {
 
                 <Input
                   type={showPassword ? "text" : "password"}
-                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-700 placeholder:text-gray-500"
+                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-700 px-1 placeholder:text-gray-500"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="PASSWORD"
@@ -155,6 +179,7 @@ export default function Login() {
             style={styles.companyImage}
           />
         </div>
+
         <div className="relative">
           <div
             className="flex items-center gap-2 cursor-pointer hover:text-blue-300"
@@ -165,7 +190,10 @@ export default function Login() {
           </div>
 
           {showVersion && (
-            <div className="absolute bottom-10 right-0  text-gray-800 rounded-xl shadow-lg px-4 py-3 w-20 animate-in fade-in zoom-in">
+            <div
+              ref={versionRef}
+              className="absolute bottom-10 right-0 text-gray-800 rounded-xl shadow-lg px-4 py-3 w-20 animate-in fade-in zoom-in"
+            >
               <p className="text-sm font-semibold">Version</p>
               <p className="text-sm font-bold">1.0</p>
             </div>
@@ -179,7 +207,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   companyImage: {
     height: "80px",
     width: "100px",
-    filter: "brightness(0) invert(1)",
+    filter: "brightness(0) invert(1) brightness(1.8)",
     marginRight: "20px",
   },
 
@@ -190,8 +218,22 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   companyImage1: {
-    height: "115px",
-    width: "152px",
-    margin: " 2px 11px 4px 121px",
+    height: "145px",
+    width: "230px",
+    // margin: "-60px 1px -71px 5px;",
+  },
+  logo: {
+    display: "flex",
+    alignItems: "center",
+    margin: "-47px 11px -53px 17px;",
+
+    // gap: "10px",
+  },
+
+  logo1: {
+    height: "145px",
+    width: "230px",
+    margin: "-47px 11px -53px 17px;",
+    filter: "invert(1) brightness(2)",
   },
 };

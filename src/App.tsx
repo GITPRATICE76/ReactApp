@@ -10,6 +10,7 @@ import CreateAccount from "./Screens/CreateAccount";
 import OrganizationChart from "./Screens/OrganizationChart";
 import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
 import ROOrganizationChart from "./Screens/ROOrganization";
+import LeaveCalendar from "./Screens/CalenderScreen";
 
 function App() {
   return (
@@ -71,6 +72,16 @@ function App() {
             <ProtectedRoute roles={["EMPLOYEE"]}>
               <MainLayout>
                 <Employeedashboard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee/calender"
+          element={
+            <ProtectedRoute roles={["EMPLOYEE"]}>
+              <MainLayout>
+                <LeaveCalendar />
               </MainLayout>
             </ProtectedRoute>
           }

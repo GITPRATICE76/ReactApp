@@ -54,7 +54,7 @@ export default function Sidebar() {
         const res = await axiosInstance.get("/org-chart");
 
         const count = res.data.filter(
-          (user: any) => user.department === teamName
+          (user: any) => user.department === teamName,
         ).length;
 
         setMemberCount(count);
@@ -73,8 +73,9 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`${open ? "w-60" : "w-20"
-        } h-screen bg-white border-r transition-all duration-300 flex flex-col`}
+      className={`${
+        open ? "w-60" : "w-20"
+      } h-screen bg-white border-r transition-all duration-300 flex flex-col`}
     >
       {/* Top */}
       <div className="flex items-center justify-between px-4 h-16 border-b">
@@ -91,12 +92,8 @@ export default function Sidebar() {
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
           {open && (
             <div>
-              <p className="text-sm font-semibold">
-                {teamName || "Team"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {memberCount} Members
-              </p>
+              <p className="text-sm font-semibold">{teamName || "Team"}</p>
+              <p className="text-xs text-gray-500">{memberCount} Members</p>
             </div>
           )}
         </div>
@@ -131,6 +128,16 @@ export default function Sidebar() {
           />
         )}
 
+        {role === "EMPLOYEE" && (
+          <MenuItem
+            icon={<FiCalendar />}
+            label="Calender View"
+            open={open}
+            active={location.pathname === "/employee/calender"}
+            onClick={() => navigate("/employee/calender")}
+          />
+        )}
+
         {role === "MANAGER" && (
           <MenuItem
             icon={<FiUsers />}
@@ -159,8 +166,6 @@ export default function Sidebar() {
             }}
           />
         )}
-
-
       </nav>
 
       {/* Logout */}
@@ -196,9 +201,10 @@ function MenuItem({
     <button
       onClick={onClick}
       className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-all duration-200
-        ${active
-          ? "bg-indigo-100 text-indigo-600 font-semibold"
-          : "text-gray-600 hover:bg-slate-100"
+        ${
+          active
+            ? "bg-indigo-100 text-indigo-600 font-semibold"
+            : "text-gray-600 hover:bg-slate-100"
         }`}
     >
       <span className="text-lg">{icon}</span>

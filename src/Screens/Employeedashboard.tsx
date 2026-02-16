@@ -1,14 +1,48 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { FiCalendar, FiClock, FiBell, FiUsers } from "react-icons/fi";
+import { FiBell, FiUsers } from "react-icons/fi";
 
 export default function Employeedashboard() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:8080/api/employee/dashboard",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        setData(res.data);
+      } catch (err: any) {
+        setError("Failed to load dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  if (loading) return <div className="p-6">Loading dashboard...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold">Employee Leave Management</h1>
@@ -18,67 +52,33 @@ export default function Employeedashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatCard
           title="Total Leave Taken"
-          value="16 days"
-          sub="29 days remaining"
+          value={data.total_leaves_taken}
+          sub="Approved"
         />
-        <StatCard title="Approval Rate" value="92%" sub="This year" />
-        <StatCard title="Pending Requests" value="1" sub="Awaiting approval" />
-        <StatCard title="Team Member on Leave" value="2" sub="Today" />
-      </div>
-
-      {/* Middle Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Leave Overview */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Leave Overview</CardTitle>
-            <p className="text-xs text-gray-500">
-              Your leave distribution for the current year
-            </p>
-          </CardHeader>
-
-          <CardContent>
-            <div className="h-40 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-400 text-sm">
-              Leave Chart (Q1 – Q4)
-            </div>
-
-            <div className="flex justify-between text-sm mt-4">
-              <span>
-                Total days: <b>20</b>
-              </span>
-              <span>
-                Remaining: <b>29</b>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Leave */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Leave</CardTitle>
-            <p className="text-xs text-gray-500">Your scheduled time off</p>
-          </CardHeader>
-
-          <CardContent className="space-y-3">
-            <div>
-              <p className="font-medium">Annual Leave</p>
-              <p className="text-xs text-gray-500">
-                Apr 22 – Apr 24, 2025 (3 days)
-              </p>
-              <span className="inline-block mt-2 text-xs px-3 py-1 rounded-full bg-orange-100 text-orange-600">
-                Pending
-              </span>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-700">
-              ⏳ Your leave request is awaiting manager approval
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Pending Requests"
+          value={data.pending_requests}
+          sub="Awaiting approval"
+        />
+        <StatCard
+          title="Rejected Requests"
+          value={data.rejected_requests}
+          sub="Rejected"
+        />
+        <StatCard
+          title="Casual Leaves"
+          value={data.casual_leaves}
+          sub="Approved"
+        />
+        <StatCard title="Sick Leaves" value={data.sick_leaves} sub="Approved" />
+        <StatCard
+          title="Currently On Leave"
+          value={data.currently_on_leave ? "Yes" : "No"}
+          sub="Today"
+        />
       </div>
 
       {/* Bottom Section */}
@@ -93,62 +93,67 @@ export default function Employeedashboard() {
 
           <CardContent className="space-y-3 text-sm">
             <Notification
-              text="Your leave request for Mar 10–11 has been approved"
+              text="Your leave request was approved"
               time="2 days ago"
             />
             <Notification
-              text="Remember to submit your timesheet for this week"
+              text="Remember to apply leave in advance"
               time="1 day ago"
-            />
-            <Notification
-              text="Public holiday coming up on May 1st"
-              time="Just now"
             />
           </CardContent>
         </Card>
 
-        {/* Team on Leave */}
+        {/* Leave Status */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FiUsers /> Team Member on Leave
+              <FiUsers /> Leave Status
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-4 text-sm">
-            <TeamLeave
-              name="Sarah Johnson"
-              role="UX Designer"
-              date="Apr 15 – Apr 19, 2025"
-            />
-            <TeamLeave
-              name="Michael Chen"
-              role="Developer"
-              date="Apr 18 – Apr 22, 2025"
-            />
+          <CardContent className="text-sm space-y-2">
+            <p>
+              Total Approved Leaves: <b>{data.total_leaves_taken}</b>
+            </p>
+            <p>
+              Pending Requests: <b>{data.pending_requests}</b>
+            </p>
+            <p>
+              Rejected Requests: <b>{data.rejected_requests}</b>
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* 🔥 NEW SECTION: Team Members On Leave */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FiUsers /> Team Members Currently On Leave
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="text-sm space-y-2">
+          {data.team_total_on_leave === 0 ? (
+            <p className="text-gray-500">No team members are on leave today.</p>
+          ) : (
+            data.team_members_on_leave.map((member: any) => (
+              <div
+                key={member.id}
+                className="flex justify-between border-b pb-1"
+              >
+                <span>{member.name}</span>
+                <span className="text-xs text-gray-400">On Leave</span>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-/* ================= Small UI Components ================= */
-
-function Tab({ label, active = false }: any) {
-  return (
-    <button
-      className={`px-4 py-2 rounded-lg text-sm
-        ${
-          active
-            ? "bg-indigo-50 text-indigo-600 font-semibold"
-            : "text-gray-500 hover:bg-slate-100"
-        }`}
-    >
-      {label}
-    </button>
-  );
-}
+/* ================= Reusable Components ================= */
 
 function StatCard({ title, value, sub }: any) {
   return (
@@ -167,18 +172,6 @@ function Notification({ text, time }: any) {
     <div className="flex justify-between">
       <p>{text}</p>
       <span className="text-xs text-gray-400">{time}</span>
-    </div>
-  );
-}
-
-function TeamLeave({ name, role, date }: any) {
-  return (
-    <div className="flex justify-between items-center">
-      <div>
-        <p className="font-medium">{name}</p>
-        <p className="text-xs text-gray-500">{role}</p>
-      </div>
-      <p className="text-xs text-gray-500">{date}</p>
     </div>
   );
 }

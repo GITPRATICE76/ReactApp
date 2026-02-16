@@ -36,7 +36,7 @@ export default function Managerdashboard() {
         const format = (d: Date) => d.toISOString().split("T")[0];
 
         const res = await axiosInstance.get(
-          `/leave/analytics?start=${format(today)}&end=${format(end)}`
+          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
         );
 
         setAnalyticsData(res.data || []);
@@ -56,7 +56,7 @@ export default function Managerdashboard() {
         const today = new Date();
 
         const res = await axiosInstance.get(
-          `/dashboard/summary?year=${today.getFullYear()}&month=${today.getMonth() + 1}`
+          `/dashboard/summary?year=${today.getFullYear()}&month=${today.getMonth() + 1}`,
         );
 
         setSummaryData(res.data);
@@ -69,16 +69,12 @@ export default function Managerdashboard() {
   }, []);
 
   return (
-    <div className="space-y-6 w-full">
-
+    <div className="space-y-6 w-full hide-scrollbar">
       {/* ================= TOP SUMMARY ================= */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-lg font-semibold text-center">
-          TEAM OVERVIEW
-        </h2>
+        <h2 className="text-lg font-semibold text-center">TEAM OVERVIEW</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-
           <SummaryCard
             label="Highest Leave Date"
             value={
@@ -118,31 +114,25 @@ export default function Managerdashboard() {
             }
             highlight="text-blue-600"
           />
-
         </div>
       </div>
 
       {/* ================= GRID SECTION ================= */}
       <div className="grid grid-cols-12 gap-6 w-full items-stretch">
-
         {/* LEFT DETAIL PANEL (OLD DESIGN KEPT) */}
-        <div className="col-span-12 lg:col-span-4 flex">
-          <div className="flex-1">
+        <div className="col-span-12 lg:col-span-4 flex ">
+          <div className="flex-1 ">
             <CardComp title="Selected Day Details">
               {selectedDay ? (
                 <div className="space-y-5">
-
                   {/* DATE SECTION */}
-                  <div className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl p-4 shadow">
+                  <div className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl p-4 shadow ">
                     <p className="text-xs opacity-80">Date</p>
-                    <p className="text-xl font-semibold">
-                      {selectedDay.date}
-                    </p>
+                    <p className="text-xl font-semibold">{selectedDay.date}</p>
                   </div>
 
                   {/* MAIN STATS GRID */}
                   <div className="grid grid-cols-2 gap-4">
-
                     <InfoCard
                       label="Total Resources"
                       value={selectedDay.total_resources}
@@ -164,7 +154,6 @@ export default function Managerdashboard() {
                       value={`${selectedDay.available_percentage.toFixed(3)}%`}
                       highlight="text-green-600"
                     />
-
                   </div>
 
                   {/* REMAINING ALLOWED */}
@@ -184,12 +173,12 @@ export default function Managerdashboard() {
                     </p>
 
                     {!selectedDay.employees_on_leave ||
-                      selectedDay.employees_on_leave.length === 0 ? (
+                    selectedDay.employees_on_leave.length === 0 ? (
                       <div className="text-center py-4 text-green-600 text-sm font-medium">
                         No employees on leave
                       </div>
                     ) : (
-                      <ul className="space-y-2 max-h-40 overflow-y-auto">
+                      <ul className="space-y-2 max-h-40 overflow-y-auto hide-scrollbar">
                         {selectedDay.employees_on_leave.map((name, index) => (
                           <li
                             key={index}
@@ -201,7 +190,6 @@ export default function Managerdashboard() {
                       </ul>
                     )}
                   </div>
-
                 </div>
               ) : (
                 <div className="text-gray-400 text-sm h-[300px] flex items-center justify-center">
@@ -219,7 +207,6 @@ export default function Managerdashboard() {
             onBarClick={(day) => setSelectedDay(day)}
           />
         </div>
-
       </div>
 
       <EmployeeListCard />

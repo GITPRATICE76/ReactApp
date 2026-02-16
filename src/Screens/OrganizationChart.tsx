@@ -4,6 +4,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { Edit3 } from "lucide-react";
 import { ORG_CHART_URL } from "../services/userapi.service";
 import images from "../assets/images.jpg";
+import "react-complex-tree/lib/style-modern.css";
 
 type OrgUser = {
   id: number;
