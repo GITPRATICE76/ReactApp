@@ -88,6 +88,17 @@ function App() {
         />
 
         <Route
+          path="/manager/calender"
+          element={
+            <ProtectedRoute roles={["MANAGER"]}>
+              <MainLayout>
+                <LeaveCalendar />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/employee/apply-leave"
           element={
             <ProtectedRoute roles={["EMPLOYEE"]}>

@@ -110,6 +110,7 @@ export default function LeaveCalendar() {
         onNavigate={(date: Date) => setCurrentDate(date)}
         defaultView="month"
         views={{ month: true }}
+        popup
       />
 
       {/* Legend */}
