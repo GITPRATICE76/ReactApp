@@ -218,22 +218,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   companyImage1: {
-    height: "145px",
+    height: "165px",
     width: "230px",
-    // margin: "-60px 1px -71px 5px;",
   },
   logo: {
     display: "flex",
     alignItems: "center",
-    margin: "-47px 11px -53px 17px;",
+    margin: "-47px 11px -53px 17px",
 
     // gap: "10px",
   },
 
   logo1: {
-    height: "145px",
+    height: "185px",
     width: "230px",
-    margin: "-47px 11px -53px 17px;",
+    margin: "-47px 11px -53px 17px",
     filter: "invert(1) brightness(2)",
   },
 };

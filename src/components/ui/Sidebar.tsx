@@ -147,6 +147,15 @@ export default function Sidebar() {
             onClick={() => navigate("/manager/leave-requests")}
           />
         )}
+        {role === "MANAGER" && (
+          <MenuItem
+            icon={<FiCalendar />}
+            label="Calender View"
+            open={open}
+            active={location.pathname === "/manager/calender"}
+            onClick={() => navigate("/manager/calender")}
+          />
+        )}
 
         {(role === "MANAGER" || role === "RO") && (
           <MenuItem
