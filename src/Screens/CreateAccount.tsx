@@ -2,19 +2,11 @@ import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
 import { useNavigate } from "react-router-dom";
-import { UserPlus, Mail, Lock, Building2, Users } from "lucide-react"; // Icons for a better look
+import { UserPlus } from "lucide-react"; // Icons for a better look
 
 type Errors = {
   name?: string;
@@ -53,6 +45,7 @@ export default function CreateAccount() {
     setErrors((prev) => ({ ...prev, [field]: message }));
     return !message;
   };
+
 
   // const handleCreateEmployee = async () => {
   //   const fields: (keyof Errors)[] = ["name", "email", "password", "department", "team"];
@@ -111,149 +104,155 @@ export default function CreateAccount() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-      {/* Decorative background elements like the Org Chart dots */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-40"
-        style={{
-          backgroundImage: "radial-gradient(#e5e7eb 1.5px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      ></div>
+ return (
+  <div className="h-screen w-screen flex">
 
-      <Card className="w-full max-w-md border-none shadow-2xl rounded-[24px] bg-white relative z-10 overflow-hidden">
-        <div className="h-2 bg-indigo-600 w-full" /> {/* Top accent line */}
-        <CardHeader className="space-y-1 pt-8">
-          <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-2">
-            <UserPlus className="text-indigo-600" size={24} />
-          </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
-            Create Employee
-          </CardTitle>
-          <CardDescription className="text-slate-500 font-medium">
-            Add a new member to the organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {/* Name Field */}
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <Mail size={14} /> Full Name
-            </Label>
-            <Input
-              placeholder="Enter your Name"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.name ? "border-red-400" : ""}`}
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                validateField("name", e.target.value);
-              }}
-            />
-            {errors.name && (
-              <p className="text-[10px] font-bold text-red-500 uppercase">
-                {errors.name}
-              </p>
-            )}
-          </div>
+    {/* LEFT BRANDING PANEL */}
+    <div className="hidden md:flex w-1/2 h-full bg-gradient-to-br from-indigo-900 to-indigo-700 text-white flex-col justify-center items-center px-16">
 
-          {/* Email Field */}
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <Mail size={14} /> Work Email
-            </Label>
-            <Input
-              type="email"
-              placeholder="Enter your Email"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.email ? "border-red-400" : ""}`}
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                validateField("email", e.target.value);
-              }}
-            />
-            {errors.email && (
-              <p className="text-[10px] font-bold text-red-500 uppercase">
-                {errors.email}
-              </p>
-            )}
-          </div>
+      <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mb-8">
+        <UserPlus size={28} />
+      </div>
 
-          {/* Department & Team (Grid Layout) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <Building2 size={14} /> Dept
-              </Label>
-              <select
-                className="w-full border border-slate-200 rounded-xl p-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={department}
-                onChange={(e) => {
-                  setDepartment(e.target.value);
-                  setTeam("");
-                  validateField("department", e.target.value);
-                }}
-              >
-                <option value="">Select...</option>
-                <option value="QA">QA</option>
-                <option value="DEVELOPMENT">Development</option>
-              </select>
-            </div>
+      <h2 className="text-3xl font-semibold mb-4">
+        Employee Registration
+      </h2>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <Users size={14} /> Team
-              </Label>
-              <select
-                className="w-full border border-slate-200 rounded-xl p-2 text-sm bg-white disabled:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={team}
-                onChange={(e) => {
-                  setTeam(e.target.value);
-                  validateField("team", e.target.value);
-                }}
-                disabled={!department}
-              >
-                <option value="">Select...</option>
-                {getTeams().map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+      <p className="text-white/80 text-center max-w-md leading-relaxed">
+        Add a new employee to the organization and assign department 
+        and team for structured leave workflow management.
+      </p>
 
-          {/* Password Field */}
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <Lock size={14} /> Password
-            </Label>
-            <Input
-              type="password"
-              placeholder="••••••••"
-              className={`rounded-xl border-slate-200 focus:ring-indigo-500 ${errors.password ? "border-red-400" : ""}`}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                validateField("password", e.target.value);
-              }}
-            />
-            {errors.password && (
-              <p className="text-[10px] font-bold text-red-500 uppercase">
-                {errors.password}
-              </p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="pb-8 pt-4">
-          <Button
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 font-bold text-base shadow-lg shadow-indigo-100 transition-all active:scale-[0.98]"
-            onClick={handleCreateEmployee}
-          >
-            Confirm Registration
-          </Button>
-        </CardFooter>
-      </Card>
     </div>
-  );
+
+    {/* RIGHT FORM PANEL */}
+    <div className="w-full md:w-1/2 h-full flex items-center justify-center bg-gray-50 px-10">
+
+      <div className="w-full max-w-md space-y-6">
+
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800">
+            Create Account
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">
+            Enter employee details below
+          </p>
+        </div>
+
+        {/* FULL NAME */}
+        <div>
+          <Label className="text-sm text-gray-600">Full Name</Label>
+          <Input
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              validateField("name", e.target.value);
+            }}
+            placeholder="Enter full name"
+            className={`mt-2 h-12 ${errors.name ? "border-red-400" : ""}`}
+          />
+          {errors.name && (
+            <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+          )}
+        </div>
+
+        {/* EMAIL */}
+        <div>
+          <Label className="text-sm text-gray-600">Work Email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              validateField("email", e.target.value);
+            }}
+            placeholder="Enter work email"
+            className={`mt-2 h-12 ${errors.email ? "border-red-400" : ""}`}
+          />
+          {errors.email && (
+            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+          )}
+        </div>
+
+        {/* DEPARTMENT + TEAM */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label className="text-sm text-gray-600">Department</Label>
+            <select
+              className="w-full border rounded-lg h-12 mt-2 px-3 bg-white focus:ring-2 focus:ring-indigo-600"
+              value={department}
+              onChange={(e) => {
+                setDepartment(e.target.value);
+                setTeam("");
+                validateField("department", e.target.value);
+              }}
+            >
+              <option value="">Select</option>
+              <option value="QA">QA</option>
+              <option value="DEVELOPMENT">Development</option>
+            </select>
+          </div>
+
+          <div>
+            <Label className="text-sm text-gray-600">Team</Label>
+            <select
+              className="w-full border rounded-lg h-12 mt-2 px-3 bg-white disabled:bg-gray-100 focus:ring-2 focus:ring-indigo-600"
+              value={team}
+              disabled={!department}
+              onChange={(e) => {
+                setTeam(e.target.value);
+                validateField("team", e.target.value);
+              }}
+            >
+              <option value="">Select</option>
+              {getTeams().map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* PASSWORD */}
+        <div>
+          <Label className="text-sm text-gray-600">Password</Label>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              validateField("password", e.target.value);
+            }}
+            placeholder="Enter password"
+            className={`mt-2 h-12 ${errors.password ? "border-red-400" : ""}`}
+          />
+          {errors.password && (
+            <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+          )}
+        </div>
+
+        {/* BUTTON */}
+        <Button
+          onClick={handleCreateEmployee}
+          className="w-full h-12 bg-indigo-900 hover:bg-indigo-800 text-white rounded-lg text-base"
+        >
+          Create Employee
+        </Button>
+
+        <p className="text-sm text-center text-gray-500">
+          Already have an account?{" "}
+          <span
+            onClick={() => navigate("/")}
+            className="text-indigo-900 font-medium cursor-pointer hover:underline"
+          >
+            Login
+          </span>
+        </p>
+
+      </div>
+    </div>
+  </div>
+);
+
 }
