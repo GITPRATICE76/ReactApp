@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
 import companyLogo from "../assets/craftsiliconlogo-removebg-preview.png";
 import Logo from "../assets/ChatGPT_Image_Feb_16__2026__09_53_46_AM-removebg-preview.png";
-
 import { jwtDecode } from "jwt-decode";
 
 interface MyToken {
@@ -30,6 +29,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const versionRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -56,13 +56,10 @@ export default function Login() {
       const res = await axiosInstance.post(LOGIN_URL, { email, password });
       const { token } = res.data;
 
-      // ✅ Store token
       localStorage.setItem("token", token);
 
-      // ✅ Decode token
-      const decoded: any = jwtDecode(token);
+      const decoded: MyToken = jwtDecode(token);
 
-      // ✅ Store decoded values
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("role", decoded.role);
       localStorage.setItem("username", decoded.name);
@@ -81,158 +78,131 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 relative overflow-hidden">
-      <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl"></div>
+ return (
+  <div className="h-screen w-screen flex">
 
-      <div className="relative z-10 w-full max-w-6xl grid md:grid-cols-2 gap-12 px-6 items-center">
-        {/* Animation Section */}
-        <div className="hidden md:flex flex-col items-center justify-center text-white">
-          <div className="h-90 backdrop-blur-md flex items-center justify-center overflow-hidden">
-            <Lottie
-              animationData={animationData}
-              loop={true}
-              className="w-full h-full"
+    {/* LEFT PANEL */}
+    <div className="hidden md:flex w-1/2 h-full flex-col justify-center items-center bg-gradient-to-br from-blue-900 to-blue-700 text-white px-16">
+      
+      <img
+        src={companyLogo}
+        alt="Company Logo"
+        className="w-40 mb-10"
+      />
+
+      <Lottie
+        animationData={animationData}
+        loop={true}
+        className="w-96"
+      />
+
+      <h2 className="text-3xl font-semibold mt-10">
+        Leave Management System
+      </h2>
+      <p className="text-base text-white/80 mt-4 text-center max-w-md">
+        Streamline employee leave tracking and approvals efficiently.
+      </p>
+    </div>
+
+    {/* RIGHT PANEL */}
+    <div className="w-full md:w-1/2 h-full flex items-center justify-center bg-gray-50 px-10 relative">
+      
+      <div className="w-full max-w-md">
+
+        <div className="text-center mb-10">
+          <img
+            src={Logo}
+            alt="App Logo"
+            className="w-28 mx-auto mb-6"
+          />
+          <h2 className="text-3xl font-bold text-gray-800">
+            Welcome Back
+          </h2>
+          <p className="text-gray-500 text-sm mt-2">
+            Please login to your account
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Email */}
+          <div>
+            <label className="text-sm text-gray-600">
+              Email Address
+            </label>
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="mt-2 h-12"
+              required
             />
           </div>
-        </div>
 
-        {/* Login Card */}
-        <Card className="w-full max-w-md mx-auto shadow-none border-0 bg-transparent rounded-2xl">
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="h-60 backdrop-blur-md flex flex-col items-center justify-center gap-0 overflow-hidden">
-                <div style={styles.company}>
-                  <img
-                    src={companyLogo}
-                    alt="Company Logo"
-                    style={styles.companyImage1}
-                  />
-                </div>
-                <div style={styles.logo}>
-                  <img src={Logo} alt="Company Logo" style={styles.logo1} />
-                </div>
-              </div>
-              {/* USERNAME */}
-              <div className="bg-white h-12 rounded-xl flex items-center px-4 shadow-sm">
-                <i className="ri-user-line text-blue-600 text-lg mr-3"></i>
-
-                <Input
-                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-700 px-1 placeholder:text-gray-500"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="EMAILID"
-                  required
-                />
-              </div>
-
-              {/* PASSWORD */}
-              <div className="bg-white h-12 rounded-xl flex items-center px-4 shadow-sm">
-                <i className="ri-lock-2-line text-blue-600 text-lg mr-3"></i>
-
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-700 px-1 placeholder:text-gray-500"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="PASSWORD"
-                  required
-                />
-
-                <i
-                  className={`text-blue-600 text-lg cursor-pointer ${
-                    showPassword ? "ri-eye-line" : "ri-eye-off-line"
-                  }`}
-                  onClick={() => setShowPassword(!showPassword)}
-                ></i>
-              </div>
-            </CardContent>
-
-            <CardFooter className="flex flex-col gap-4 pt-2">
-              <Button
-                type="submit"
-                className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-blue-950 to-blue-900 hover:from-blue-900 hover:to-blue-700"
-              >
-                LOGIN
-              </Button>
-
-              <p className="text-sm text-center text-white/80">
-                Don’t have an account?{" "}
-                <span
-                  className="text-white font-bold cursor-pointer hover:underline"
-                  onClick={() => navigate("/create-employee")}
-                >
-                  Create account
-                </span>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
-
-      <div className="absolute bottom-0 w-full bg-gradient-to-r from-blue-950 to-blue-900 text-white h-12 flex items-center justify-between px-6 text-sm">
-        <div style={styles.company}>
-          <img
-            src={companyLogo}
-            alt="Company Logo"
-            style={styles.companyImage}
-          />
-        </div>
-
-        <div className="relative">
-          <div
-            className="flex items-center gap-2 cursor-pointer hover:text-blue-300"
-            onClick={() => setShowVersion(!showVersion)}
-          >
-            <i className="ri-information-line"></i>
-            <span>About</span>
+          {/* Password */}
+          <div>
+            <label className="text-sm text-gray-600">
+              Password
+            </label>
+            <div className="relative mt-2">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="h-12 pr-10"
+                required
+              />
+              <i
+                className={`absolute right-3 top-4 cursor-pointer text-gray-500 ${
+                  showPassword ? "ri-eye-line" : "ri-eye-off-line"
+                }`}
+                onClick={() => setShowPassword(!showPassword)}
+              ></i>
+            </div>
           </div>
 
-          {showVersion && (
-            <div
-              ref={versionRef}
-              className="absolute bottom-10 right-0 text-gray-800 rounded-xl shadow-lg px-4 py-3 w-20 animate-in fade-in zoom-in"
+          <Button
+            type="submit"
+            className="w-full h-12 rounded-lg bg-blue-900 hover:bg-blue-800 text-base"
+          >
+            Login
+          </Button>
+
+          <p className="text-sm text-center text-gray-500">
+            Don’t have an account?{" "}
+            <span
+              className="text-blue-900 font-medium cursor-pointer hover:underline"
+              onClick={() => navigate("/create-employee")}
             >
-              <p className="text-sm font-semibold">Version</p>
-              <p className="text-sm font-bold">1.0</p>
-            </div>
-          )}
-        </div>
+              Create account
+            </span>
+          </p>
+        </form>
       </div>
+
+      {/* Bottom Right Version */}
+      <div className="absolute bottom-6 right-8 text-sm text-gray-500 flex gap-4">
+        <span>Version 1.0</span>
+        <button
+          className="text-blue-900 hover:underline"
+          onClick={() => setShowVersion(!showVersion)}
+        >
+          About
+        </button>
+      </div>
+
+      {showVersion && (
+        <div
+          ref={versionRef}
+          className="absolute bottom-16 right-8 bg-white border rounded-lg shadow-lg px-4 py-3 text-gray-700"
+        >
+          <p className="text-sm font-semibold">Application Version</p>
+          <p className="text-sm">1.0.0</p>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
-const styles: { [key: string]: React.CSSProperties } = {
-  companyImage: {
-    height: "80px",
-    width: "100px",
-    filter: "brightness(0) invert(1) brightness(1.8)",
-    marginRight: "20px",
-  },
-
-  company: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-
-  companyImage1: {
-    height: "165px",
-    width: "230px",
-  },
-  logo: {
-    display: "flex",
-    alignItems: "center",
-    margin: "-47px 11px -53px 17px",
-
-    // gap: "10px",
-  },
-
-  logo1: {
-    height: "185px",
-    width: "230px",
-    margin: "-47px 11px -53px 17px",
-    filter: "invert(1) brightness(2)",
-  },
-};
