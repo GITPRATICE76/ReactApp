@@ -3,7 +3,6 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Lottie from "lottie-react";
 import animationData from "../assets/Login.json";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { toast } from "react-toastify";
 import axiosInstance from "../Routes/axiosInstance";
 import { useNavigate } from "react-router-dom";

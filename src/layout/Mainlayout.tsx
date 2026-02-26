@@ -9,6 +9,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const [username, setUsername] = useState("User");
+  console.log('username:',username)
 
   useEffect(() => {
     const storedName = localStorage.getItem("username");
