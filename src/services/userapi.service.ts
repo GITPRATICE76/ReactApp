@@ -21,3 +21,7 @@ export const ACTION_URL = "/leave/action";
 export const ORG_CHART_URL = "/org-chart";
 
 export const DASHBOARD_URL ="/dashboard/summary"
+
+export const HOLIDAY_URL = "/holidays";
+
+
