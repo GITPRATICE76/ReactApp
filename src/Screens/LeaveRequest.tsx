@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
-
-import images from "../assets/images.jpg";
-import LeaveRequestCard from "../components/LeaveRequestCard";
-
 import { GET_LEAVES_URL, ACTION_URL } from "../services/userapi.service";
 
 type LeaveRequest = {
@@ -16,14 +12,18 @@ type LeaveRequest = {
   to: string;
   days: number;
   reason: string;
-  isEditing?: boolean;
 };
 
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal state
+  // Filters
+  const [fromFilter, setFromFilter] = useState("");
+  const [toFilter, setToFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Modal
   const [showModal, setShowModal] = useState(false);
   const [selectedLeaveId, setSelectedLeaveId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<
@@ -33,25 +33,41 @@ export default function LeaveRequests() {
 
   const managerId = Number(localStorage.getItem("userid"));
 
-  // ✅ Fetch leaves
+  // Fetch leaves
   useEffect(() => {
     axiosInstance
       .get(GET_LEAVES_URL)
       .then((res) => {
         setLeaveRequests(Array.isArray(res.data) ? res.data : []);
       })
-      .catch(() => {
-        toast.error("Failed to fetch leave requests");
-      })
+      .catch(() => toast.error("Failed to fetch leave requests"))
       .finally(() => setLoading(false));
   }, []);
 
-  // ✅ Group leaves by status
-  const pendingLeaves = leaveRequests.filter((l) => l.status === "PENDING");
-  const approvedLeaves = leaveRequests.filter((l) => l.status === "APPROVED");
-  const rejectedLeaves = leaveRequests.filter((l) => l.status === "REJECTED");
+  // Remove past leaves
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  // ✅ Open approve / reject modal
+  const activeLeaves = leaveRequests.filter((leave) => {
+    const leaveEndDate = new Date(leave.to);
+    leaveEndDate.setHours(0, 0, 0, 0);
+    return leaveEndDate >= today;
+  });
+
+  // Apply filters
+  const filteredLeaves = activeLeaves.filter((leave) => {
+    const leaveFrom = new Date(leave.from);
+    const leaveTo = new Date(leave.to);
+
+    const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
+
+    const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
+
+    const matchTo = !toFilter || leaveTo <= new Date(toFilter);
+
+    return matchStatus && matchFrom && matchTo;
+  });
+
   const openActionModal = (
     leaveId: number,
     action: "APPROVED" | "REJECTED",
@@ -62,16 +78,6 @@ export default function LeaveRequests() {
     setShowModal(true);
   };
 
-  // ✅ Enable edit mode
-  const enableEditMode = (leaveId: number) => {
-    setLeaveRequests((prev) =>
-      prev.map((leave) =>
-        leave.id === leaveId ? { ...leave, isEditing: true } : leave,
-      ),
-    );
-  };
-
-  // ✅ Submit approve / reject
   const submitAction = async () => {
     if (!remarks.trim()) {
       toast.error("Remarks are required");
@@ -83,17 +89,13 @@ export default function LeaveRequests() {
         user_id: managerId,
         leave_id: selectedLeaveId,
         action: selectedAction,
-        remarks: remarks,
+        remarks,
       });
 
       setLeaveRequests((prev) =>
         prev.map((leave) =>
           leave.id === selectedLeaveId
-            ? {
-                ...leave,
-                status: selectedAction!,
-                isEditing: false,
-              }
+            ? { ...leave, status: selectedAction! }
             : leave,
         ),
       );
@@ -119,39 +121,132 @@ export default function LeaveRequests() {
         <h1 className="text-2xl font-semibold text-[#1e40af]">
           Leave Requests
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-500">
           Review and manage employee leave requests
         </p>
       </div>
 
-      {/* ✅ 3 Column Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <LeaveColumn
-          title="Pending"
-          leaves={pendingLeaves}
-          borderColor="border-yellow-400"
-          openActionModal={openActionModal}
-          enableEditMode={enableEditMode}
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-4">
+        <input
+          type="date"
+          value={fromFilter}
+          onChange={(e) => setFromFilter(e.target.value)}
+          className="border p-2 rounded-lg"
         />
 
-        <LeaveColumn
-          title="Approved"
-          leaves={approvedLeaves}
-          borderColor="border-green-500"
-          openActionModal={openActionModal}
-          enableEditMode={enableEditMode}
+        <input
+          type="date"
+          value={toFilter}
+          onChange={(e) => setToFilter(e.target.value)}
+          className="border p-2 rounded-lg"
         />
 
-        <LeaveColumn
-          title="Rejected"
-          leaves={rejectedLeaves}
-          borderColor="border-red-500"
-          openActionModal={openActionModal}
-          enableEditMode={enableEditMode}
-        />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border p-2 rounded-lg"
+        >
+          <option value="ALL">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
       </div>
 
-      {/* ✅ Modal */}
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="p-3">Employee</th>
+              <th className="p-3">Leave Type</th>
+              <th className="p-3">From</th>
+              <th className="p-3">To</th>
+              <th className="p-3">Days</th>
+              <th className="p-3">Reason</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredLeaves.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center p-4 text-gray-500">
+                  No leave records found
+                </td>
+              </tr>
+            ) : (
+              filteredLeaves.map((leave) => (
+                <tr key={leave.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3">{leave.employeeName}</td>
+                  <td className="p-3">{leave.leaveType}</td>
+                  <td className="p-3">{leave.from}</td>
+                  <td className="p-3">{leave.to}</td>
+                  <td className="p-3">{leave.days}</td>
+                  <td className="p-3">{leave.reason}</td>
+
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm ${
+                        leave.status === "PENDING"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : leave.status === "APPROVED"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {leave.status}
+                    </span>
+                  </td>
+
+                  {/* 🔥 Dynamic Action Buttons */}
+                  <td className="p-3 space-x-2">
+                    {leave.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() => openActionModal(leave.id, "APPROVED")}
+                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+
+                        <button
+                          onClick={() => openActionModal(leave.id, "REJECTED")}
+                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+
+                    {leave.status === "APPROVED" && (
+                      <button
+                        onClick={() => openActionModal(leave.id, "REJECTED")}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Reject
+                      </button>
+                    )}
+
+                    {leave.status === "REJECTED" && (
+                      <button
+                        onClick={() => openActionModal(leave.id, "APPROVED")}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Approve
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
@@ -187,61 +282,6 @@ export default function LeaveRequests() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-type LeaveColumnProps = {
-  title: string;
-  leaves: LeaveRequest[];
-  borderColor: string;
-  openActionModal: (id: number, action: "APPROVED" | "REJECTED") => void;
-  enableEditMode: (id: number) => void;
-};
-
-function LeaveColumn({
-  title,
-  leaves,
-  borderColor,
-  openActionModal,
-  enableEditMode,
-}: LeaveColumnProps) {
-  return (
-    <div className="bg-gray-50 rounded-xl p-4">
-      <h2 className="text-lg font-semibold mb-4">
-        {title} ({leaves.length})
-      </h2>
-
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 hide-scrollbar">
-        {leaves.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No {title.toLowerCase()} leaves
-          </p>
-        ) : (
-          leaves.map((leave) => (
-            <div key={leave.id} className={`${borderColor} border rounded-xl`}>
-              <LeaveRequestCard
-                employeeName={leave.employeeName}
-                avatar={images}
-                leaveType={leave.leaveType}
-                status={leave.status}
-                from={leave.from}
-                to={leave.to}
-                days={leave.days}
-                reason={leave.reason}
-                isEditing={leave.isEditing}
-                onApprove={() => openActionModal(leave.id, "APPROVED")}
-                onReject={() => openActionModal(leave.id, "REJECTED")}
-                onEdit={() =>
-                  leave.status !== "PENDING" && !leave.isEditing
-                    ? enableEditMode(leave.id)
-                    : undefined
-                }
-              />
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 }
