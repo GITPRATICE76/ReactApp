@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Card,
   CardContent,
@@ -7,6 +6,10 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { FiBell, FiUsers } from "react-icons/fi";
+
+import axiosInstance from "../Routes/axiosInstance";
+
+import { ED_URL } from "../services/userapi.service";
 
 export default function Employeedashboard() {
   const [data, setData] = useState<any>(null);
@@ -17,15 +20,7 @@ export default function Employeedashboard() {
     const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem("token");
-
-        const res = await axios.get(
-          "http://localhost:8080/api/employee/dashboard",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const res = await axiosInstance.get(ED_URL);
 
         setData(res.data);
       } catch (err: any) {
@@ -92,14 +87,9 @@ export default function Employeedashboard() {
           </CardHeader>
 
           <CardContent className="space-y-3 text-sm">
-            <Notification
-              text="Your leave request was approved"
-              time="2 days ago"
-            />
-            <Notification
-              text="Remember to apply leave in advance"
-              time="1 day ago"
-            />
+            <Notification text="Apply leave 1 week in advance" />
+            <Notification text="Max 2 casual leaves per month" />
+            <Notification text="Sick leave requires medical proof (2+ days)" />
           </CardContent>
         </Card>
 
@@ -107,20 +97,20 @@ export default function Employeedashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FiUsers /> Leave Status
+              <FiUsers /> Monthly Leave Summary
             </CardTitle>
           </CardHeader>
 
           <CardContent className="text-sm space-y-2">
             <p>
-              Total Approved Leaves: <b>{data.total_leaves_taken}</b>
+              Total Leaves Taken: <b>{data.total_leaves_taken}</b>
             </p>
-            <p>
+            {/* <p>
               Pending Requests: <b>{data.pending_requests}</b>
             </p>
             <p>
               Rejected Requests: <b>{data.rejected_requests}</b>
-            </p>
+            </p> */}
           </CardContent>
         </Card>
       </div>
@@ -137,7 +127,7 @@ export default function Employeedashboard() {
           {data.team_total_on_leave === 0 ? (
             <p className="text-gray-500">No team members are on leave today.</p>
           ) : (
-            data.team_members_on_leave.map((member: any) => (
+            data.team_members_on_leave?.map((member: any) => (
               <div
                 key={member.id}
                 className="flex justify-between border-b pb-1"

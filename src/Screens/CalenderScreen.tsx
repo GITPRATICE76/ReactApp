@@ -1,10 +1,12 @@
-import { useEffect, useState} from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { enUS } from "date-fns/locale/en-US";
+import axiosInstance from "../Routes/axiosInstance";
+import { HOLIDAY_URL } from "../services/userapi.service";
 
 const locales = {
   "en-US": enUS,
@@ -28,16 +30,15 @@ export default function LeaveCalendar() {
 
   const fetchCalendar = async (date: Date) => {
     try {
-      const token = localStorage.getItem("token");
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
 
-      const res = await axios.get(
-        `http://localhost:8080/api/holidays?year=${year}&month=${month}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.get(HOLIDAY_URL, {
+        params: {
+          year: year,
+          month: month,
         },
-      );
+      });
 
       const holidays = res.data.holidays || [];
       const leaves = res.data.leaves || [];
