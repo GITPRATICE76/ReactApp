@@ -3,10 +3,6 @@ import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import images from "../assets/images.jpg";
 
-/* ================= TYPES ================= */
-
-// type Role = "RO" | "EMPLOYEE";
-
 type OrgUser = {
   id: number;
   name: string;
@@ -15,13 +11,10 @@ type OrgUser = {
   team: string | null;
 };
 
-/* ================= MAIN ================= */
-
 export default function ROOrganizationChart() {
   const [users, setUsers] = useState<OrgUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔐 Only trust ID from login
   const team = String(localStorage.getItem("team"));
 
   useEffect(() => {
@@ -30,8 +23,6 @@ export default function ROOrganizationChart() {
       .then((res) => setUsers(res.data || []))
       .finally(() => setLoading(false));
   }, []);
-
-  /* ================= FIND LOGGED-IN RO ================= */
 
   const loggedInRO = useMemo(
     () => users.find((u) => u.team === team && u.role === "RO"),
