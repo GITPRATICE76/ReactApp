@@ -5,7 +5,6 @@ import images from "../assets/images.jpg";
 
 /* ================= TYPES ================= */
 
-// type Role = "RO" | "EMPLOYEE";
 
 type OrgUser = {
   id: number;
