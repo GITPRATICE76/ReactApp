@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import { ORG_CHART_URL } from "../services/userapi.service";
-import images from "../assets/images.jpg";
 import "react-complex-tree/lib/style-modern.css";
+import { FiUser, FiUserCheck, FiUsers } from "react-icons/fi";
 
 type OrgUser = {
   id: number;
@@ -159,7 +159,23 @@ function OrgCard({
             alt={name}
           /> */}
 
-          <img src={images} />
+         <div
+              className={`rounded-full flex items-center justify-center ${
+                compact ? "w-7 h-7 text-xs" : "w-8 h-8 text-sm"
+              } ${
+                isLeader
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {isLeader ? (
+                <FiUsers />
+              ) : compact ? (
+                <FiUser />
+              ) : (
+                <FiUserCheck />
+              )}
+        </div>
         </div>
         <div className="overflow-hidden">
           <p className="font-semibold text-[11px] truncate">{name}</p>

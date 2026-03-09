@@ -15,3 +15,5 @@ export const DASHBOARD_URL = "/dashboard/summary";
 export const HOLIDAY_URL = "/holidays";
 
 export const ED_URL = "/employee/dashboard";
+
+export const LEAVE_HISTORY_URL = "/leave/history";

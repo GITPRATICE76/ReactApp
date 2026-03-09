@@ -4,7 +4,7 @@ const axiosInstance = axios.create({
   baseURL: "/api",
 });
 
-// 🔐 Attach JWT automatically
+
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -15,7 +15,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;
