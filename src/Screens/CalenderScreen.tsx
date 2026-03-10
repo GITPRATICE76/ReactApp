@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
+import axiosInstance from "../Routes/axiosInstance";
+import { HOLIDAY_URL } from "../services/userapi.service";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { enUS } from "date-fns/locale/en-US";
-import axiosInstance from "../Routes/axiosInstance";
-import { HOLIDAY_URL } from "../services/userapi.service";
 
 const locales = {
   "en-US": enUS,
@@ -33,12 +33,13 @@ export default function LeaveCalendar() {
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
 
-      const res = await axiosInstance.get(HOLIDAY_URL, {
-        params: {
-          year: year,
-          month: month,
-        },
-      });
+     const res = await axiosInstance.get(HOLIDAY_URL, {
+  params: {
+    year: year,
+    month: month,
+  },
+});
+
 
       const holidays = res.data.holidays || [];
       const leaves = res.data.leaves || [];

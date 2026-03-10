@@ -3,6 +3,12 @@ import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import images from "../assets/images.jpg";
 
+// <<<<<<< HEAD
+// =======
+// /* ================= TYPES ================= */
+
+
+// >>>>>>> 58857a3e1c08e4300f03a968704a6be3a435b04d
 type OrgUser = {
   id: number;
   name: string;

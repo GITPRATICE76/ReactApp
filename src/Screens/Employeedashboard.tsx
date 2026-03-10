@@ -19,7 +19,7 @@ export default function Employeedashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const token = localStorage.getItem("token");
+        // const token = localStorage.getItem("token");
         const res = await axiosInstance.get(ED_URL);
 
         setData(res.data);

@@ -24,31 +24,41 @@ export default function Managerdashboard() {
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
   const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
 
-  /* ================= FETCH ANALYTICS ================= */
+ useEffect(() => {
+  const fetchAnalytics = async () => {
+    try {
+      const today = new Date();
+      const end = new Date();
+      end.setDate(today.getDate() + 30);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const today = new Date();
-        const end = new Date();
-        end.setDate(today.getDate() + 30);
+      const format = (d: Date) => d.toISOString().split("T")[0];
 
-        const format = (d: Date) => d.toISOString().split("T")[0];
+      const res = await axiosInstance.get(
+        `/leave/analytics?start=${format(today)}&end=${format(end)}`
+      );
 
-        const res = await axiosInstance.get(
-          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
-        );
+      const data = res.data || [];
+      setAnalyticsData(data);
 
-        setAnalyticsData(res.data || []);
-      } catch (error) {
-        console.error("Analytics load failed", error);
+
+      const todayStr = format(today);
+
+      const todayData = data.find(
+        (d: DayAnalytics) => d.date === todayStr
+      );
+
+      if (todayData) {
+        setSelectedDay(todayData);
       }
-    };
 
-    fetchAnalytics();
-  }, []);
+    } catch (error) {
+      console.error("Analytics load failed", error);
+    }
+  };
 
-  /* ================= FETCH DASHBOARD SUMMARY ================= */
+  fetchAnalytics();
+}, []);
+
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -70,7 +80,6 @@ export default function Managerdashboard() {
 
   return (
     <div className="space-y-6 w-full hide-scrollbar">
-      {/* ================= TOP SUMMARY ================= */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <h2 className="text-lg font-semibold text-center">TEAM OVERVIEW</h2>
 
