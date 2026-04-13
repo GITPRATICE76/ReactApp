@@ -1,6 +1,6 @@
 import React from "react";
 import { jwtDecode } from "jwt-decode";
-import companyLogo from "../../assets/craftsiliconlogo-removebg-preview.png";
+import companyLogo from "../../assets/ChatGPT_Image_Feb_16__2026__09_53_46_AM-removebg-preview.png";
 
 interface MyToken {
   id: number;
@@ -67,8 +67,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "14px",
   },
   companyImage: {
-    height: "120px",
-    width: "140px",
+    height: "170px",
+    width: "159px",
+    margin: "6px -7px 6px 12px",
   },
   right: {
     display: "flex",
@@ -84,6 +85,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "14px",
     color: "#1e40af",
     fontWeight: 600,
+    margin: "0px -23px 0px 0px",
   },
   company: {
     display: "flex",

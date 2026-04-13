@@ -3,7 +3,7 @@ import axiosInstance from "../Routes/axiosInstance";
 import WorkHoursChart from "../components/ui/BarChart";
 import type { DayAnalytics } from "../shared/analytics";
 import CardComp from "../components/ui/CardComp";
-import EmployeeListCard from "../components/EmployeeListCard";
+import LeaveHistory from "../components/LeaveHistory";
 
 /* ================= TYPES ================= */
 
@@ -18,6 +18,17 @@ type DashboardSummary = {
   };
   top_leave_taker: { name: string; count: number };
 };
+
+type LeaveHistory = {
+  id: number
+  employee_name: string
+  team: string
+  department: string
+  from_date: string
+  to_date: string
+  leave_type: string
+  status: string
+}
 
 export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
@@ -218,7 +229,7 @@ export default function Managerdashboard() {
         </div>
       </div>
 
-      <EmployeeListCard />
+  <LeaveHistory />
     </div>
   );
 }

@@ -7,6 +7,8 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiCalendar,
+  FiEdit3,
+  FiFileText,
 } from "react-icons/fi";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "../../Routes/axiosInstance";
@@ -120,7 +122,7 @@ export default function Sidebar() {
 
         {role === "EMPLOYEE" && (
           <MenuItem
-            icon={<FiCalendar />}
+            icon={<FiEdit3 />}
             label="Apply Leave"
             open={open}
             active={location.pathname === "/employee/apply-leave"}
@@ -138,9 +140,19 @@ export default function Sidebar() {
           />
         )}
 
+        {/* {role === "MANAGER" && (
+          <MenuItem
+          icon={<FiCalendar/>}
+          label="Create Employee"
+          open={open}
+          active ={location.pathname === '/create-employee'}
+          onClick={()=> navigate("/create-employee")}
+           />
+        )} */}
+
         {role === "MANAGER" && (
           <MenuItem
-            icon={<FiUsers />}
+            icon={<FiFileText />}
             label="Leave Requests"
             open={open}
             active={location.pathname === "/manager/leave-requests"}
