@@ -4,6 +4,7 @@ import WorkHoursChart from "../components/ui/BarChart";
 import type { DayAnalytics } from "../shared/analytics";
 import CardComp from "../components/ui/CardComp";
 import LeaveHistory from "../components/LeaveHistory";
+import LeaveRequests from "./LeaveRequest";
 
 /* ================= TYPES ================= */
 
@@ -20,56 +21,51 @@ type DashboardSummary = {
 };
 
 type LeaveHistory = {
-  id: number
-  employee_name: string
-  team: string
-  department: string
-  from_date: string
-  to_date: string
-  leave_type: string
-  status: string
-}
+  id: number;
+  employee_name: string;
+  team: string;
+  department: string;
+  from_date: string;
+  to_date: string;
+  leave_type: string;
+  status: string;
+};
 
 export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
   const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
 
- useEffect(() => {
-  const fetchAnalytics = async () => {
-    try {
-      const today = new Date();
-      const end = new Date();
-      end.setDate(today.getDate() + 30);
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const today = new Date();
+        const end = new Date();
+        end.setDate(today.getDate() + 30);
 
-      const format = (d: Date) => d.toISOString().split("T")[0];
+        const format = (d: Date) => d.toISOString().split("T")[0];
 
-      const res = await axiosInstance.get(
-        `/leave/analytics?start=${format(today)}&end=${format(end)}`
-      );
+        const res = await axiosInstance.get(
+          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
+        );
 
-      const data = res.data || [];
-      setAnalyticsData(data);
+        const data = res.data || [];
+        setAnalyticsData(data);
 
+        const todayStr = format(today);
 
-      const todayStr = format(today);
+        const todayData = data.find((d: DayAnalytics) => d.date === todayStr);
 
-      const todayData = data.find(
-        (d: DayAnalytics) => d.date === todayStr
-      );
-
-      if (todayData) {
-        setSelectedDay(todayData);
+        if (todayData) {
+          setSelectedDay(todayData);
+        }
+      } catch (error) {
+        console.error("Analytics load failed", error);
       }
+    };
 
-    } catch (error) {
-      console.error("Analytics load failed", error);
-    }
-  };
-
-  fetchAnalytics();
-}, []);
-
+    fetchAnalytics();
+  }, []);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -229,7 +225,7 @@ export default function Managerdashboard() {
         </div>
       </div>
 
-  <LeaveHistory />
+      <LeaveRequests />
     </div>
   );
 }
