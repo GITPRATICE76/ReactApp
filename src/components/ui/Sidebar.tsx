@@ -26,6 +26,7 @@ export default function Sidebar() {
   const [memberCount, setMemberCount] = useState(0);
   const [teamName, setTeamName] = useState("");
   const [role, setRole] = useState<MyToken["role"] | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,6 +70,10 @@ export default function Sidebar() {
   }, [teamName]);
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+  const confirmLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
@@ -153,10 +158,10 @@ export default function Sidebar() {
         {role === "MANAGER" && (
           <MenuItem
             icon={<FiFileText />}
-            label="Leave Requests"
+            label="Leave History"
             open={open}
-            active={location.pathname === "/manager/leave-requests"}
-            onClick={() => navigate("/manager/leave-requests")}
+            active={location.pathname === "/manager/leave-history"}
+            onClick={() => navigate("/manager/leave-history")}
           />
         )}
         {role === "MANAGER" && (
@@ -188,17 +193,53 @@ export default function Sidebar() {
           />
         )}
       </nav>
+      {(role === "MANAGER" || role === "RO") && (
+        <p className="text-sm text-center text-gray-500">
+          <span
+            className="text-blue-900 font-medium cursor-pointer hover:underline"
+            onClick={() => navigate("/create-employee")}
+          >
+            CREATE ACCOUNT
+          </span>
+        </p>
+      )}
 
-      {/* Logout */}
       <div className="p-3">
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           className="flex items-center gap-3 w-full text-red-500 bg-red-100 hover:bg-red-50 px-3 py-2 rounded-lg text-sm"
         >
           <FiLogOut />
           {open && "Logout"}
         </button>
       </div>
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
+            <h2 className="text-lg font-semibold mb-4">
+              Are you sure you want to logout?
+            </h2>
+
+            <div className="flex justify-center gap-4">
+              {/* Yes */}
+              <button
+                onClick={confirmLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Yes
+              </button>
+
+              {/* No */}
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

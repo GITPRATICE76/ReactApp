@@ -11,6 +11,7 @@ import OrganizationChart from "./Screens/OrganizationChart";
 import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
 import ROOrganizationChart from "./Screens/ROOrganization";
 import LeaveCalendar from "./Screens/CalenderScreen";
+import LeaveHistory from "./components/LeaveHistory";
 
 function App() {
   return (
@@ -32,11 +33,11 @@ function App() {
 
         {/* LEAVE REQUESTS */}
         <Route
-          path="/manager/leave-requests"
+          path="/manager/leave-history"
           element={
             <ProtectedRoute roles={["MANAGER", "RO"]}>
               <MainLayout>
-                <LeaveRequests />
+                <LeaveHistory />
               </MainLayout>
             </ProtectedRoute>
           }
@@ -59,7 +60,7 @@ function App() {
           element={
             <ProtectedRoute roles={["RO"]}>
               <MainLayout>
-                <ROOrganizationChart />
+                <OrganizationChart />
               </MainLayout>
             </ProtectedRoute>
           }

@@ -5,7 +5,6 @@ import images from "../assets/images.jpg";
 
 /* ================= TYPES ================= */
 
-
 type OrgUser = {
   id: number;
   name: string;
@@ -20,7 +19,6 @@ export default function ROOrganizationChart() {
   const [users, setUsers] = useState<OrgUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔐 Only trust ID from login
   const team = String(localStorage.getItem("team"));
 
   useEffect(() => {
