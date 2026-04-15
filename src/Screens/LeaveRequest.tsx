@@ -19,7 +19,6 @@ export default function LeaveRequests() {
   const [loading, setLoading] = useState(true);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
- 
 
   // Filters
   const [fromFilter, setFromFilter] = useState("");
@@ -63,26 +62,26 @@ export default function LeaveRequests() {
     const leaveTo = new Date(leave.to);
 
     const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
-     // Employee Search
+    // Employee Search
     const matchEmployeeSearch = leave.employeeName
       .toLowerCase()
       .includes(employeeSearch.toLowerCase());
- 
+
     // General Search (Reason + Leave Type)
     const matchGeneralSearch =
       leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
       leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
- 
+
     // Date Filter
     let matchDate = true;
- 
+
     if (fromFilter && toFilter) {
       const selectedFrom = new Date(fromFilter);
       const selectedTo = new Date(toFilter);
- 
+
       selectedFrom.setHours(0, 0, 0, 0);
       selectedTo.setHours(0, 0, 0, 0);
- 
+
       matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
     } else if (fromFilter) {
       const selectedFrom = new Date(fromFilter);
@@ -93,13 +92,12 @@ export default function LeaveRequests() {
       selectedTo.setHours(0, 0, 0, 0);
       matchDate = leaveFrom <= selectedTo;
     }
- 
 
     // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
 
     // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
 
-   return (
+    return (
       matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
     );
   });
@@ -164,14 +162,14 @@ export default function LeaveRequests() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-4">
-         <input
+        <input
           type="text"
           placeholder="Search by employee name..."
           value={employeeSearch}
           onChange={(e) => setEmployeeSearch(e.target.value)}
           className="border p-2 rounded-lg w-64"
         />
- 
+
         {/* General Search */}
         <input
           type="text"
@@ -180,8 +178,7 @@ export default function LeaveRequests() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border p-2 rounded-lg w-64"
         />
- 
- 
+
         <input
           type="date"
           value={fromFilter}
@@ -212,7 +209,7 @@ export default function LeaveRequests() {
       <div className="bg-white rounded-xl shadow overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-100 text-left">
+            <tr className="bg-gray-100 text-left rounded-md">
               <th className="p-3">Employee</th>
               <th className="p-3">Leave Type</th>
               <th className="p-3">From</th>

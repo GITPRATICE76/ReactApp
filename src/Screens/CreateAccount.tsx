@@ -21,7 +21,6 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
 
-
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -37,11 +36,10 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
 
         const res = await axiosInstance.get(`/me?user_id=${userId}`);
 
-        console.log("API Response:", res);       // 👈 check this
-        console.log("API Data:", res.data);      // 👈 check this
+        console.log("API Response:", res); // 👈 check this
+        console.log("API Data:", res.data); // 👈 check this
 
         setUser(res.data);
-
       } catch (error) {
         console.error("ERROR:", error);
       }
@@ -51,20 +49,16 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   }, []);
 
   const getTeams = () => {
-
     if (!user) return [];
-
 
     if (user.role === "EMPLOYEE") {
       return user.team ? [user.team] : [];
     }
 
-
     if (user.role === "MANAGER" && user.department == "DEVELOPMENT") {
       return ["REACT", "BACKEND", "WEB", "DB"];
-    }
-    else if (user.role === "MANAGER" && user.department == "QA") {
-      return ["MANUAL", "AUTOMATION"];
+    } else if (user.role === "MANAGER" && user.department == "QA") {
+      return ["QA"];
     } else if (user.role === "RO" && user.team == "REACT") {
       return ["REACT"];
     } else if (user.role === "RO" && user.team == "BACKEND") {
@@ -73,11 +67,12 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
       return ["WEB"];
     } else if (user.role === "RO" && user.team == "DB") {
       return ["DB"];
+    } else if (user.role === "RO" && user.team == "QA") {
+      return ["QA"];
     }
 
     return [];
   };
-
 
   const validateField = (field: keyof Errors, value: string) => {
     let message = "";
@@ -123,7 +118,6 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   // };
 
   const getDepartments = () => {
-
     if (!user) return [];
 
     // both EMPLOYEE & MANAGER → only their department
@@ -160,144 +154,133 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
     }
   };
 
-return (
-  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+  return (
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      {/* MODAL BOX */}
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
+        {/* CLOSE BUTTON */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-lg"
+          >
+            ✕
+          </button>
+        )}
 
-    {/* MODAL BOX */}
-    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
-
-      {/* CLOSE BUTTON */}
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-lg"
-        >
-          ✕
-        </button>
-      )}
-
-      <div className="space-y-6">
-
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800">
-            Create Account
-          </h2>
-          <p className="text-gray-500 text-sm mt-1">
-            Enter employee details below
-          </p>
-        </div>
-
-        {/* FULL NAME */}
-        <div>
-          <Label className="text-sm text-gray-600">Full Name</Label>
-          <Input
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              validateField("name", e.target.value);
-            }}
-            placeholder="Enter full name"
-            className={`mt-2 h-12 ${errors.name ? "border-red-400" : ""}`}
-          />
-          {errors.name && (
-            <p className="text-xs text-red-500 mt-1">{errors.name}</p>
-          )}
-        </div>
-
-        {/* EMAIL */}
-        <div>
-          <Label className="text-sm text-gray-600">Work Email</Label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              validateField("email", e.target.value);
-            }}
-            placeholder="Enter work email"
-            className={`mt-2 h-12 ${errors.email ? "border-red-400" : ""}`}
-          />
-          {errors.email && (
-            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        {/* DEPARTMENT + TEAM (UNCHANGED LOGIC) */}
-        <div className="grid grid-cols-2 gap-4">
-
+        <div className="space-y-6">
           <div>
-            <Label className="text-sm text-gray-600">Department</Label>
-            <select
-              className="w-full border rounded-lg h-12 mt-2 px-3 bg-white focus:ring-2 focus:ring-indigo-600"
-              value={department}
-              onChange={(e) => {
-                setDepartment(e.target.value);
-                setTeam("");
-                validateField("department", e.target.value);
-              }}
-            >
-              <option value="">Select</option>
-              {getDepartments().map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
+            <p className="text-gray-500 text-sm mt-1">
+              Enter employee details below
+            </p>
           </div>
 
+          {/* FULL NAME */}
           <div>
-            <Label className="text-sm text-gray-600">Team</Label>
-            <select
-              className="w-full border rounded-lg h-12 mt-2 px-3 bg-white disabled:bg-gray-100 focus:ring-2 focus:ring-indigo-600"
-              value={team}
-              disabled={!department}
+            <Label className="text-sm text-gray-600">Full Name</Label>
+            <Input
+              value={name}
               onChange={(e) => {
-                setTeam(e.target.value);
-                validateField("team", e.target.value);
+                setName(e.target.value);
+                validateField("name", e.target.value);
               }}
-            >
-              <option value="">Select</option>
-              {getTeams().map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+              placeholder="Enter full name"
+              className={`mt-2 h-12 ${errors.name ? "border-red-400" : ""}`}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+            )}
           </div>
 
+          {/* EMAIL */}
+          <div>
+            <Label className="text-sm text-gray-600">Work Email</Label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                validateField("email", e.target.value);
+              }}
+              placeholder="Enter work email"
+              className={`mt-2 h-12 ${errors.email ? "border-red-400" : ""}`}
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* DEPARTMENT + TEAM (UNCHANGED LOGIC) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm text-gray-600">Department</Label>
+              <select
+                className="w-full border rounded-lg h-12 mt-2 px-3 bg-white focus:ring-2 focus:ring-indigo-600"
+                value={department}
+                onChange={(e) => {
+                  setDepartment(e.target.value);
+                  setTeam("");
+                  validateField("department", e.target.value);
+                }}
+              >
+                <option value="">Select</option>
+                {getDepartments().map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <Label className="text-sm text-gray-600">Team</Label>
+              <select
+                className="w-full border rounded-lg h-12 mt-2 px-3 bg-white disabled:bg-gray-100 focus:ring-2 focus:ring-indigo-600"
+                value={team}
+                disabled={!department}
+                onChange={(e) => {
+                  setTeam(e.target.value);
+                  validateField("team", e.target.value);
+                }}
+              >
+                <option value="">Select</option>
+                {getTeams().map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* PASSWORD */}
+          <div>
+            <Label className="text-sm text-gray-600">Password</Label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validateField("password", e.target.value);
+              }}
+              placeholder="Enter password"
+              className={`mt-2 h-12 ${errors.password ? "border-red-400" : ""}`}
+            />
+            {errors.password && (
+              <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          {/* BUTTON */}
+          <Button
+            onClick={handleCreateEmployee}
+            className="w-full h-12 bg-indigo-900 hover:bg-indigo-800 text-white rounded-lg text-base"
+          >
+            Create Employee
+          </Button>
         </div>
-
-        {/* PASSWORD */}
-        <div>
-          <Label className="text-sm text-gray-600">Password</Label>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              validateField("password", e.target.value);
-            }}
-            placeholder="Enter password"
-            className={`mt-2 h-12 ${errors.password ? "border-red-400" : ""}`}
-          />
-          {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-          )}
-        </div>
-
-        {/* BUTTON */}
-        <Button
-          onClick={handleCreateEmployee}
-          className="w-full h-12 bg-indigo-900 hover:bg-indigo-800 text-white rounded-lg text-base"
-        >
-          Create Employee
-        </Button>
-
       </div>
     </div>
-  </div>
-);
-
-
-
-
-
-
-
+  );
 }

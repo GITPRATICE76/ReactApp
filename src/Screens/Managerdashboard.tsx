@@ -3,7 +3,6 @@ import axiosInstance from "../Routes/axiosInstance";
 import WorkHoursChart from "../components/ui/BarChart";
 import type { DayAnalytics } from "../shared/analytics";
 import CardComp from "../components/ui/CardComp";
-import LeaveHistory from "../components/LeaveHistory";
 import LeaveRequests from "./LeaveRequest";
 
 /* ================= TYPES ================= */
@@ -35,35 +34,33 @@ export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
   const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
-   const fetchAnalytics = async () => {
-      try {
-        const today = new Date();
-        const end = new Date();
-        end.setDate(today.getDate() + 30);
+  const fetchAnalytics = async () => {
+    try {
+      const today = new Date();
+      const end = new Date();
+      end.setDate(today.getDate() + 60);
 
-        const format = (d: Date) => d.toISOString().split("T")[0];
+      const format = (d: Date) => d.toISOString().split("T")[0];
 
-        const res = await axiosInstance.get(
-          `/leave/analytics?start=${format(today)}&end=${format(end)}`,
-        );
+      const res = await axiosInstance.get(
+        `/leave/analytics?start=${format(today)}&end=${format(end)}`,
+      );
 
-        const data = res.data || [];
-        setAnalyticsData(data);
+      const data = res.data || [];
+      setAnalyticsData(data);
 
-        const todayStr = format(today);
+      const todayStr = format(today);
 
-        const todayData = data.find((d: DayAnalytics) => d.date === todayStr);
+      const todayData = data.find((d: DayAnalytics) => d.date === todayStr);
 
-        if (todayData) {
-          setSelectedDay(todayData);
-        }
-      } catch (error) {
-        console.error("Analytics load failed", error);
+      if (todayData) {
+        setSelectedDay(todayData);
       }
-    };
+    } catch (error) {
+      console.error("Analytics load failed", error);
+    }
+  };
   useEffect(() => {
- 
-
     fetchAnalytics();
   }, []);
 
@@ -105,7 +102,7 @@ export default function Managerdashboard() {
             label="Team With Highest Leave"
             value={
               summaryData
-                ? `${summaryData.team_highest_leave.team || "-"} (${summaryData.team_highest_leave.count})`
+                ? `${summaryData.team_highest_leave.team || "-"} (${summaryData.team_highest_leave.count})days`
                 : "-"
             }
             highlight="text-purple-600"
@@ -125,7 +122,7 @@ export default function Managerdashboard() {
             label="Top Leave Taker"
             value={
               summaryData
-                ? `${summaryData.top_leave_taker.name || "-"} (${summaryData.top_leave_taker.count})`
+                ? `${summaryData.top_leave_taker.name || "-"} (${summaryData.top_leave_taker.count})days`
                 : "-"
             }
             highlight="text-blue-600"
