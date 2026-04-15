@@ -17,6 +17,9 @@ type LeaveRequest = {
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+ 
 
   // Filters
   const [fromFilter, setFromFilter] = useState("");
@@ -60,12 +63,45 @@ export default function LeaveRequests() {
     const leaveTo = new Date(leave.to);
 
     const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
+     // Employee Search
+    const matchEmployeeSearch = leave.employeeName
+      .toLowerCase()
+      .includes(employeeSearch.toLowerCase());
+ 
+    // General Search (Reason + Leave Type)
+    const matchGeneralSearch =
+      leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
+ 
+    // Date Filter
+    let matchDate = true;
+ 
+    if (fromFilter && toFilter) {
+      const selectedFrom = new Date(fromFilter);
+      const selectedTo = new Date(toFilter);
+ 
+      selectedFrom.setHours(0, 0, 0, 0);
+      selectedTo.setHours(0, 0, 0, 0);
+ 
+      matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
+    } else if (fromFilter) {
+      const selectedFrom = new Date(fromFilter);
+      selectedFrom.setHours(0, 0, 0, 0);
+      matchDate = leaveTo >= selectedFrom;
+    } else if (toFilter) {
+      const selectedTo = new Date(toFilter);
+      selectedTo.setHours(0, 0, 0, 0);
+      matchDate = leaveFrom <= selectedTo;
+    }
+ 
 
-    const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
+    // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
 
-    const matchTo = !toFilter || leaveTo <= new Date(toFilter);
+    // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
 
-    return matchStatus && matchFrom && matchTo;
+   return (
+      matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
+    );
   });
 
   const openActionModal = (
@@ -128,6 +164,24 @@ export default function LeaveRequests() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-4">
+         <input
+          type="text"
+          placeholder="Search by employee name..."
+          value={employeeSearch}
+          onChange={(e) => setEmployeeSearch(e.target.value)}
+          className="border p-2 rounded-lg w-64"
+        />
+ 
+        {/* General Search */}
+        <input
+          type="text"
+          placeholder="Search reason or leave type..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded-lg w-64"
+        />
+ 
+ 
         <input
           type="date"
           value={fromFilter}
