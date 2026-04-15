@@ -6,7 +6,6 @@ import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
 import { useNavigate } from "react-router-dom";
-import { UserPlus } from "lucide-react"; // Icons for a better look
 
 type Errors = {
   name?: string;
