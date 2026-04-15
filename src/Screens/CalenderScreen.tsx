@@ -1,4 +1,4 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
@@ -28,18 +28,50 @@ export default function LeaveCalendar() {
     fetchCalendar(currentDate);
   }, [currentDate]);
 
+  function CustomToolbar(props: any) {
+    const { label, onNavigate } = props;
+
+    return (
+      <div className="flex items-center justify-between mb-4">
+        {/* LEFT BUTTONS */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onNavigate("PREV")}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Back
+          </button>
+
+          <button
+            onClick={() => onNavigate("TODAY")}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Today
+          </button>
+
+          {/* Normal next */}
+          <button
+            onClick={() => onNavigate("NEXT")}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Next
+          </button>
+        </div>
+        <span className="font-semibold">{label}</span>
+      </div>
+    );
+  }
   const fetchCalendar = async (date: Date) => {
     try {
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
 
-     const res = await axiosInstance.get(HOLIDAY_URL, {
-  params: {
-    year: year,
-    month: month,
-  },
-});
-
+      const res = await axiosInstance.get(HOLIDAY_URL, {
+        params: {
+          year: year,
+          month: month,
+        },
+      });
 
       const holidays = res.data.holidays || [];
       const leaves = res.data.leaves || [];
@@ -113,6 +145,9 @@ export default function LeaveCalendar() {
         defaultView="month"
         views={{ month: true }}
         popup
+        components={{
+          toolbar: CustomToolbar,
+        }}
       />
 
       {/* Legend */}

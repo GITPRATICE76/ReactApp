@@ -80,7 +80,7 @@ function App() {
         <Route
           path="/employee/calender"
           element={
-            <ProtectedRoute roles={["EMPLOYEE"]}>
+            <ProtectedRoute roles={["EMPLOYEE", "RO"]}>
               <MainLayout>
                 <LeaveCalendar />
               </MainLayout>

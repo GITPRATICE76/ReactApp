@@ -146,16 +146,15 @@ export default function Sidebar() {
             onClick={() => navigate("/employee/calender")}
           />
         )}
-
-        {/* {role === "MANAGER" && (
+        {role === "RO" && (
           <MenuItem
-          icon={<FiCalendar/>}
-          label="Create Employee"
-          open={open}
-          active ={location.pathname === '/create-employee'}
-          onClick={()=> navigate("/create-employee")}
-           />
-        )} */}
+            icon={<FiCalendar />}
+            label="Calender View"
+            open={open}
+            active={location.pathname === "/employee/calender"}
+            onClick={() => navigate("/employee/calender")}
+          />
+        )}
 
         {role === "MANAGER" && (
           <MenuItem
@@ -176,7 +175,7 @@ export default function Sidebar() {
           />
         )}
 
-        {(role === "MANAGER" || role === "RO") && (
+        {role === "MANAGER" && (
           <MenuItem
             icon={<FiUsers />}
             label="Organization Chart"
@@ -186,9 +185,7 @@ export default function Sidebar() {
               location.pathname === "/ro/org-chart"
             }
             onClick={() => {
-              if (role === "RO") {
-                navigate("/ro/org-chart");
-              } else {
+              {
                 navigate("/manager/org-chart");
               }
             }}

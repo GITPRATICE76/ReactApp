@@ -65,10 +65,14 @@ export default function Employeedashboard() {
         />
         <StatCard
           title="Casual Leaves"
-          value={data.casual_leaves}
+          value={`${data.casual_leaves} days`}
           sub="Approved"
         />
-        <StatCard title="Sick Leaves" value={data.sick_leaves} sub="Approved" />
+        <StatCard
+          title="Sick Leaves"
+          value={`${data.sick_leaves} days`}
+          sub="Approved"
+        />
         <StatCard
           title="Currently On Leave"
           value={data.currently_on_leave ? "Yes" : "No"}
