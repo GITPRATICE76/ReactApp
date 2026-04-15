@@ -3,8 +3,6 @@ import axiosInstance from "../Routes/axiosInstance";
 import { Card, CardContent } from "../components/ui/card";
 import images from "../assets/images.jpg";
 
-/* ================= TYPES ================= */
-
 type OrgUser = {
   id: number;
   name: string;
@@ -12,8 +10,6 @@ type OrgUser = {
   department: string;
   team: string | null;
 };
-
-/* ================= MAIN ================= */
 
 export default function ROOrganizationChart() {
   const [users, setUsers] = useState<OrgUser[]>([]);
@@ -27,8 +23,6 @@ export default function ROOrganizationChart() {
       .then((res) => setUsers(res.data || []))
       .finally(() => setLoading(false));
   }, []);
-
-  /* ================= FIND LOGGED-IN RO ================= */
 
   const loggedInRO = useMemo(
     () => users.find((u) => u.team === team && u.role === "RO"),

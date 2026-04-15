@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "../../Routes/axiosInstance";
+import CreateAccount from "../../Screens/CreateAccount";
 
 interface MyToken {
   id: number;
@@ -27,6 +28,7 @@ export default function Sidebar() {
   const [teamName, setTeamName] = useState("");
   const [role, setRole] = useState<MyToken["role"] | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -197,7 +199,7 @@ export default function Sidebar() {
         <p className="text-sm text-center text-gray-500">
           <span
             className="text-blue-900 font-medium cursor-pointer hover:underline"
-            onClick={() => navigate("/create-employee")}
+            onClick={() => setShowCreateModal(true)}
           >
             CREATE ACCOUNT
           </span>
@@ -237,6 +239,20 @@ export default function Sidebar() {
                 No
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="rounded-lg shadow-lg w-[800px] max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowCreateModal(false)}
+              className="absolute top-1 right-1 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+
+            <CreateAccount onClose={() => setShowCreateModal(false)} />
           </div>
         </div>
       )}
