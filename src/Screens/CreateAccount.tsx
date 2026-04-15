@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
 import { useNavigate } from "react-router-dom";
 
+import { UserPlus } from "lucide-react"; // Icons for a better look
+import { useEffect } from "react";
+
 type Errors = {
   name?: string;
   email?: string;
@@ -17,6 +20,7 @@ type Errors = {
 
 export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -24,10 +28,48 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   const [department, setDepartment] = useState<string>("");
   const [team, setTeam] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = localStorage.getItem("userid");
+
+        console.log("UserId:", userId); // ✅ should be 40
+
+        const res = await axiosInstance.get(`/me?user_id=${userId}`);
+
+        console.log("API Response:", res); // 👈 check this
+        console.log("API Data:", res.data); // 👈 check this
+
+        setUser(res.data);
+      } catch (error) {
+        console.error("ERROR:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const getTeams = () => {
-    if (department === "QA") return ["QA"];
-    if (department === "DEVELOPMENT") return ["REACT", "BACKEND", "WEB", "DB"];
+    if (!user) return [];
+
+    if (user.role === "EMPLOYEE") {
+      return user.team ? [user.team] : [];
+    }
+
+    if (user.role === "MANAGER" && user.department == "DEVELOPMENT") {
+      return ["REACT", "BACKEND", "WEB", "DB"];
+    } else if (user.role === "MANAGER" && user.department == "QA") {
+      return ["MANUAL", "AUTOMATION"];
+    } else if (user.role === "RO" && user.team == "REACT") {
+      return ["REACT"];
+    } else if (user.role === "RO" && user.team == "BACKEND") {
+      return ["BACKEND"];
+    } else if (user.role === "RO" && user.team == "WEB") {
+      return ["WEB"];
+    } else if (user.role === "RO" && user.team == "DB") {
+      return ["DB"];
+    }
+
     return [];
   };
 
@@ -73,6 +115,13 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   //     toast.error("Network error occurred");
   //   }
   // };
+
+  const getDepartments = () => {
+    if (!user) return [];
+
+    // both EMPLOYEE & MANAGER → only their department
+    return user.department ? [user.department] : [];
+  };
   const handleCreateEmployee = async () => {
     const fields: (keyof Errors)[] = [
       "name",
@@ -105,12 +154,20 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="p-6">
-      {/* LEFT BRANDING PANEL */}
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      {/* MODAL BOX */}
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
+        {/* CLOSE BUTTON */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-lg"
+          >
+            ✕
+          </button>
+        )}
 
-      {/* RIGHT FORM PANEL */}
-      <div className="w-full md:w-1/2 h-full flex items-center justify-center bg-gray-50 px-10">
-        <div className="w-full max-w-md space-y-6">
+        <div className="space-y-6">
           <div>
             <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
             <p className="text-gray-500 text-sm mt-1">
@@ -153,7 +210,7 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
             )}
           </div>
 
-          {/* DEPARTMENT + TEAM */}
+          {/* DEPARTMENT + TEAM (UNCHANGED LOGIC) */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-sm text-gray-600">Department</Label>
@@ -167,8 +224,11 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
                 }}
               >
                 <option value="">Select</option>
-                <option value="QA">QA</option>
-                <option value="DEVELOPMENT">Development</option>
+                {getDepartments().map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
 
