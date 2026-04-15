@@ -27,7 +27,7 @@ export default function EmployeeLeaveApply() {
       return;
     }
     if (!reason) {
-      toast.error("Please select Reason");
+      toast.error("Please Fill Reason");
       return;
     }
     if (!fromDate || !toDate) {
@@ -75,7 +75,7 @@ export default function EmployeeLeaveApply() {
       setFromDate("");
       setToDate("");
       setReason("");
-      setLeaveType("SICK");
+      setLeaveType(" ");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }

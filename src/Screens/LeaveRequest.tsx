@@ -17,10 +17,11 @@ type LeaveRequest = {
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Filters
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+ 
+
+  // Filters
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -35,7 +36,7 @@ export default function LeaveRequests() {
 
   const managerId = Number(localStorage.getItem("userid"));
 
-  // Fetch Leaves
+  // Fetch leaves
   useEffect(() => {
     axiosInstance
       .get(GET_LEAVES_URL)
@@ -56,38 +57,32 @@ export default function LeaveRequests() {
     return leaveEndDate >= today;
   });
 
-  // Filter Logic
+  // Apply filters
   const filteredLeaves = activeLeaves.filter((leave) => {
     const leaveFrom = new Date(leave.from);
     const leaveTo = new Date(leave.to);
 
-    leaveFrom.setHours(0, 0, 0, 0);
-    leaveTo.setHours(0, 0, 0, 0);
-
-    // Status
-    const matchStatus =
-      statusFilter === "ALL" || leave.status === statusFilter;
-
-    // Employee Search
+    const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
+     // Employee Search
     const matchEmployeeSearch = leave.employeeName
       .toLowerCase()
       .includes(employeeSearch.toLowerCase());
-
+ 
     // General Search (Reason + Leave Type)
     const matchGeneralSearch =
       leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
       leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
-
+ 
     // Date Filter
     let matchDate = true;
-
+ 
     if (fromFilter && toFilter) {
       const selectedFrom = new Date(fromFilter);
       const selectedTo = new Date(toFilter);
-
+ 
       selectedFrom.setHours(0, 0, 0, 0);
       selectedTo.setHours(0, 0, 0, 0);
-
+ 
       matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
     } else if (fromFilter) {
       const selectedFrom = new Date(fromFilter);
@@ -98,18 +93,20 @@ export default function LeaveRequests() {
       selectedTo.setHours(0, 0, 0, 0);
       matchDate = leaveFrom <= selectedTo;
     }
+ 
 
-    return (
-      matchStatus &&
-      matchDate &&
-      matchEmployeeSearch &&
-      matchGeneralSearch
+    // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
+
+    // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
+
+   return (
+      matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
     );
   });
 
   const openActionModal = (
     leaveId: number,
-    action: "APPROVED" | "REJECTED"
+    action: "APPROVED" | "REJECTED",
   ) => {
     setSelectedLeaveId(leaveId);
     setSelectedAction(action);
@@ -135,14 +132,14 @@ export default function LeaveRequests() {
         prev.map((leave) =>
           leave.id === selectedLeaveId
             ? { ...leave, status: selectedAction! }
-            : leave
-        )
+            : leave,
+        ),
       );
 
       toast.success(
         selectedAction === "APPROVED"
           ? "Leave approved successfully"
-          : "Leave rejected successfully"
+          : "Leave rejected successfully",
       );
 
       setShowModal(false);
@@ -167,15 +164,14 @@ export default function LeaveRequests() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-4">
-        {/* Employee Search */}
-        <input
+         <input
           type="text"
           placeholder="Search by employee name..."
           value={employeeSearch}
           onChange={(e) => setEmployeeSearch(e.target.value)}
           className="border p-2 rounded-lg w-64"
         />
-
+ 
         {/* General Search */}
         <input
           type="text"
@@ -184,7 +180,8 @@ export default function LeaveRequests() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border p-2 rounded-lg w-64"
         />
-
+ 
+ 
         <input
           type="date"
           value={fromFilter}
@@ -250,34 +247,49 @@ export default function LeaveRequests() {
                         leave.status === "PENDING"
                           ? "bg-yellow-100 text-yellow-700"
                           : leave.status === "APPROVED"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
                       }`}
                     >
                       {leave.status}
                     </span>
                   </td>
 
+                  {/* 🔥 Dynamic Action Buttons */}
                   <td className="p-3 space-x-2">
-                    {leave.status !== "APPROVED" && (
-                      <button
-                        onClick={() =>
-                          openActionModal(leave.id, "APPROVED")
-                        }
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
+                    {leave.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() => openActionModal(leave.id, "APPROVED")}
+                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+
+                        <button
+                          onClick={() => openActionModal(leave.id, "REJECTED")}
+                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </>
                     )}
 
-                    {leave.status !== "REJECTED" && (
+                    {leave.status === "APPROVED" && (
                       <button
-                        onClick={() =>
-                          openActionModal(leave.id, "REJECTED")
-                        }
+                        onClick={() => openActionModal(leave.id, "REJECTED")}
                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                       >
                         Reject
+                      </button>
+                    )}
+
+                    {leave.status === "REJECTED" && (
+                      <button
+                        onClick={() => openActionModal(leave.id, "APPROVED")}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Approve
                       </button>
                     )}
                   </td>
@@ -290,33 +302,35 @@ export default function LeaveRequests() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-96 space-y-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
             <h2 className="text-lg font-semibold">
-              {selectedAction === "APPROVED"
-                ? "Approve Leave"
-                : "Reject Leave"}
+              {selectedAction === "APPROVED" ? "Approve Leave" : "Reject Leave"}
             </h2>
 
             <textarea
-              placeholder="Enter remarks..."
+              className="w-full border rounded-lg p-2"
+              rows={4}
+              placeholder="Enter remarks"
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
-              className="w-full border p-2 rounded-lg"
             />
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end gap-3">
               <button
+                className="px-4 py-2 border rounded-lg"
                 onClick={() => setShowModal(false)}
-                className="px-3 py-1 bg-gray-300 rounded"
               >
                 Cancel
               </button>
+
               <button
+                className={`px-4 py-2 rounded-lg text-white ${
+                  selectedAction === "APPROVED" ? "bg-green-600" : "bg-red-600"
+                }`}
                 onClick={submitAction}
-                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Submit
+                {selectedAction === "APPROVED" ? "Approve" : "Reject"}
               </button>
             </div>
           </div>

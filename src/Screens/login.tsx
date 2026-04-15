@@ -175,15 +175,7 @@ export default function Login() {
               Login
             </Button>
 
-            <p className="text-sm text-center text-gray-500">
-              Don’t have an account?{" "}
-              <span
-                className="text-blue-900 font-medium cursor-pointer hover:underline"
-                onClick={() => navigate("/create-employee")}
-              >
-                Create account
-              </span>
-            </p>
+        
           </form>
         </div>
 
