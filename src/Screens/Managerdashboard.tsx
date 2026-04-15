@@ -35,7 +35,9 @@ export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
   const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
-   const fetchAnalytics = async () => {
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
       try {
         const today = new Date();
         const end = new Date();
@@ -61,8 +63,6 @@ export default function Managerdashboard() {
         console.error("Analytics load failed", error);
       }
     };
-  useEffect(() => {
- 
 
     fetchAnalytics();
   }, []);
@@ -221,7 +221,6 @@ export default function Managerdashboard() {
           <WorkHoursChart
             analytics={analyticsData}
             onBarClick={(day) => setSelectedDay(day)}
-            onRefresh={fetchAnalytics}
           />
         </div>
       </div>

@@ -27,7 +27,7 @@ export default function EmployeeLeaveApply() {
       return;
     }
     if (!reason) {
-      toast.error("Please Fill Reason");
+      toast.error("Please select Reason");
       return;
     }
     if (!fromDate || !toDate) {

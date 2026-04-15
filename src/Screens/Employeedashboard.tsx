@@ -139,46 +139,6 @@ export default function Employeedashboard() {
           )}
         </CardContent>
       </Card>
-      {/* 🔥 NEW SECTION: Leave Remarks */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FiBell /> Leave Remarks (Manager Feedback)
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="text-sm space-y-3 max-h-60 overflow-y-auto">
-          {!data.leave_remarks || data.leave_remarks.length === 0 ? (
-            <p className="text-gray-500">No remarks available.</p>
-          ) : (
-            data.leave_remarks.map((item: any) => (
-              <div key={item.id} className="border rounded-lg p-3 bg-gray-50">
-                <div className="flex justify-between mb-1">
-                  <span className="font-medium">{item.leave_type}</span>
-
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      item.status === "APPROVED"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
-                </div>
-
-                <p className="text-xs text-gray-500">
-                  {item.from_date.split("T")[0]} → {item.to_date.split("T")[0]}
-                </p>
-
-                <p className="mt-2 text-gray-700">
-                  <b>Remark:</b> {item.remarks || "No remarks"}
-                </p>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

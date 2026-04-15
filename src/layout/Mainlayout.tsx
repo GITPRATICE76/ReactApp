@@ -1,7 +1,7 @@
 import Sidebar from "../components/ui/Sidebar";
 import Navbar from "../components/ui/Navbar";
 import { useEffect, useState } from "react";
-import BottomNavbar from "../components/ui/BottomNavbar";
+import BottomNavbar from "../components/BottomNavbar";
 
 export default function MainLayout({
   children,
@@ -32,7 +32,7 @@ export default function MainLayout({
         <main className="flex-1 overflow-y-auto bg-slate-100 p-6 pb-20">
           {children}
         </main>
-        {/* <BottomNavbar /> */}
+        <BottomNavbar />
       </div>
     </div>
   );
