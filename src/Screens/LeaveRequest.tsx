@@ -19,6 +19,9 @@ export default function LeaveRequests() {
   const [loading, setLoading] = useState(true);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const rowsPerPage = 10;
 
   // Filters
   const [fromFilter, setFromFilter] = useState("");
@@ -34,73 +37,105 @@ export default function LeaveRequests() {
   const [remarks, setRemarks] = useState("");
 
   const managerId = Number(localStorage.getItem("userid"));
+  
 
   // Fetch leaves
-  useEffect(() => {
-    axiosInstance
-      .get(GET_LEAVES_URL)
-      .then((res) => {
-        setLeaveRequests(Array.isArray(res.data) ? res.data : []);
-      })
-      .catch(() => toast.error("Failed to fetch leave requests"))
-      .finally(() => setLoading(false));
-  }, []);
+const fetchLeaves = async (page = 1) => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      employee: employeeSearch,
+      search: searchTerm,
+      start: fromFilter,
+      end: toFilter,
+      status: statusFilter,
+      page: page,
+      limit: rowsPerPage,
+    };
+
+    const res = await axiosInstance.post(GET_LEAVES_URL, payload);
+
+    setLeaveRequests(res.data.data || []);
+    setTotalRecords(res.data.total || 0);
+    setCurrentPage(page);
+
+  } catch {
+    toast.error("Failed to fetch leave requests");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const futureLeaves = leaveRequests.filter((leave) => {
+  const leaveEnd = new Date(leave.to);
+  leaveEnd.setHours(0, 0, 0, 0);
+
+  return leaveEnd >= today;
+});
+
+useEffect(() => {
+  fetchLeaves(1);
+}, []);
 
   // Remove past leaves
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // const today = new Date();
+  // today.setHours(0, 0, 0, 0);
 
-  const activeLeaves = leaveRequests.filter((leave) => {
-    const leaveEndDate = new Date(leave.to);
-    leaveEndDate.setHours(0, 0, 0, 0);
-    return leaveEndDate >= today;
-  });
+  // const activeLeaves = leaveRequests.filter((leave) => {
+  //   const leaveEndDate = new Date(leave.to);
+  //   leaveEndDate.setHours(0, 0, 0, 0);
+  //   return leaveEndDate >= today;
+  // });
 
   // Apply filters
-  const filteredLeaves = activeLeaves.filter((leave) => {
-    const leaveFrom = new Date(leave.from);
-    const leaveTo = new Date(leave.to);
+  // const filteredLeaves = activeLeaves.filter((leave) => {
+  //   const leaveFrom = new Date(leave.from);
+  //   const leaveTo = new Date(leave.to);
 
-    const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
-    // Employee Search
-    const matchEmployeeSearch = leave.employeeName
-      .toLowerCase()
-      .includes(employeeSearch.toLowerCase());
+  //   const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
+  //   // Employee Search
+  //   const matchEmployeeSearch = leave.employeeName
+  //     .toLowerCase()
+  //     .includes(employeeSearch.toLowerCase());
 
-    // General Search (Reason + Leave Type)
-    const matchGeneralSearch =
-      leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
+  //   // General Search (Reason + Leave Type)
+  //   const matchGeneralSearch =
+  //     leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Date Filter
-    let matchDate = true;
+  //   // Date Filter
+  //   let matchDate = true;
 
-    if (fromFilter && toFilter) {
-      const selectedFrom = new Date(fromFilter);
-      const selectedTo = new Date(toFilter);
+  //   if (fromFilter && toFilter) {
+  //     const selectedFrom = new Date(fromFilter);
+  //     const selectedTo = new Date(toFilter);
 
-      selectedFrom.setHours(0, 0, 0, 0);
-      selectedTo.setHours(0, 0, 0, 0);
+  //     selectedFrom.setHours(0, 0, 0, 0);
+  //     selectedTo.setHours(0, 0, 0, 0);
 
-      matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
-    } else if (fromFilter) {
-      const selectedFrom = new Date(fromFilter);
-      selectedFrom.setHours(0, 0, 0, 0);
-      matchDate = leaveTo >= selectedFrom;
-    } else if (toFilter) {
-      const selectedTo = new Date(toFilter);
-      selectedTo.setHours(0, 0, 0, 0);
-      matchDate = leaveFrom <= selectedTo;
-    }
+  //     matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
+  //   } else if (fromFilter) {
+  //     const selectedFrom = new Date(fromFilter);
+  //     selectedFrom.setHours(0, 0, 0, 0);
+  //     matchDate = leaveTo >= selectedFrom;
+  //   } else if (toFilter) {
+  //     const selectedTo = new Date(toFilter);
+  //     selectedTo.setHours(0, 0, 0, 0);
+  //     matchDate = leaveFrom <= selectedTo;
+  //   }
 
-    // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
+  //   // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
 
-    // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
+  //   // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
 
-    return (
-      matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
-    );
-  });
+  //   return (
+  //     matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
+  //   );
+  // });
 
   const openActionModal = (
     leaveId: number,
@@ -161,7 +196,7 @@ export default function LeaveRequests() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-4">
+      <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-2">
         <input
           type="text"
           placeholder="Search by employee name..."
@@ -203,6 +238,12 @@ export default function LeaveRequests() {
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
         </select>
+        <button
+  onClick={() => fetchLeaves(1)}
+  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+>
+  Search
+</button>
       </div>
 
       {/* Table */}
@@ -221,80 +262,116 @@ export default function LeaveRequests() {
             </tr>
           </thead>
 
-          <tbody>
-            {filteredLeaves.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center p-4 text-gray-500">
-                  No leave records found
-                </td>
-              </tr>
-            ) : (
-              filteredLeaves.map((leave) => (
-                <tr key={leave.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{leave.employeeName}</td>
-                  <td className="p-3">{leave.leaveType}</td>
-                  <td className="p-3">{leave.from}</td>
-                  <td className="p-3">{leave.to}</td>
-                  <td className="p-3">{leave.days}</td>
-                  <td className="p-3">{leave.reason}</td>
+        <tbody>
+  {futureLeaves.length === 0 ? (
+    <tr>
+      <td colSpan={8} className="text-center p-4 text-gray-500">
+        No leave records found
+      </td>
+    </tr>
+  ) : (
+    futureLeaves.map((leave) => (
+      <tr key={leave.id} className="border-b hover:bg-gray-50">
+        <td className="p-3">{leave.employeeName}</td>
+        <td className="p-3">{leave.leaveType}</td>
+        <td className="p-3">{leave.from}</td>
+        <td className="p-3">{leave.to}</td>
+        <td className="p-3">{leave.days}</td>
+        <td className="p-3">{leave.reason}</td>
 
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        leave.status === "PENDING"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : leave.status === "APPROVED"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {leave.status}
-                    </span>
-                  </td>
+        <td className="p-3">
+          <span
+            className={`px-2 py-1 rounded-full text-sm ${
+              leave.status === "PENDING"
+                ? "bg-yellow-100 text-yellow-700"
+                : leave.status === "APPROVED"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {leave.status}
+          </span>
+        </td>
 
-                  {/* 🔥 Dynamic Action Buttons */}
-                  <td className="p-3 space-x-2">
-                    {leave.status === "PENDING" && (
-                      <>
-                        <button
-                          onClick={() => openActionModal(leave.id, "APPROVED")}
-                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                          Approve
-                        </button>
+        {/* 🔥 Action buttons (UNCHANGED) */}
+        <td className="p-3 space-x-2">
+          {leave.status === "PENDING" && (
+            <>
+              <button
+                onClick={() => openActionModal(leave.id, "APPROVED")}
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Approve
+              </button>
 
-                        <button
-                          onClick={() => openActionModal(leave.id, "REJECTED")}
-                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
+              <button
+                onClick={() => openActionModal(leave.id, "REJECTED")}
+                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Reject
+              </button>
+            </>
+          )}
 
-                    {leave.status === "APPROVED" && (
-                      <button
-                        onClick={() => openActionModal(leave.id, "REJECTED")}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    )}
+          {leave.status === "APPROVED" && (
+            <button
+              onClick={() => openActionModal(leave.id, "REJECTED")}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Reject
+            </button>
+          )}
 
-                    {leave.status === "REJECTED" && (
-                      <button
-                        onClick={() => openActionModal(leave.id, "APPROVED")}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+          {leave.status === "REJECTED" && (
+            <button
+              onClick={() => openActionModal(leave.id, "APPROVED")}
+              className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Approve
+            </button>
+          )}
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
         </table>
+        <div className="flex justify-center gap-2 mt-4">
+
+  <button
+    disabled={currentPage === 1}
+    onClick={() => fetchLeaves(currentPage - 1)}
+    className="px-3 py-1 bg-gray-200 rounded"
+  >
+    Prev
+  </button>
+
+  {Array.from(
+    { length: Math.max(1, Math.ceil(totalRecords / rowsPerPage)) },
+    (_, i) => (
+      <button
+        key={i}
+        onClick={() => fetchLeaves(i + 1)}
+        className={`px-3 py-1 rounded ${
+          currentPage === i + 1
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200"
+        }`}
+      >
+        {i + 1}
+      </button>
+    )
+  )}
+
+  <button
+    disabled={currentPage === Math.ceil(totalRecords / rowsPerPage)}
+    onClick={() => fetchLeaves(currentPage + 1)}
+    className="px-3 py-1 bg-gray-200 rounded"
+  >
+    Next
+  </button>
+
+</div>
       </div>
 
       {/* Modal */}
