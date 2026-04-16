@@ -17,3 +17,5 @@ export const HOLIDAY_URL = "/holidays";
 export const ED_URL = "/employee/dashboard";
 
 export const LEAVE_HISTORY_URL = "/leave/history";
+
+export const DROPDOWN_URL = "/usercode/details";

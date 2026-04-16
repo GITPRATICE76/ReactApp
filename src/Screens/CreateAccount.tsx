@@ -6,7 +6,6 @@ import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
 import { useNavigate } from "react-router-dom";
-import { UserPlus } from "lucide-react"; // Icons for a better look
 import { useEffect } from "react";
 
 type Errors = {
@@ -20,6 +19,7 @@ type Errors = {
 export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [teamOptions, setTeamOptions] = useState<string[]>([]);
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -48,30 +48,16 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
     fetchUser();
   }, []);
 
-  const getTeams = () => {
-    if (!user) return [];
+  const fetchTeams = async (dept: string) => {
+    try {
+      const res = await axiosInstance.get(`/usercode/details?masterId=${dept}`);
+      console.log("dept value:", dept);
 
-    if (user.role === "EMPLOYEE") {
-      return user.team ? [user.team] : [];
+      const teams = res.data.map((item: any) => item.code);
+      setTeamOptions(teams);
+    } catch (err) {
+      console.error("Team fetch failed", err);
     }
-
-    if (user.role === "MANAGER" && user.department == "DEVELOPMENT") {
-      return ["REACT", "BACKEND", "WEB", "DB"];
-    } else if (user.role === "MANAGER" && user.department == "QA") {
-      return ["QA"];
-    } else if (user.role === "RO" && user.team == "REACT") {
-      return ["REACT"];
-    } else if (user.role === "RO" && user.team == "BACKEND") {
-      return ["BACKEND"];
-    } else if (user.role === "RO" && user.team == "WEB") {
-      return ["WEB"];
-    } else if (user.role === "RO" && user.team == "DB") {
-      return ["DB"];
-    } else if (user.role === "RO" && user.team == "QA") {
-      return ["QA"];
-    }
-
-    return [];
   };
 
   const validateField = (field: keyof Errors, value: string) => {
@@ -120,7 +106,6 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
   const getDepartments = () => {
     if (!user) return [];
 
-    // both EMPLOYEE & MANAGER → only their department
     return user.department ? [user.department] : [];
   };
   const handleCreateEmployee = async () => {
@@ -219,9 +204,15 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
                 className="w-full border rounded-lg h-12 mt-2 px-3 bg-white focus:ring-2 focus:ring-indigo-600"
                 value={department}
                 onChange={(e) => {
-                  setDepartment(e.target.value);
+                  const value = e.target.value;
+
+                  setDepartment(value);
+
                   setTeam("");
-                  validateField("department", e.target.value);
+
+                  fetchTeams(value);
+
+                  validateField("department", value);
                 }}
               >
                 <option value="">Select</option>
@@ -245,7 +236,7 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
                 }}
               >
                 <option value="">Select</option>
-                {getTeams().map((t) => (
+                {teamOptions.map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>

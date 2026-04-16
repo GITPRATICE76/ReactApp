@@ -70,7 +70,7 @@ function App() {
         <Route
           path="/employee"
           element={
-            <ProtectedRoute roles={["EMPLOYEE"]}>
+            <ProtectedRoute roles={["EMPLOYEE", "RO"]}>
               <MainLayout>
                 <Employeedashboard />
               </MainLayout>

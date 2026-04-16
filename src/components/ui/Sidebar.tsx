@@ -126,6 +126,19 @@ export default function Sidebar() {
             }
           }}
         />
+        {role === "RO" && (
+          <MenuItem
+            icon={<FiHome />}
+            label="ROs Dashboard"
+            open={open}
+            active={location.pathname === "/employee"}
+            onClick={() => {
+              if (role === "RO") {
+                navigate("/employee");
+              }
+            }}
+          />
+        )}
 
         {role === "EMPLOYEE" && (
           <MenuItem
