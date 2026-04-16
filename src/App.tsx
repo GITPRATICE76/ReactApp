@@ -102,7 +102,7 @@ function App() {
         <Route
           path="/employee/apply-leave"
           element={
-            <ProtectedRoute roles={["EMPLOYEE"]}>
+            <ProtectedRoute roles={["EMPLOYEE", "RO"]}>
               <MainLayout>
                 <EmployeeLeaveApply />
               </MainLayout>

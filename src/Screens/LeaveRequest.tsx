@@ -30,6 +30,8 @@ export default function LeaveRequests() {
 
   // Modal
   const [showModal, setShowModal] = useState(false);
+  const [rotate, setRotate] = useState(false);
+
   const [selectedLeaveId, setSelectedLeaveId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<
     "APPROVED" | "REJECTED" | null
@@ -37,49 +39,50 @@ export default function LeaveRequests() {
   const [remarks, setRemarks] = useState("");
 
   const managerId = Number(localStorage.getItem("userid"));
-  
 
   // Fetch leaves
-const fetchLeaves = async (page = 1) => {
-  try {
-    setLoading(true);
+  const userId = localStorage.getItem("userid");
 
-    const payload = {
-      employee: employeeSearch,
-      search: searchTerm,
-      start: fromFilter,
-      end: toFilter,
-      status: statusFilter,
-      page: page,
-      limit: rowsPerPage,
-    };
+  const fetchLeaves = async (page = 1) => {
+    try {
+      setLoading(true);
 
-    const res = await axiosInstance.post(GET_LEAVES_URL, payload);
+      const payload = {
+        user_id: Number(userId),
+        employee: employeeSearch,
+        search: searchTerm,
+        start: fromFilter,
+        end: toFilter,
+        status: statusFilter,
+        page: page,
+        limit: rowsPerPage,
+      };
 
-    setLeaveRequests(res.data.data || []);
-    setTotalRecords(res.data.total || 0);
-    setCurrentPage(page);
+      const res = await axiosInstance.post(GET_LEAVES_URL, payload);
 
-  } catch {
-    toast.error("Failed to fetch leave requests");
-  } finally {
-    setLoading(false);
-  }
-};
+      setLeaveRequests(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
+      setCurrentPage(page);
+    } catch {
+      toast.error("Failed to fetch leave requests");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-const futureLeaves = leaveRequests.filter((leave) => {
-  const leaveEnd = new Date(leave.to);
-  leaveEnd.setHours(0, 0, 0, 0);
+  const futureLeaves = leaveRequests.filter((leave) => {
+    const leaveEnd = new Date(leave.to);
+    leaveEnd.setHours(0, 0, 0, 0);
 
-  return leaveEnd >= today;
-});
+    return leaveEnd >= today;
+  });
 
-useEffect(() => {
-  fetchLeaves(1);
-}, []);
+  useEffect(() => {
+    fetchLeaves(1);
+  }, []);
 
   // Remove past leaves
   // const today = new Date();
@@ -147,6 +150,11 @@ useEffect(() => {
     setShowModal(true);
   };
 
+  const handleRefresh = () => {
+    fetchLeaves();
+    setRotate(true);
+    setTimeout(() => setRotate(false), 600);
+  };
   const submitAction = async () => {
     if (!remarks.trim()) {
       toast.error("Remarks are required");
@@ -185,15 +193,23 @@ useEffect(() => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#1e40af]">
-          Leave Requests
-        </h1>
-        <p className="text-sm text-gray-500">
-          Review and manage employee leave requests
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-[#1e40af]">
+            Leave Requests
+          </h1>
+          <button
+            onClick={handleRefresh}
+            className="p-2 rounded-lg hover:bg-gray-100 transition"
+          >
+            <span className={`inline-block ${rotate ? "animate-spin" : ""}`}>
+              🔄
+            </span>
+          </button>
+        </div>
       </div>
+
+      <p>Review and manage employee leave requests</p>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-2">
@@ -239,11 +255,11 @@ useEffect(() => {
           <option value="REJECTED">Rejected</option>
         </select>
         <button
-  onClick={() => fetchLeaves(1)}
-  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
->
-  Search
-</button>
+          onClick={() => fetchLeaves(1)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Search
+        </button>
       </div>
 
       {/* Table */}
@@ -262,116 +278,114 @@ useEffect(() => {
             </tr>
           </thead>
 
-        <tbody>
-  {futureLeaves.length === 0 ? (
-    <tr>
-      <td colSpan={8} className="text-center p-4 text-gray-500">
-        No leave records found
-      </td>
-    </tr>
-  ) : (
-    futureLeaves.map((leave) => (
-      <tr key={leave.id} className="border-b hover:bg-gray-50">
-        <td className="p-3">{leave.employeeName}</td>
-        <td className="p-3">{leave.leaveType}</td>
-        <td className="p-3">{leave.from}</td>
-        <td className="p-3">{leave.to}</td>
-        <td className="p-3">{leave.days}</td>
-        <td className="p-3">{leave.reason}</td>
+          <tbody>
+            {futureLeaves.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center p-4 text-gray-500">
+                  No leave records found
+                </td>
+              </tr>
+            ) : (
+              futureLeaves.map((leave) => (
+                <tr key={leave.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3">{leave.employeeName}</td>
+                  <td className="p-3">{leave.leaveType}</td>
+                  <td className="p-3">{leave.from}</td>
+                  <td className="p-3">{leave.to}</td>
+                  <td className="p-3">{leave.days}</td>
+                  <td className="p-3">{leave.reason}</td>
 
-        <td className="p-3">
-          <span
-            className={`px-2 py-1 rounded-full text-sm ${
-              leave.status === "PENDING"
-                ? "bg-yellow-100 text-yellow-700"
-                : leave.status === "APPROVED"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {leave.status}
-          </span>
-        </td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm ${
+                        leave.status === "PENDING"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : leave.status === "APPROVED"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {leave.status}
+                    </span>
+                  </td>
 
-        {/* 🔥 Action buttons (UNCHANGED) */}
-        <td className="p-3 space-x-2">
-          {leave.status === "PENDING" && (
-            <>
-              <button
-                onClick={() => openActionModal(leave.id, "APPROVED")}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Approve
-              </button>
+                  {/* 🔥 Action buttons (UNCHANGED) */}
+                  <td className="p-3 space-x-2">
+                    {leave.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() => openActionModal(leave.id, "APPROVED")}
+                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
 
-              <button
-                onClick={() => openActionModal(leave.id, "REJECTED")}
-                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Reject
-              </button>
-            </>
-          )}
+                        <button
+                          onClick={() => openActionModal(leave.id, "REJECTED")}
+                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
 
-          {leave.status === "APPROVED" && (
-            <button
-              onClick={() => openActionModal(leave.id, "REJECTED")}
-              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Reject
-            </button>
-          )}
+                    {leave.status === "APPROVED" && (
+                      <button
+                        onClick={() => openActionModal(leave.id, "REJECTED")}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Reject
+                      </button>
+                    )}
 
-          {leave.status === "REJECTED" && (
-            <button
-              onClick={() => openActionModal(leave.id, "APPROVED")}
-              className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              Approve
-            </button>
-          )}
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
+                    {leave.status === "REJECTED" && (
+                      <button
+                        onClick={() => openActionModal(leave.id, "APPROVED")}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Approve
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
         </table>
         <div className="flex justify-center gap-2 mt-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => fetchLeaves(currentPage - 1)}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Prev
+          </button>
 
-  <button
-    disabled={currentPage === 1}
-    onClick={() => fetchLeaves(currentPage - 1)}
-    className="px-3 py-1 bg-gray-200 rounded"
-  >
-    Prev
-  </button>
+          {Array.from(
+            { length: Math.max(1, Math.ceil(totalRecords / rowsPerPage)) },
+            (_, i) => (
+              <button
+                key={i}
+                onClick={() => fetchLeaves(i + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ),
+          )}
 
-  {Array.from(
-    { length: Math.max(1, Math.ceil(totalRecords / rowsPerPage)) },
-    (_, i) => (
-      <button
-        key={i}
-        onClick={() => fetchLeaves(i + 1)}
-        className={`px-3 py-1 rounded ${
-          currentPage === i + 1
-            ? "bg-blue-600 text-white"
-            : "bg-gray-200"
-        }`}
-      >
-        {i + 1}
-      </button>
-    )
-  )}
-
-  <button
-    disabled={currentPage === Math.ceil(totalRecords / rowsPerPage)}
-    onClick={() => fetchLeaves(currentPage + 1)}
-    className="px-3 py-1 bg-gray-200 rounded"
-  >
-    Next
-  </button>
-
-</div>
+          <button
+            disabled={currentPage === Math.ceil(totalRecords / rowsPerPage)}
+            onClick={() => fetchLeaves(currentPage + 1)}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {/* Modal */}

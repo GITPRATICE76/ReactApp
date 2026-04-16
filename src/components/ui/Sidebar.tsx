@@ -136,6 +136,15 @@ export default function Sidebar() {
             onClick={() => navigate("/employee/apply-leave")}
           />
         )}
+        {role === "RO" && (
+          <MenuItem
+            icon={<FiEdit3 />}
+            label="Apply Leave"
+            open={open}
+            active={location.pathname === "/employee/apply-leave"}
+            onClick={() => navigate("/employee/apply-leave")}
+          />
+        )}
 
         {role === "EMPLOYEE" && (
           <MenuItem
