@@ -92,7 +92,7 @@ export default function Managerdashboard() {
             label="Highest Leave Date"
             value={
               summaryData
-                ? `${summaryData.highest_leave_date.count} (${summaryData.highest_leave_date.date || "-"})`
+                ? `${summaryData.highest_leave_date.count} Resources (${summaryData.highest_leave_date.date || "-"})`
                 : "-"
             }
             highlight="text-red-500"

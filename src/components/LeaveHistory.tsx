@@ -14,6 +14,7 @@ type LeaveHistory = {
   to_date: string;
   leave_type: string;
   status: string;
+  days: number;
 };
 
 export default function LeaveHistory() {
@@ -80,6 +81,7 @@ export default function LeaveHistory() {
         To: row.to_date.split("T")[0],
         LeaveType: row.leave_type,
         Status: row.status,
+        days: row.days,
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(formattedData);
@@ -166,6 +168,7 @@ export default function LeaveHistory() {
               <th className="p-2 border">Department</th>
               <th className="p-2 border">From</th>
               <th className="p-2 border">To</th>
+              <th className="p-2 border">Days</th>
               <th className="p-2 border">Leave Type</th>
               <th className="p-2 border">Status</th>
             </tr>
@@ -186,6 +189,7 @@ export default function LeaveHistory() {
                   <td className="p-2 border">{row.department}</td>
                   <td className="p-2 border">{row.from_date.split("T")[0]}</td>
                   <td className="p-2 border">{row.to_date.split("T")[0]}</td>
+                  <td className="p-2 border">{row.days}</td>
                   <td className="p-2 border">{row.leave_type}</td>
                   <td className="p-2 border">{row.status}</td>
                 </tr>
