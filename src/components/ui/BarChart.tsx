@@ -2,13 +2,13 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import type { DayAnalytics } from "../../shared/analytics";
 import { useState } from "react";
- 
+
 type WorkHoursChartProps = {
   analytics: DayAnalytics[];
   onBarClick: (data: DayAnalytics) => void;
   onRefresh: () => void;
 };
- 
+
 export default function WorkHoursChart({
   analytics,
   onBarClick,
@@ -22,13 +22,16 @@ export default function WorkHoursChart({
     });
   });
   const [rotate, setRotate] = useState(false);
- 
-  const leaveData = analytics.map((d) => d.on_leave);
-  const availableData = analytics.map((d) => d.total_resources - d.on_leave);
+
+  const approvedData = analytics.map((d) => d.approved || 0);
+  const pendingData = analytics.map((d) => d.pending || 0);
+  const availableData = analytics.map(
+    (d) => d.total_resources - (d.approved || 0) - (d.pending ),
+  );
   const handleRefresh = () => {
     setRotate(true);
     onRefresh();
- 
+
     // reset after animation so it can trigger again
     setTimeout(() => setRotate(false), 600);
   };
@@ -43,9 +46,9 @@ export default function WorkHoursChart({
         scrollPositionX: 0,
       },
     },
- 
+
     title: { text: "" },
- 
+
     xAxis: {
       categories,
       lineWidth: 0,
@@ -55,40 +58,42 @@ export default function WorkHoursChart({
         overflow: "justify",
       },
     },
- 
+
     yAxis: {
       min: 0,
       gridLineDashStyle: "Dash",
       title: { text: undefined },
     },
- 
+
     legend: {
       align: "right",
       verticalAlign: "top",
       layout: "horizontal",
       itemStyle: { fontSize: "12px" },
     },
- 
+
     tooltip: {
       shared: true,
       formatter: function () {
         const ctx = this as any;
         if (!ctx.points || ctx.points.length === 0) return "";
- 
+
         const index = ctx.points[0].point.index;
         const day = analytics[index];
         if (!day) return "";
- 
+
         return `
-          <b>${day.date}</b><br/>
-          On Leave: ${day.on_leave}<br/>
-          Available: ${day.total_resources - day.on_leave}<br/>
-          Leave %: ${Number(day.leave_percentage).toFixed(3)}%<br/>
-          Available %: ${Number(day.available_percentage).toFixed(3)}%
-        `;
+  <b>${day.date}</b><br/>
+  Approved: ${day.approved || 0}<br/>
+  Pending: ${day.pending || 0}<br/>
+  Available: ${
+    day.total_resources - (day.approved || 0) - (day.pending || 0)
+  }<br/>
+  Leave %: ${Number(day.leave_percentage).toFixed(3)}%<br/>
+`;
       },
     },
- 
+
     plotOptions: {
       column: {
         stacking: "normal",
@@ -109,25 +114,31 @@ export default function WorkHoursChart({
         },
       },
     },
- 
+
     credits: { enabled: false },
- 
-    series: [
-      {
-        type: "column",
-        name: "On Leave",
-        data: leaveData,
-        color: "#F4C7C3",
-      },
-      {
-        type: "column",
-        name: "Available",
-        data: availableData,
-        color: "#1e40af",
-      },
-    ],
+
+series: [
+  {
+    type: "column",
+    name: "Approved",
+    data: approvedData,
+    color: "#EC4899", // pink (clean, modern)
+  },
+  {
+    type: "column",
+    name: "Pending",
+    data: pendingData,
+    color: "#9CA3AF", // soft gray
+  },
+  {
+    type: "column",
+    name: "Available",
+    data: availableData,
+    color: "#3B82F6", // blue
+  },
+],
   };
- 
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 w-full h-full flex flex-col">
       <div className="mb-4 flex items-center justify-between">
@@ -141,12 +152,10 @@ export default function WorkHoursChart({
           </span>
         </button>
       </div>
- 
+
       <div className="flex-1 min-h-0">
         <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
     </div>
   );
 }
- 
- 

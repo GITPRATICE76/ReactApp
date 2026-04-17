@@ -19,3 +19,5 @@ export const ED_URL = "/employee/dashboard";
 export const LEAVE_HISTORY_URL = "/leave/history";
 
 export const DROPDOWN_URL = "/usercode/details";
+
+export const DELETE_LEAVE_URL = "/leave/delete";

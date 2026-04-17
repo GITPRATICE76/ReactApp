@@ -1,7 +1,6 @@
 import Sidebar from "../components/ui/Sidebar";
 import Navbar from "../components/ui/Navbar";
 import { useEffect, useState } from "react";
-import BottomNavbar from "../components/ui/BottomNavbar";
 
 export default function MainLayout({
   children,

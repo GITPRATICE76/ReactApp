@@ -71,10 +71,7 @@ export default function Sidebar() {
     fetchMembers();
   }, [teamName]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
+
   const confirmLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -127,19 +124,14 @@ export default function Sidebar() {
           }}
         />
         {role === "RO" && (
-          <MenuItem
-            icon={<FiHome />}
-            label="ROs Dashboard"
-            open={open}
-            active={location.pathname === "/employee"}
-            onClick={() => {
-              if (role === "RO") {
-                navigate("/employee");
-              }
-            }}
-          />
-        )}
-
+  <MenuItem
+    icon={<FiHome />}
+    label="RO Dashboard"
+    open={open}
+    active={location.pathname === "/employee"}
+    onClick={() => navigate("/employee")}
+  />
+)}
         {role === "EMPLOYEE" && (
           <MenuItem
             icon={<FiEdit3 />}

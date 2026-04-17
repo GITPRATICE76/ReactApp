@@ -2,14 +2,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Screens/login";
 import Employeedashboard from "./Screens/Employeedashboard";
 import Managerdashboard from "./Screens/Managerdashboard";
-import LeaveRequests from "../src/Screens/LeaveRequest";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MainLayout from "./layout/Mainlayout";
 import CreateAccount from "./Screens/CreateAccount";
 import OrganizationChart from "./Screens/OrganizationChart";
 import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
-import ROOrganizationChart from "./Screens/ROOrganization";
 import LeaveCalendar from "./Screens/CalenderScreen";
 import LeaveHistory from "./components/LeaveHistory";
 

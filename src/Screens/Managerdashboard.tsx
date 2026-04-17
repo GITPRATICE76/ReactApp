@@ -20,16 +20,6 @@ type DashboardSummary = {
   top_leave_taker: { name: string; count: number };
 };
 
-type LeaveHistory = {
-  id: number;
-  employee_name: string;
-  team: string;
-  department: string;
-  from_date: string;
-  to_date: string;
-  leave_type: string;
-  status: string;
-};
 
 export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
@@ -203,6 +193,29 @@ export default function Managerdashboard() {
                     ) : (
                       <ul className="space-y-2 max-h-40 overflow-y-auto hide-scrollbar">
                         {selectedDay.employees_on_leave.map((name, index) => (
+                          <li
+                            key={index}
+                            className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm shadow-sm"
+                          >
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <p className="text-xs text-gray-500 mb-3 uppercase tracking-wide">
+                      Employees On Pending
+                    </p>
+
+                    {!selectedDay.employees_pending  ||
+                    selectedDay.employees_pending .length === 0 ? (
+                      <div className="text-center py-4 text-green-600 text-sm font-medium">
+                        No employees on Pending
+                      </div>
+                    ) : (
+                      <ul className="space-y-2 max-h-40 overflow-y-auto hide-scrollbar">
+                        {selectedDay.employees_pending .map((name: string, index: number) => (
                           <li
                             key={index}
                             className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm shadow-sm"
