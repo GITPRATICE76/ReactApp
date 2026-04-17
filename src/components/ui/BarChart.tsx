@@ -2,13 +2,13 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import type { DayAnalytics } from "../../shared/analytics";
 import { useState } from "react";
- 
+
 type WorkHoursChartProps = {
   analytics: DayAnalytics[];
   onBarClick: (data: DayAnalytics) => void;
   onRefresh: () => void;
 };
- 
+
 export default function WorkHoursChart({
   analytics,
   onBarClick,
@@ -22,14 +22,13 @@ export default function WorkHoursChart({
     });
   });
   const [rotate, setRotate] = useState(false);
- 
+
   const leaveData = analytics.map((d) => d.on_leave);
   const availableData = analytics.map((d) => d.total_resources - d.on_leave);
   const handleRefresh = () => {
     setRotate(true);
     onRefresh();
- 
-    // reset after animation so it can trigger again
+
     setTimeout(() => setRotate(false), 600);
   };
   const options: Highcharts.Options = {
@@ -43,9 +42,9 @@ export default function WorkHoursChart({
         scrollPositionX: 0,
       },
     },
- 
+
     title: { text: "" },
- 
+
     xAxis: {
       categories,
       lineWidth: 0,
@@ -55,30 +54,30 @@ export default function WorkHoursChart({
         overflow: "justify",
       },
     },
- 
+
     yAxis: {
       min: 0,
       gridLineDashStyle: "Dash",
       title: { text: undefined },
     },
- 
+
     legend: {
       align: "right",
       verticalAlign: "top",
       layout: "horizontal",
       itemStyle: { fontSize: "12px" },
     },
- 
+
     tooltip: {
       shared: true,
       formatter: function () {
         const ctx = this as any;
         if (!ctx.points || ctx.points.length === 0) return "";
- 
+
         const index = ctx.points[0].point.index;
         const day = analytics[index];
         if (!day) return "";
- 
+
         return `
           <b>${day.date}</b><br/>
           On Leave: ${day.on_leave}<br/>
@@ -88,7 +87,7 @@ export default function WorkHoursChart({
         `;
       },
     },
- 
+
     plotOptions: {
       column: {
         stacking: "normal",
@@ -109,9 +108,9 @@ export default function WorkHoursChart({
         },
       },
     },
- 
+
     credits: { enabled: false },
- 
+
     series: [
       {
         type: "column",
@@ -127,7 +126,7 @@ export default function WorkHoursChart({
       },
     ],
   };
- 
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 w-full h-full flex flex-col">
       <div className="mb-4 flex items-center justify-between">
@@ -141,12 +140,10 @@ export default function WorkHoursChart({
           </span>
         </button>
       </div>
- 
+
       <div className="flex-1 min-h-0">
         <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
     </div>
   );
 }
- 
- 

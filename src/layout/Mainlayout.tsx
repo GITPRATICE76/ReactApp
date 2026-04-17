@@ -1,7 +1,6 @@
 import Sidebar from "../components/ui/Sidebar";
 import Navbar from "../components/ui/Navbar";
 import { useEffect, useState } from "react";
-import BottomNavbar from "../components/ui/BottomNavbar";
 
 export default function MainLayout({
   children,
@@ -9,7 +8,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const [username, setUsername] = useState("User");
-  console.log('username:',username)
+  console.log("username:", username);
 
   useEffect(() => {
     const storedName = localStorage.getItem("username");

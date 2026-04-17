@@ -80,7 +80,6 @@ export default function Employeedashboard() {
         />
       </div>
 
-      {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Notifications */}
         <Card>
@@ -144,70 +143,64 @@ export default function Employeedashboard() {
         </CardContent>
       </Card>
       {/* 🔥 NEW SECTION: Leave Remarks */}
-    <Card>
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2">
-      <FiBell /> Leave Remarks (Manager Feedback)
-    </CardTitle>
-  </CardHeader>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FiBell /> Leave Remarks (Manager Feedback)
+          </CardTitle>
+        </CardHeader>
 
-  <CardContent className="text-sm overflow-x-auto">
-    {!data.leave_remarks || data.leave_remarks.length === 0 ? (
-      <p className="text-gray-500">No remarks available.</p>
-    ) : (
-      <table className="w-full border text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Leave Type</th>
-            <th className="p-2 border">From</th>
-            <th className="p-2 border">To</th>
-            <th className="p-2 border">Days</th>
-            <th className="p-2 border">Status</th>
-            <th className="p-2 border">Remarks</th>
-          </tr>
-        </thead>
+        <CardContent className="text-sm overflow-x-auto">
+          {!data.leave_remarks || data.leave_remarks.length === 0 ? (
+            <p className="text-gray-500">No remarks available.</p>
+          ) : (
+            <table className="w-full border text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">Leave Type</th>
+                  <th className="p-2 border">From</th>
+                  <th className="p-2 border">To</th>
+                  <th className="p-2 border">Days</th>
+                  <th className="p-2 border">Status</th>
+                  <th className="p-2 border">Remarks</th>
+                </tr>
+              </thead>
 
-        <tbody>
-          {data.leave_remarks.map((item: any) => (
-            <tr key={item.id} className="border-b hover:bg-gray-50">
-              
-              <td className="p-2 border">{item.leave_type}</td>
+              <tbody>
+                {data.leave_remarks.map((item: any) => (
+                  <tr key={item.id} className="border-b hover:bg-gray-50">
+                    <td className="p-2 border">{item.leave_type}</td>
 
-              <td className="p-2 border">
-                {item.from_date.split("T")[0]}
-              </td>
+                    <td className="p-2 border">
+                      {item.from_date.split("T")[0]}
+                    </td>
 
-              <td className="p-2 border">
-                {item.to_date.split("T")[0]}
-              </td>
+                    <td className="p-2 border">{item.to_date.split("T")[0]}</td>
 
-               <td className="p-2 border">
-                {item.days}
-              </td>
+                    <td className="p-2 border">{item.days}</td>
 
-              <td className="p-2 border">
-                <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    item.status === "APPROVED"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  {item.status}
-                </span>
-              </td>
+                    <td className="p-2 border">
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          item.status === "APPROVED"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
 
-              <td className="p-2 border">
-                {item.remarks || "No remarks"}
-              </td>
-
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </CardContent>
-</Card>
+                    <td className="p-2 border">
+                      {item.remarks || "No remarks"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

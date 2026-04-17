@@ -71,10 +71,6 @@ export default function Sidebar() {
     fetchMembers();
   }, [teamName]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
   const confirmLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -158,17 +154,17 @@ export default function Sidebar() {
             onClick={() => navigate("/employee/apply-leave")}
           />
         )}
-
-        {role === "EMPLOYEE" && (
+        {role === "MANAGER" && (
           <MenuItem
-            icon={<FiCalendar />}
-            label="Calender View"
+            icon={<FiEdit3 />}
+            label="Apply Leave"
             open={open}
-            active={location.pathname === "/employee/calender"}
-            onClick={() => navigate("/employee/calender")}
+            active={location.pathname === "/employee/apply-leave"}
+            onClick={() => navigate("/employee/apply-leave")}
           />
         )}
-        {role === "RO" && (
+
+        {role === "EMPLOYEE" && (
           <MenuItem
             icon={<FiCalendar />}
             label="Calender View"
@@ -187,7 +183,7 @@ export default function Sidebar() {
             onClick={() => navigate("/manager/leave-history")}
           />
         )}
-        {role === "MANAGER" && (
+        {(role === "MANAGER" || role === "RO") && (
           <MenuItem
             icon={<FiCalendar />}
             label="Calender View"

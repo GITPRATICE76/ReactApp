@@ -27,6 +27,7 @@ export default function LeaveHistory() {
   const rowsPerPage = 10;
 
   const [totalRecords, setTotalRecords] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const totalPages = Math.ceil(totalRecords / rowsPerPage);
 
@@ -38,6 +39,7 @@ export default function LeaveHistory() {
         start: startDate,
         end: endDate,
         search: search,
+        status: statusFilter,
       };
 
       const res = await axiosInstance.post(LEAVE_HISTORY_URL, payload);
@@ -135,16 +137,16 @@ export default function LeaveHistory() {
           className="border rounded px-3 py-2"
         />
 
-        <button
-          onClick={() => fetchLeaveHistory()}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg 
-             hover:bg-blue-700 
-             hover:shadow-md 
-             active:scale-95 
-             transition-all duration-200"
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border p-2 rounded-lg"
         >
-          Search
-        </button>
+          <option value="ALL">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
 
         <button
           onClick={downloadExcel}
@@ -154,6 +156,16 @@ export default function LeaveHistory() {
              transition-all duration-200"
         >
           Download Excel
+        </button>
+        <button
+          onClick={() => fetchLeaveHistory()}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg 
+             hover:bg-blue-700 
+             hover:shadow-md 
+             active:scale-95 
+             transition-all duration-200"
+        >
+          Search
         </button>
       </div>
 

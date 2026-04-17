@@ -20,17 +20,6 @@ type DashboardSummary = {
   top_leave_taker: { name: string; count: number };
 };
 
-type LeaveHistory = {
-  id: number;
-  employee_name: string;
-  team: string;
-  department: string;
-  from_date: string;
-  to_date: string;
-  leave_type: string;
-  status: string;
-};
-
 export default function Managerdashboard() {
   const [analyticsData, setAnalyticsData] = useState<DayAnalytics[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayAnalytics | null>(null);
@@ -63,8 +52,8 @@ export default function Managerdashboard() {
     }
   };
   useEffect(() => {
-    const userRole = localStorage.getItem("role"); // or from token
-  if (userRole) setRole(userRole);
+    const userRole = localStorage.getItem("role");
+    if (userRole) setRole(userRole);
     fetchAnalytics();
   }, []);
 
@@ -102,21 +91,21 @@ export default function Managerdashboard() {
             highlight="text-red-500"
           />
 
-         <SummaryCard
-  label={
-    role === "MANAGER"
-      ? "Team With Highest Leave"
-      : "Team Total Leave"
-  }
-  value={
-    summaryData
-      ? role === "MANAGER"
-        ? `${summaryData.team_highest_leave.team || "-"} (${summaryData.team_highest_leave.count}) days`
-        : `${summaryData.team_total_leave || 0} days`
-      : "-"
-  }
-  highlight="text-purple-600"
-/>
+          <SummaryCard
+            label={
+              role === "MANAGER"
+                ? "Team With Highest Leave"
+                : "Team Total Leave"
+            }
+            value={
+              summaryData
+                ? role === "MANAGER"
+                  ? `${summaryData.team_highest_leave.team || "-"} (${summaryData.team_highest_leave.count}) days`
+                  : `${summaryData.team_total_leave || 0} days`
+                : "-"
+            }
+            highlight="text-purple-600"
+          />
 
           <SummaryCard
             label="Peak Leave Week"

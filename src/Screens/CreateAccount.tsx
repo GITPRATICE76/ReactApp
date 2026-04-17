@@ -5,7 +5,6 @@ import { Label } from "../components/ui/label";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { CREATEACCOUNT_URL } from "../services/userapi.service";
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 type Errors = {
@@ -17,7 +16,6 @@ type Errors = {
 };
 
 export default function CreateAccount({ onClose }: { onClose?: () => void }) {
-  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [teamOptions, setTeamOptions] = useState<string[]>([]);
 
