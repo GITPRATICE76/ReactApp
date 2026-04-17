@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
 import { GET_LEAVES_URL, ACTION_URL, DELETE_LEAVE_URL  } from "../services/userapi.service";
-import { FaTrash } from "react-icons/fa";
+// import { FaTrash } from "react-icons/fa";
 
 type LeaveRequest = {
   id: number;
@@ -44,52 +44,71 @@ export default function LeaveRequests() {
   const userId = localStorage.getItem("userid");
 
   // ✅ FETCH
-  const fetchLeaves = async (page = 1) => {
-    try {
-      setLoading(true);
+const fetchLeaves = async (
+  page = 1,
+  filters?: {
+    employee?: string;
+    search?: string;
+    start?: string;
+    end?: string;
+    status?: string;
+  }
+) => {
+  try {
+    setLoading(true);
 
-      const payload = {
-        user_id: Number(userId),
-        employee: employeeSearch,
-        search: searchTerm,
-        start: fromFilter,
-        end: toFilter,
-        status: statusFilter,
-        page: page,
-        limit: rowsPerPage,
-      };
+    const payload = {
+      user_id: Number(userId),
+      employee: filters?.employee ?? employeeSearch,
+      search: filters?.search ?? searchTerm,
+      start: filters?.start ?? fromFilter,
+      end: filters?.end ?? toFilter,
+      status: filters?.status ?? statusFilter,
+      page: page,
+      limit: rowsPerPage,
+    };
 
-      const res = await axiosInstance.post(GET_LEAVES_URL, payload);
+    const res = await axiosInstance.post(GET_LEAVES_URL, payload);
 
-      setLeaveRequests(res.data.data || []);
-      setTotalRecords(res.data.total || 0);
-      setCurrentPage(page);
-    } catch {
-      toast.error("Failed to fetch leave requests");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setLeaveRequests(res.data.data || []);
+    setTotalRecords(res.data.total || 0);
+    setCurrentPage(page);
+  } catch {
+    toast.error("Failed to fetch leave requests");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
+    
+    
     fetchLeaves(1);
+    
   }, []);
 
   // ✅ REFRESH RESET
-  const handleRefresh = () => {
-    setEmployeeSearch("");
-    setSearchTerm("");
-    setFromFilter("");
-    setToFilter("");
-    setStatusFilter("ALL");
-    setCurrentPage(1);
+const handleRefresh = () => {
+  // reset UI
+  setEmployeeSearch("");
+  setSearchTerm("");
+  setFromFilter("");
+  setToFilter("");
+  setStatusFilter("ALL");
+  setCurrentPage(1);
 
-    fetchLeaves(1);
+  // ✅ send empty payload explicitly
+  fetchLeaves(1, {
+    employee: "",
+    search: "",
+    start: "",
+    end: "",
+    status: "ALL",
+  });
 
-    setRotate(true);
-    setTimeout(() => setRotate(false), 600);
-  };
-
+  setRotate(true);
+  setTimeout(() => setRotate(false), 600);
+};
   // ✅ MODAL
   const openActionModal = (id: number, action: "APPROVED" | "REJECTED") => {
     setSelectedLeaveId(id);
@@ -269,41 +288,40 @@ export default function LeaveRequests() {
 
             {/* ACTIONS */}
             <td className="p-2 border">
-  <div className="flex gap-2">
+<td className="p-2 border space-x-2">
 
-    {/* APPROVE */}
-    {leave.status !== "APPROVED" ? (
-      <button
-        onClick={() => openActionModal(leave.id, "APPROVED")}
-        className="bg-green-600 text-white px-2 py-1 rounded text-xs w-[70px]"
-      >
-        Approve
-      </button>
-    ) : (
-      <div className="w-[70px]"></div> // empty space
-    )}
-
-    {/* REJECT */}
-    {leave.status !== "REJECTED" ? (
-      <button
-        onClick={() => openActionModal(leave.id, "REJECTED")}
-        className="bg-red-600 text-white px-2 py-1 rounded text-xs w-[70px]"
-      >
-        Reject
-      </button>
-    ) : (
-      <div className="w-[70px]"></div>
-    )}
-
-    {/* DELETE */}
+  {/* APPROVE */}
+  {leave.status !== "APPROVED" && (
     <button
-  onClick={() => handleDelete(leave.id)}
-  className="text-red-600 hover:text-red-800 p-1"
->
-  <FaTrash size={16} />
-</button>
+      onClick={() => openActionModal(leave.id, "APPROVED")}
+      className="bg-green-600 text-white px-2 py-1 rounded text-xs"
+    >
+      Approve
+    </button>
+  )}
 
-  </div>
+  {/* REJECT */}
+  {leave.status !== "REJECTED" && (
+    <button
+      onClick={() => openActionModal(leave.id, "REJECTED")}
+      className="bg-red-600 text-white px-2 py-1 rounded text-xs"
+    >
+      Reject
+    </button>
+  )}
+
+  {/* DELETE → ONLY WHEN BOTH AVAILABLE */}
+  {leave.status === "PENDING" && (
+    <button
+      onClick={() => handleDelete(leave.id)}
+      className="text-red-600 hover:text-red-800 ml-2"
+      title="Delete"
+    >
+      🗑️
+    </button>
+  )}
+
+</td>
 </td>
           </tr>
         ))

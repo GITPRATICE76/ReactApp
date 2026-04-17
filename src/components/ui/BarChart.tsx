@@ -23,7 +23,7 @@ export default function WorkHoursChart({
   });
   const [rotate, setRotate] = useState(false);
 
-  const leaveData = analytics.map((d) => d.on_leave);
+  // const leaveData = analytics.map((d) => d.on_leave);
 
   const approvedData = analytics.map((d) => d.approved || 0);
   const pendingData = analytics.map((d) => d.pending || 0);

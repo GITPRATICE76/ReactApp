@@ -10,6 +10,7 @@ import OrganizationChart from "./Screens/OrganizationChart";
 import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
 import LeaveCalendar from "./Screens/CalenderScreen";
 import LeaveHistory from "./components/LeaveHistory";
+import Rodashboard from "./Screens/RoDashboard";
 
 function App() {
   return (
@@ -103,6 +104,16 @@ function App() {
             <ProtectedRoute roles={["EMPLOYEE", "RO", "MANAGER"]}>
               <MainLayout>
                 <EmployeeLeaveApply />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+               <Route
+          path="/ro/ro_dashboard"
+          element={
+            <ProtectedRoute roles={[ "RO"]}>
+              <MainLayout>
+                <Rodashboard />
               </MainLayout>
             </ProtectedRoute>
           }
