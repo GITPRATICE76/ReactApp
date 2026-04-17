@@ -127,8 +127,8 @@ export default function Sidebar() {
             icon={<FiHome />}
             label="RO Dashboard"
             open={open}
-            active={location.pathname === "/employee"}
-            onClick={() => navigate("/employee")}
+            active={location.pathname === "/ro/ro_dashboard"}
+            onClick={() => navigate("/ro/ro_dashboard")}
           />
         )}
         {role === "EMPLOYEE" && (

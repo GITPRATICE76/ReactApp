@@ -105,7 +105,7 @@ export default function Login() {
         <Lottie animationData={animationData} loop={true} className="w-96" />
 
         <h2 className="text-3xl font-semibold mt-10">
-          Leave Management System
+          Leave Management Tool
         </h2>
         <p className="text-base text-white/80 mt-4 text-center max-w-md">
           Streamline employee leave tracking and approvals efficiently.
