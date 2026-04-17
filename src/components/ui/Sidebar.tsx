@@ -125,17 +125,12 @@ export default function Sidebar() {
         {role === "RO" && (
           <MenuItem
             icon={<FiHome />}
-            label="ROs Dashboard"
+            label="RO Dashboard"
             open={open}
             active={location.pathname === "/employee"}
-            onClick={() => {
-              if (role === "RO") {
-                navigate("/employee");
-              }
-            }}
+            onClick={() => navigate("/employee")}
           />
         )}
-
         {role === "EMPLOYEE" && (
           <MenuItem
             icon={<FiEdit3 />}

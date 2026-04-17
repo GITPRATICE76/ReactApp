@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
-import { GET_LEAVES_URL, ACTION_URL } from "../services/userapi.service";
+import { GET_LEAVES_URL, ACTION_URL, DELETE_LEAVE_URL  } from "../services/userapi.service";
+import { FaTrash } from "react-icons/fa";
 
 type LeaveRequest = {
   id: number;
@@ -12,26 +13,27 @@ type LeaveRequest = {
   to: string;
   days: number;
   reason: string;
+  Created: string;
 };
 
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const rowsPerPage = 10;
 
-  // Filters
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  // Modal
-  const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const rowsPerPage = 10;
+
   const [rotate, setRotate] = useState(false);
 
+  const [showModal, setShowModal] = useState(false);
   const [selectedLeaveId, setSelectedLeaveId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<
     "APPROVED" | "REJECTED" | null
@@ -39,10 +41,9 @@ export default function LeaveRequests() {
   const [remarks, setRemarks] = useState("");
 
   const managerId = Number(localStorage.getItem("userid"));
-
-  // Fetch leaves
   const userId = localStorage.getItem("userid");
 
+  // ✅ FETCH
   const fetchLeaves = async (page = 1) => {
     try {
       setLoading(true);
@@ -70,94 +71,50 @@ export default function LeaveRequests() {
     }
   };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const futureLeaves = leaveRequests.filter((leave) => {
-    const leaveEnd = new Date(leave.to);
-    leaveEnd.setHours(0, 0, 0, 0);
-
-    return leaveEnd >= today;
-  });
-
   useEffect(() => {
     fetchLeaves(1);
   }, []);
 
-  // Remove past leaves
-  // const today = new Date();
-  // today.setHours(0, 0, 0, 0);
+  // ✅ REFRESH RESET
+  const handleRefresh = () => {
+    setEmployeeSearch("");
+    setSearchTerm("");
+    setFromFilter("");
+    setToFilter("");
+    setStatusFilter("ALL");
+    setCurrentPage(1);
 
-  // const activeLeaves = leaveRequests.filter((leave) => {
-  //   const leaveEndDate = new Date(leave.to);
-  //   leaveEndDate.setHours(0, 0, 0, 0);
-  //   return leaveEndDate >= today;
-  // });
+    fetchLeaves(1);
 
-  // Apply filters
-  // const filteredLeaves = activeLeaves.filter((leave) => {
-  //   const leaveFrom = new Date(leave.from);
-  //   const leaveTo = new Date(leave.to);
+    setRotate(true);
+    setTimeout(() => setRotate(false), 600);
+  };
 
-  //   const matchStatus = statusFilter === "ALL" || leave.status === statusFilter;
-  //   // Employee Search
-  //   const matchEmployeeSearch = leave.employeeName
-  //     .toLowerCase()
-  //     .includes(employeeSearch.toLowerCase());
-
-  //   // General Search (Reason + Leave Type)
-  //   const matchGeneralSearch =
-  //     leave.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase());
-
-  //   // Date Filter
-  //   let matchDate = true;
-
-  //   if (fromFilter && toFilter) {
-  //     const selectedFrom = new Date(fromFilter);
-  //     const selectedTo = new Date(toFilter);
-
-  //     selectedFrom.setHours(0, 0, 0, 0);
-  //     selectedTo.setHours(0, 0, 0, 0);
-
-  //     matchDate = leaveFrom <= selectedTo && leaveTo >= selectedFrom;
-  //   } else if (fromFilter) {
-  //     const selectedFrom = new Date(fromFilter);
-  //     selectedFrom.setHours(0, 0, 0, 0);
-  //     matchDate = leaveTo >= selectedFrom;
-  //   } else if (toFilter) {
-  //     const selectedTo = new Date(toFilter);
-  //     selectedTo.setHours(0, 0, 0, 0);
-  //     matchDate = leaveFrom <= selectedTo;
-  //   }
-
-  //   // const matchFrom = !fromFilter || leaveFrom >= new Date(fromFilter);
-
-  //   // const matchTo = !toFilter || leaveTo <= new Date(toFilter);
-
-  //   return (
-  //     matchStatus && matchDate && matchEmployeeSearch && matchGeneralSearch
-  //   );
-  // });
-
-  const openActionModal = (
-    leaveId: number,
-    action: "APPROVED" | "REJECTED",
-  ) => {
-    setSelectedLeaveId(leaveId);
+  // ✅ MODAL
+  const openActionModal = (id: number, action: "APPROVED" | "REJECTED") => {
+    setSelectedLeaveId(id);
     setSelectedAction(action);
     setRemarks("");
     setShowModal(true);
   };
 
-  const handleRefresh = () => {
-    fetchLeaves();
-    setRotate(true);
-    setTimeout(() => setRotate(false), 600);
-  };
+  const handleDelete = async (id: number) => {
+  if (!window.confirm("Are you sure you want to delete?")) return;
+
+  try {
+    await axiosInstance.delete(`${DELETE_LEAVE_URL}?id=${id}`);
+
+    toast.success("Deleted successfully");
+
+    fetchLeaves(currentPage); // refresh
+  } catch {
+    toast.error("Delete failed");
+  }
+};
+
   const submitAction = async () => {
     if (!remarks.trim()) {
-      toast.error("Remarks are required");
+      toast.error("Remarks required");
       return;
     }
 
@@ -169,256 +126,247 @@ export default function LeaveRequests() {
         remarks,
       });
 
-      setLeaveRequests((prev) =>
-        prev.map((leave) =>
-          leave.id === selectedLeaveId
-            ? { ...leave, status: selectedAction! }
-            : leave,
-        ),
-      );
+      fetchLeaves(currentPage);
 
-      toast.success(
-        selectedAction === "APPROVED"
-          ? "Leave approved successfully"
-          : "Leave rejected successfully",
-      );
-
+      toast.success("Updated successfully");
       setShowModal(false);
     } catch {
-      toast.error("Failed to update leave");
+      toast.error("Update failed");
     }
   };
 
-  if (loading) return <p>Loading leave requests...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-[#1e40af]">
-            Leave Requests
-          </h1>
-          <button
-            onClick={handleRefresh}
-            className="p-2 rounded-lg hover:bg-gray-100 transition"
-          >
-            <span className={`inline-block ${rotate ? "animate-spin" : ""}`}>
-              🔄
-            </span>
-          </button>
-        </div>
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Leave Requests
+        </h1>
+
+        <button
+          onClick={handleRefresh}
+          className="p-2 hover:bg-gray-100 rounded"
+        >
+          <span className={rotate ? "animate-spin" : ""}>🔄</span>
+        </button>
       </div>
 
-      <p>Review and manage employee leave requests</p>
+      {/* FILTERS */}
+      <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-3">
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow flex flex-wrap gap-2">
         <input
           type="text"
-          placeholder="Search by employee name..."
+          placeholder="Search employee..."
           value={employeeSearch}
           onChange={(e) => setEmployeeSearch(e.target.value)}
-          className="border p-2 rounded-lg w-64"
+          className="border px-3 py-2 rounded-lg w-60"
         />
 
-        {/* General Search */}
         <input
           type="text"
-          placeholder="Search reason or leave type..."
+          placeholder="Search reason..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-2 rounded-lg w-64"
+          className="border px-3 py-2 rounded-lg w-60"
         />
 
         <input
           type="date"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded-lg"
+          className="border px-3 py-2 rounded-lg"
         />
 
         <input
           type="date"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded-lg"
+          className="border px-3 py-2 rounded-lg"
         />
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border p-2 rounded-lg"
+          className="border px-3 py-2 rounded-lg"
         >
           <option value="ALL">All</option>
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
         </select>
+
         <button
           onClick={() => fetchLeaves(1)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
         >
           Search
         </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-left rounded-md">
-              <th className="p-3">Employee</th>
-              <th className="p-3">Leave Type</th>
-              <th className="p-3">From</th>
-              <th className="p-3">To</th>
-              <th className="p-3">Days</th>
-              <th className="p-3">Reason</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
+      {/* TABLE */}
+      <div className="overflow-x-auto">
+  <table className="w-full text-sm border">
 
-          <tbody>
-            {futureLeaves.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center p-4 text-gray-500">
-                  No leave records found
-                </td>
-              </tr>
-            ) : (
-              futureLeaves.map((leave) => (
-                <tr key={leave.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{leave.employeeName}</td>
-                  <td className="p-3">{leave.leaveType}</td>
-                  <td className="p-3">{leave.from}</td>
-                  <td className="p-3">{leave.to}</td>
-                  <td className="p-3">{leave.days}</td>
-                  <td className="p-3">{leave.reason}</td>
+    {/* HEADER */}
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-2 border">Employee</th>
+        <th className="p-2 border">Leave Type</th>
+        <th className="p-2 border">From</th>
+        <th className="p-2 border">To</th>
+        <th className="p-2 border">Days</th>
+        <th className="p-2 border">Created</th>
+        <th className="p-2 border">Reason</th>
+        <th className="p-2 border">Status</th>
+        <th className="p-2 border">Actions</th>
+      </tr>
+    </thead>
 
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        leave.status === "PENDING"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : leave.status === "APPROVED"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {leave.status}
-                    </span>
-                  </td>
+    {/* BODY */}
+    <tbody>
+      {leaveRequests.length === 0 ? (
+        <tr>
+          <td colSpan={9} className="text-center p-4">
+            No data available
+          </td>
+        </tr>
+      ) : (
+        leaveRequests.map((leave) => (
+          <tr key={leave.id} className="hover:bg-gray-50">
 
-                  {/* 🔥 Action buttons (UNCHANGED) */}
-                  <td className="p-3 space-x-2">
-                    {leave.status === "PENDING" && (
-                      <>
-                        <button
-                          onClick={() => openActionModal(leave.id, "APPROVED")}
-                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                          Approve
-                        </button>
+            <td className="p-2 border">{leave.employeeName}</td>
+            <td className="p-2 border">{leave.leaveType}</td>
+            <td className="p-2 border">{leave.from}</td>
+            <td className="p-2 border">{leave.to}</td>
+            <td className="p-2 border">{leave.days}</td>
+            {new Date(leave.Created).toLocaleString("en-US", {
+              year: "numeric",
+              month: "numeric",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })}
+            <td className="p-2 border">{leave.reason}</td>
 
-                        <button
-                          onClick={() => openActionModal(leave.id, "REJECTED")}
-                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-
-                    {leave.status === "APPROVED" && (
-                      <button
-                        onClick={() => openActionModal(leave.id, "REJECTED")}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    )}
-
-                    {leave.status === "REJECTED" && (
-                      <button
-                        onClick={() => openActionModal(leave.id, "APPROVED")}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-center gap-2 mt-4">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => fetchLeaves(currentPage - 1)}
-            className="px-3 py-1 bg-gray-200 rounded"
-          >
-            Prev
-          </button>
-
-          {Array.from(
-            { length: Math.max(1, Math.ceil(totalRecords / rowsPerPage)) },
-            (_, i) => (
-              <button
-                key={i}
-                onClick={() => fetchLeaves(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
+            {/* STATUS */}
+            <td className="p-2 border">
+              <span
+                className={`px-2 py-1 text-xs rounded-full ${
+                  leave.status === "PENDING"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : leave.status === "APPROVED"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
                 }`}
               >
-                {i + 1}
-              </button>
-            ),
-          )}
+                {leave.status}
+              </span>
+            </td>
 
-          <button
-            disabled={currentPage === Math.ceil(totalRecords / rowsPerPage)}
-            onClick={() => fetchLeaves(currentPage + 1)}
-            className="px-3 py-1 bg-gray-200 rounded"
-          >
-            Next
-          </button>
-        </div>
+            {/* ACTIONS */}
+            <td className="p-2 border">
+  <div className="flex gap-2">
+
+    {/* APPROVE */}
+    {leave.status !== "APPROVED" ? (
+      <button
+        onClick={() => openActionModal(leave.id, "APPROVED")}
+        className="bg-green-600 text-white px-2 py-1 rounded text-xs w-[70px]"
+      >
+        Approve
+      </button>
+    ) : (
+      <div className="w-[70px]"></div> // empty space
+    )}
+
+    {/* REJECT */}
+    {leave.status !== "REJECTED" ? (
+      <button
+        onClick={() => openActionModal(leave.id, "REJECTED")}
+        className="bg-red-600 text-white px-2 py-1 rounded text-xs w-[70px]"
+      >
+        Reject
+      </button>
+    ) : (
+      <div className="w-[70px]"></div>
+    )}
+
+    {/* DELETE */}
+    <button
+  onClick={() => handleDelete(leave.id)}
+  className="text-red-600 hover:text-red-800 p-1"
+>
+  <FaTrash size={16} />
+</button>
+
+  </div>
+</td>
+          </tr>
+        ))
+      )}
+    </tbody>
+
+  </table>
+</div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-2">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => fetchLeaves(currentPage - 1)}
+          className="px-3 py-1 bg-gray-200 rounded"
+        >
+          Prev
+        </button>
+
+        {Array.from(
+          { length: Math.ceil(totalRecords / rowsPerPage) },
+          (_, i) => (
+            <button
+              key={i}
+              onClick={() => fetchLeaves(i + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {i + 1}
+            </button>
+          )
+        )}
+
+        <button
+          onClick={() => fetchLeaves(currentPage + 1)}
+          className="px-3 py-1 bg-gray-200 rounded"
+        >
+          Next
+        </button>
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
-            <h2 className="text-lg font-semibold">
-              {selectedAction === "APPROVED" ? "Approve Leave" : "Reject Leave"}
-            </h2>
-
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg w-96 space-y-4">
             <textarea
-              className="w-full border rounded-lg p-2"
-              rows={4}
-              placeholder="Enter remarks"
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
+              className="w-full border p-2 rounded"
+              placeholder="Enter remarks"
             />
 
             <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 border rounded-lg"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
+              <button onClick={() => setShowModal(false)}>Cancel</button>
 
               <button
-                className={`px-4 py-2 rounded-lg text-white ${
-                  selectedAction === "APPROVED" ? "bg-green-600" : "bg-red-600"
-                }`}
                 onClick={submitAction}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
               >
-                {selectedAction === "APPROVED" ? "Approve" : "Reject"}
+                Submit
               </button>
             </div>
           </div>
