@@ -22,8 +22,8 @@ interface MyToken {
 }
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [Username, setEmail] = useState("");
+  const [Password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showVersion, setShowVersion] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -31,7 +31,6 @@ export default function Login() {
   const navigate = useNavigate();
   const versionRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ Auto-fill email from cookie
   useEffect(() => {
     const savedEmail = Cookies.get("rememberedEmail");
     if (savedEmail) {
@@ -40,7 +39,6 @@ export default function Login() {
     }
   }, []);
 
-  // Close About popup
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -64,7 +62,11 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await axiosInstance.post(LOGIN_URL, { email, password });
+      const res = await axiosInstance.post(LOGIN_URL, {
+        Username,
+        Password,
+      });
+
       const { token } = res.data;
 
       localStorage.setItem("token", token);
@@ -77,9 +79,8 @@ export default function Login() {
       localStorage.setItem("userid", decoded.id.toString());
       localStorage.setItem("team", decoded.team ?? "");
 
-      // ✅ Store email in cookie if Remember Me checked
       if (rememberMe) {
-        Cookies.set("rememberedEmail", email, { expires: 7 });
+        Cookies.set("rememberedEmail", Username, { expires: 7 });
       } else {
         Cookies.remove("rememberedEmail");
       }
@@ -104,9 +105,7 @@ export default function Login() {
 
         <Lottie animationData={animationData} loop={true} className="w-96" />
 
-        <h2 className="text-3xl font-semibold mt-10">
-          Leave Management Tool
-        </h2>
+        <h2 className="text-3xl font-semibold mt-10">Leave Management Tool</h2>
         <p className="text-base text-white/80 mt-4 text-center max-w-md">
           Streamline employee leave tracking and approvals efficiently.
         </p>
@@ -124,14 +123,14 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+            {/* Username */}
             <div>
-              <label className="text-sm text-gray-600">Email Address</label>
+              <label className="text-sm text-gray-600">Username </label>
               <Input
-                type="email"
-                value={email}
+                type="Username"
+                value={Username}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="Enter your Username"
                 className="mt-2 h-12"
                 required
               />
@@ -142,10 +141,10 @@ export default function Login() {
               <label className="text-sm text-gray-600">Password</label>
               <div className="relative mt-2">
                 <Input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
+                  type={showPassword ? "text" : "Password"}
+                  value={Password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Enter your Password"
                   className="h-12 pr-10"
                   required
                 />
@@ -174,8 +173,6 @@ export default function Login() {
             >
               Login
             </Button>
-
-        
           </form>
         </div>
 
