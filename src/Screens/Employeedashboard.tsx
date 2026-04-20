@@ -172,10 +172,11 @@ export default function Employeedashboard() {
                     <td className="p-2 border">{item.leave_type}</td>
 
                     <td className="p-2 border">
-                      {item.from_date.split("T")[0]}
+                      {new Date(item.from_date).toLocaleDateString("en-GB")}
                     </td>
-
-                    <td className="p-2 border">{item.to_date.split("T")[0]}</td>
+                    <td className="p-2 border">
+                      {new Date(item.to_date).toLocaleDateString("en-GB")}
+                    </td>
 
                     <td className="p-2 border">{item.days}</td>
 
