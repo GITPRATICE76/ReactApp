@@ -11,6 +11,7 @@ import EmployeeLeaveApply from "./Screens/EmployeeLeaveApply";
 import LeaveCalendar from "./Screens/CalenderScreen";
 import LeaveHistory from "./components/LeaveHistory";
 import Rodashboard from "./Screens/RoDashboard";
+import Managerleavetrack from "./Screens/Managerleavetrack";
 
 function App() {
   return (
@@ -25,6 +26,16 @@ function App() {
             <ProtectedRoute roles={["MANAGER", "RO"]}>
               <MainLayout>
                 <Managerdashboard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager/managerleavetrack"
+          element={
+            <ProtectedRoute roles={["MANAGER"]}>
+              <MainLayout>
+                <Managerleavetrack />
               </MainLayout>
             </ProtectedRoute>
           }
@@ -108,10 +119,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-               <Route
+        <Route
           path="/ro/ro_dashboard"
           element={
-            <ProtectedRoute roles={[ "RO"]}>
+            <ProtectedRoute roles={["RO"]}>
               <MainLayout>
                 <Rodashboard />
               </MainLayout>

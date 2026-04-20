@@ -49,7 +49,7 @@ export default function Employeedashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatCard
-          title="Total Leave Taken"
+          title="Total Leave Request"
           value={data.total_leaves_taken}
           sub="Approved"
         />
@@ -78,44 +78,6 @@ export default function Employeedashboard() {
           value={data.currently_on_leave ? "Yes" : "No"}
           sub="Today"
         />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiBell /> Notifications
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-3 text-sm">
-            <Notification text="Apply leave 1 week in advance" />
-            <Notification text="Max 2 casual leaves per month" />
-            <Notification text="Sick leave requires medical proof (2+ days)" />
-          </CardContent>
-        </Card>
-
-        {/* Leave Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiUsers /> Monthly Leave Summary
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="text-sm space-y-2">
-            <p>
-              Total Leaves Taken: <b>{data.total_leaves_taken}</b>
-            </p>
-            {/* <p>
-              Pending Requests: <b>{data.pending_requests}</b>
-            </p>
-            <p>
-              Rejected Requests: <b>{data.rejected_requests}</b>
-            </p> */}
-          </CardContent>
-        </Card>
       </div>
 
       {/* 🔥 NEW SECTION: Team Members On Leave */}
@@ -202,6 +164,37 @@ export default function Employeedashboard() {
           )}
         </CardContent>
       </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Notifications */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FiBell /> NOTE
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-3 text-sm">
+            <Notification text="Apply leave 1 week in advance" />
+            <Notification text="Max 2 casual leaves per month" />
+            <Notification text="Sick leave requires medical proof (2+ days)" />
+          </CardContent>
+        </Card>
+
+        {/* Leave Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FiUsers /> Monthly Leave Summary
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="text-sm space-y-2">
+            <p>
+              Total Leaves Taken: <b>{data.total_leaves_taken}</b>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

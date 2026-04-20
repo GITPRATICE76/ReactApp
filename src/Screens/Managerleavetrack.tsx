@@ -11,7 +11,7 @@ import axiosInstance from "../Routes/axiosInstance";
 
 import { ED_URL } from "../services/userapi.service";
 
-export default function Rodashboard() {
+export default function Managerleavetrack() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,7 +19,6 @@ export default function Rodashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        // const token = localStorage.getItem("token");
         const res = await axiosInstance.get(ED_URL);
 
         setData(res.data);
@@ -40,7 +39,7 @@ export default function Rodashboard() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold">RO Leave Management</h1>
+        <h1 className="text-2xl font-semibold">Manager Leave Management</h1>
         <p className="text-sm text-gray-500">
           Overview of your leave status and activities
         </p>
@@ -80,10 +79,12 @@ export default function Rodashboard() {
         />
       </div>
 
+      {/* 🔥 NEW SECTION: Team Members On Leave */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FiUsers /> Team Members Currently On Leave
+            <FiUsers />
+            Members Currently On Leave
           </CardTitle>
         </CardHeader>
 
@@ -107,7 +108,7 @@ export default function Rodashboard() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FiBell /> Leave Remarks (Manager Feedback)
+            <FiBell /> Leave Remarks
           </CardTitle>
         </CardHeader>
 
@@ -133,10 +134,11 @@ export default function Rodashboard() {
                     <td className="p-2 border">{item.leave_type}</td>
 
                     <td className="p-2 border">
-                      {item.from_date.split("T")[0]}
+                      {new Date(item.from_date).toLocaleDateString("en-GB")}
                     </td>
-
-                    <td className="p-2 border">{item.to_date.split("T")[0]}</td>
+                    <td className="p-2 border">
+                      {new Date(item.to_date).toLocaleDateString("en-GB")}
+                    </td>
 
                     <td className="p-2 border">{item.days}</td>
 
@@ -182,7 +184,8 @@ export default function Rodashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FiUsers /> Monthly Leave Summary
+              <FiUsers />
+              Current Month Leave Summary
             </CardTitle>
           </CardHeader>
 
@@ -190,12 +193,6 @@ export default function Rodashboard() {
             <p>
               Total Leaves Taken: <b>{data.total_leaves_taken}</b>
             </p>
-            {/* <p>
-              Pending Requests: <b>{data.pending_requests}</b>
-            </p>
-            <p>
-              Rejected Requests: <b>{data.rejected_requests}</b>
-            </p> */}
           </CardContent>
         </Card>
       </div>

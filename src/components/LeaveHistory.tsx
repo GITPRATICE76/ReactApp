@@ -138,7 +138,7 @@ export default function LeaveHistory() {
   return (
     <div className="bg-white rounded-xl shadow-sm border p-6">
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-gray-500">Leave History</p>
+        <p className="text-2xl font-semibold text-gray-800">Leave History</p>
         <button
           onClick={handleRefresh}
           className="p-2 rounded-lg hover:bg-gray-100 transition"
