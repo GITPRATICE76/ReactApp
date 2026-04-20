@@ -151,16 +151,16 @@ export default function Managerdashboard() {
                         Remaining Allowed %
                       </p>
                       <p className="text-lg font-semibold text-yellow-800">
-                        {selectedDay.remaining_allowed_percentage.toFixed(3)}%
+                        {selectedDay.remaining_allowed_percentage.toFixed(2)}%
                       </p>
                     </div>
                     <InfoCard
                       label="% On Leave"
-                      value={`${selectedDay.leave_percentage.toFixed(3)}%`}
+                      value={`${selectedDay.leave_percentage.toFixed(2)}%`}
                     />
                     <InfoCard
                       label="% Available"
-                      value={`${selectedDay.available_percentage.toFixed(3)}%`}
+                      value={`${selectedDay.available_percentage.toFixed(2)}%`}
                       highlight="text-green-600"
                     />
                     <InfoCard
