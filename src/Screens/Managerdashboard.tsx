@@ -145,11 +145,24 @@ export default function Managerdashboard() {
 
                   {/* MAIN STATS GRID */}
                   <div className="grid grid-cols-2 gap-4">
+                    {/* REMAINING ALLOWED */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                      <p className="text-xs text-yellow-700">
+                        Remaining Allowed %
+                      </p>
+                      <p className="text-lg font-semibold text-yellow-800">
+                        {selectedDay.remaining_allowed_percentage.toFixed(3)}%
+                      </p>
+                    </div>
                     <InfoCard
-                      label="Total Resources"
-                      value={selectedDay.total_resources}
+                      label="% On Leave"
+                      value={`${selectedDay.leave_percentage.toFixed(3)}%`}
                     />
-
+                    <InfoCard
+                      label="% Available"
+                      value={`${selectedDay.available_percentage.toFixed(3)}%`}
+                      highlight="text-green-600"
+                    />
                     <InfoCard
                       label="On Leave"
                       value={selectedDay.on_leave}
@@ -157,25 +170,9 @@ export default function Managerdashboard() {
                     />
 
                     <InfoCard
-                      label="% On Leave"
-                      value={`${selectedDay.leave_percentage.toFixed(3)}%`}
+                      label="Total Resources"
+                      value={selectedDay.total_resources}
                     />
-
-                    <InfoCard
-                      label="% Available"
-                      value={`${selectedDay.available_percentage.toFixed(3)}%`}
-                      highlight="text-green-600"
-                    />
-                  </div>
-
-                  {/* REMAINING ALLOWED */}
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                    <p className="text-xs text-yellow-700">
-                      Remaining Allowed %
-                    </p>
-                    <p className="text-lg font-semibold text-yellow-800">
-                      {selectedDay.remaining_allowed_percentage.toFixed(3)}%
-                    </p>
                   </div>
 
                   {/* EMPLOYEE LIST */}

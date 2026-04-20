@@ -22,6 +22,8 @@ export default function LeaveHistory() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
+  const [rotate, setRotate] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -31,15 +33,25 @@ export default function LeaveHistory() {
 
   const totalPages = Math.ceil(totalRecords / rowsPerPage);
 
-  const fetchLeaveHistory = async (page = 1) => {
+  const fetchLeaveHistory = async (
+    page = 1,
+    filters?: {
+      search?: string;
+      start?: string;
+      end?: string;
+      status?: string;
+    },
+  ) => {
     try {
+      setLoading(true); // ✅ start spinning
+
       const payload = {
-        page: page,
+        page,
         limit: rowsPerPage,
-        start: startDate,
-        end: endDate,
-        search: search,
-        status: statusFilter,
+        search: filters?.search ?? search,
+        start: filters?.start ?? startDate,
+        end: filters?.end ?? endDate,
+        status: filters?.status ?? statusFilter,
       };
 
       const res = await axiosInstance.post(LEAVE_HISTORY_URL, payload);
@@ -47,15 +59,30 @@ export default function LeaveHistory() {
       setHistoryData(res.data.data || []);
       setTotalRecords(res.data.total || 0);
       setCurrentPage(page);
-    } catch (error) {
-      console.error("Leave history load failed", error);
+    } catch {
       toast.error("Failed to load leave history");
+    } finally {
+      setLoading(false); // ✅ stop spinning
     }
   };
   useEffect(() => {
     fetchLeaveHistory();
   }, []);
 
+  const handleRefresh = () => {
+    setSearch("");
+    setStartDate("");
+    setEndDate("");
+    setStatusFilter("ALL");
+    setCurrentPage(1);
+
+    fetchLeaveHistory(1, {
+      search: "",
+      start: "",
+      end: "",
+      status: "ALL",
+    });
+  };
   const downloadExcel = async () => {
     try {
       const payload = {
@@ -110,7 +137,17 @@ export default function LeaveHistory() {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border p-6">
-      <h2 className="text-lg font-semibold mb-4">Leave History</h2>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-gray-500">Leave History</p>
+        <button
+          onClick={handleRefresh}
+          className="p-2 rounded-lg hover:bg-gray-100 transition"
+        >
+          <span className={`inline-block ${loading ? "animate-spin" : ""}`}>
+            🔄
+          </span>
+        </button>
+      </div>
 
       {/* Filters */}
 
@@ -198,8 +235,12 @@ export default function LeaveHistory() {
                   <td className="p-2 border">{row.employee_name}</td>
                   <td className="p-2 border">{row.team}</td>
                   <td className="p-2 border">{row.department}</td>
-                  <td className="p-2 border">{row.from_date.split("T")[0]}</td>
-                  <td className="p-2 border">{row.to_date.split("T")[0]}</td>
+                  <td className="p-2 border">
+                    {new Date(row.from_date).toLocaleDateString("en-GB")}
+                  </td>
+                  <td className="p-2 border">
+                    {new Date(row.to_date).toLocaleDateString("en-GB")}
+                  </td>
                   <td className="p-2 border">{row.days}</td>
                   <td className="p-2 border">{row.leave_type}</td>
                   <td className="p-2 border">{row.status}</td>

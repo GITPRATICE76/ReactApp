@@ -135,6 +135,7 @@ export default function LeaveRequests() {
       toast.error("Delete failed");
     }
   };
+  const totalPages = Math.ceil(totalRecords / rowsPerPage);
 
   const submitAction = async () => {
     if (!remarks.trim()) {
@@ -257,17 +258,23 @@ export default function LeaveRequests() {
                 <tr key={leave.id} className="hover:bg-gray-50">
                   <td className="p-2 border">{leave.employeeName}</td>
                   <td className="p-2 border">{leave.leaveType}</td>
-                  <td className="p-2 border">{leave.from}</td>
-                  <td className="p-2 border">{leave.to}</td>
+                  <td className="p-2 border">
+                    {new Date(leave.from).toLocaleDateString("en-GB")}
+                  </td>
+                  <td className="p-2 border">
+                    {new Date(leave.to).toLocaleDateString("en-GB")}
+                  </td>
                   <td className="p-2 border">{leave.days}</td>
-                  {new Date(leave.Created).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "numeric",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
+                  <td className="p-2 border whitespace-nowrap">
+                    {new Date(leave.Created).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "numeric",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </td>
                   <td className="p-2 border">{leave.reason}</td>
 
                   {/* STATUS */}
@@ -333,29 +340,27 @@ export default function LeaveRequests() {
         <button
           disabled={currentPage === 1}
           onClick={() => fetchLeaves(currentPage - 1)}
-          className="px-3 py-1 bg-gray-200 rounded"
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
         >
           Prev
         </button>
 
-        {Array.from(
-          { length: Math.ceil(totalRecords / rowsPerPage) },
-          (_, i) => (
-            <button
-              key={i}
-              onClick={() => fetchLeaves(i + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ),
-        )}
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => fetchLeaves(i + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
 
         <button
+          disabled={currentPage === totalPages} // ✅ FIX HERE
           onClick={() => fetchLeaves(currentPage + 1)}
-          className="px-3 py-1 bg-gray-200 rounded"
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
         >
           Next
         </button>
