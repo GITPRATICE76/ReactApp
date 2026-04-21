@@ -146,16 +146,17 @@ export default function Managerdashboard() {
                   {/* MAIN STATS GRID */}
                   <div className="grid grid-cols-2 gap-4">
                     {/* REMAINING ALLOWED */}
+
+                    <InfoCard
+                      label="% On Leave"
+                      value={`${selectedDay.leave_percentage.toFixed(2)}%`}
+                    />
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                       <p className="text-xs text-yellow-700">% Remaining</p>
                       <p className="text-lg font-semibold text-yellow-800">
                         {selectedDay.remaining_allowed_percentage.toFixed(2)}%
                       </p>
                     </div>
-                    <InfoCard
-                      label="% On Leave"
-                      value={`${selectedDay.leave_percentage.toFixed(2)}%`}
-                    />
                     <InfoCard
                       label="% Available"
                       value={`${selectedDay.available_percentage.toFixed(2)}%`}

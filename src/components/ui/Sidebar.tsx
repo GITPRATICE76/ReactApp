@@ -134,7 +134,7 @@ export default function Sidebar() {
         {role === "MANAGER" && (
           <MenuItem
             icon={<FiHome />}
-            label="MANAGER Dashboard"
+            label="SELF Dashboard"
             open={open}
             active={location.pathname === "/manager/managerleavetrack"}
             onClick={() => navigate("/manager/managerleavetrack")}

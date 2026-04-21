@@ -166,22 +166,9 @@ export default function Managerleavetrack() {
       </Card>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiBell /> NOTE
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-3 text-sm">
-            <Notification text="Apply leave 1 week in advance" />
-            <Notification text="Max 2 casual leaves per month" />
-            <Notification text="Sick leave requires medical proof (2+ days)" />
-          </CardContent>
-        </Card>
 
         {/* Leave Status */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FiUsers />
@@ -194,7 +181,7 @@ export default function Managerleavetrack() {
               Total Leaves Taken: <b>{data.total_leaves_taken}</b>
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

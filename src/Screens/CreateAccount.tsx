@@ -107,26 +107,20 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
     return user.department ? [user.department] : [];
   };
   const handleCreateEmployee = async () => {
-    const fields: (keyof Errors)[] = [
-      "name",
-      "email",
-      "password",
-      "department",
-      "team",
-    ];
-    const values = [name, email, password, department, team];
+    const fields: (keyof Errors)[] = ["name", "email", "department", "team"];
+    const values = [name, email, department, team];
 
     const results = fields.map((f, i) => validateField(f, values[i]));
     if (results.includes(false)) return;
 
-    const payload = { name, email, password, department, team };
+    const payload = { name, email, department, team };
 
     try {
       await axiosInstance.post(CREATEACCOUNT_URL, payload);
 
       toast.success("Employee created!");
       if (onClose) {
-        onClose(); // close modal
+        onClose();
       }
     } catch (error: any) {
       if (error.response?.status === 409) {
@@ -244,7 +238,7 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
           </div>
 
           {/* PASSWORD */}
-          <div>
+          {/* <div>
             <Label className="text-sm text-gray-600">Password</Label>
             <Input
               type="password"
@@ -259,7 +253,7 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
             {errors.password && (
               <p className="text-xs text-red-500 mt-1">{errors.password}</p>
             )}
-          </div>
+          </div> */}
 
           {/* BUTTON */}
           <Button

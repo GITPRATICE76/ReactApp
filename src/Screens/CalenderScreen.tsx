@@ -46,7 +46,7 @@ export default function LeaveCalendar() {
             onClick={() => onNavigate("TODAY")}
             className="px-3 py-1 bg-gray-200 rounded"
           >
-            Today
+            Current Month
           </button>
 
           {/* Normal next */}

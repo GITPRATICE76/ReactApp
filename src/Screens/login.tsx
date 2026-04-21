@@ -27,6 +27,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [showVersion, setShowVersion] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const versionRef = useRef<HTMLDivElement | null>(null);
@@ -61,6 +62,8 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setLoading(true);
+
     try {
       const res = await axiosInstance.post(LOGIN_URL, {
         Username,
@@ -94,6 +97,8 @@ export default function Login() {
       }
     } catch (error) {
       toast.error("Invalid credentials");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -169,9 +174,10 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full h-12 rounded-lg bg-blue-900 hover:bg-blue-800 text-base"
+              disabled={loading}
+              className="w-full h-12 rounded-lg bg-blue-900 hover:bg-blue-800 text-base disabled:opacity-50"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </div>

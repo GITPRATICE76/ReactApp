@@ -166,7 +166,7 @@ export default function Employeedashboard() {
       </Card>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Notifications */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FiBell /> NOTE
@@ -178,10 +178,8 @@ export default function Employeedashboard() {
             <Notification text="Max 2 casual leaves per month" />
             <Notification text="Sick leave requires medical proof (2+ days)" />
           </CardContent>
-        </Card>
-
-        {/* Leave Status */}
-        <Card>
+        </Card> */}
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FiUsers /> Monthly Leave Summary
@@ -193,7 +191,7 @@ export default function Employeedashboard() {
               Total Leaves Taken: <b>{data.total_leaves_taken}</b>
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

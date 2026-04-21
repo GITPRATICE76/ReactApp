@@ -31,14 +31,14 @@ export default function Navbar() {
 
   return (
     <div style={styles.navbar}>
-      <div style={styles.left}></div>
-
-      <div style={styles.right}>
-        <span style={styles.date}>{today}</span>
-
+      <div style={styles.left}>
         <span style={styles.welcome}>
           Welcome{username ? `, ${username}` : ""}!
         </span>
+      </div>
+
+      <div style={styles.right}>
+        <span style={styles.date}>{today}</span>
 
         <div style={styles.company}>
           <img

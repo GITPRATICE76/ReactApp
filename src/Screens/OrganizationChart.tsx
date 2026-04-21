@@ -75,9 +75,13 @@ function Department({
   department: string;
   users: OrgUser[];
 }) {
-  const ros = users
-    .filter((u) => u.role === "RO" && u.department === department)
-    .sort((a, b) => (a.team || "").localeCompare(b.team || ""));
+  const teams = Array.from(
+    new Set(
+      users
+        .filter((u) => u.department === department && u.team)
+        .map((u) => u.team!),
+    ),
+  ).sort();
 
   return (
     <div className="flex flex-col items-center gap-5 min-w-[220px]">
@@ -88,23 +92,32 @@ function Department({
 
       {/* Teams (horizontal) */}
       <div className="flex gap-4 items-start">
-        {ros.map((ro) => {
+        {teams.map((team) => {
+          const ro = users.find(
+            (u) =>
+              u.role === "RO" && u.department === department && u.team === team,
+          );
+
           const employees = users.filter(
             (u) =>
               u.role === "EMPLOYEE" &&
               u.department === department &&
-              u.team === ro.team,
+              u.team === team,
           );
 
           return (
             <div
-              key={ro.id}
+              key={team}
               className="flex flex-col items-center min-w-[160px]"
             >
-              {/* RO */}
-              <OrgCard name={ro.name} role={`TL (${ro.team})`} />
+              {/* TL or fallback */}
+              {ro ? (
+                <OrgCard name={ro.name} role={`TL (${team})`} />
+              ) : (
+                <OrgCard name="No TL" role={`Team (${team})`} />
+              )}
 
-              {/* Employees (vertical) */}
+              {/* Employees */}
               <div className="mt-2 flex flex-col gap-1.5 items-center">
                 {employees.length === 0 ? (
                   <p className="text-[10px] text-gray-400">No employees</p>
@@ -159,23 +172,17 @@ function OrgCard({
             alt={name}
           /> */}
 
-         <div
-              className={`rounded-full flex items-center justify-center ${
-                compact ? "w-7 h-7 text-xs" : "w-8 h-8 text-sm"
-              } ${
-                isLeader
-                  ? "bg-blue-100 text-blue-600"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {isLeader ? (
-                <FiUsers />
-              ) : compact ? (
-                <FiUser />
-              ) : (
-                <FiUserCheck />
-              )}
-        </div>
+          <div
+            className={`rounded-full flex items-center justify-center ${
+              compact ? "w-7 h-7 text-xs" : "w-8 h-8 text-sm"
+            } ${
+              isLeader
+                ? "bg-blue-100 text-blue-600"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {isLeader ? <FiUsers /> : compact ? <FiUser /> : <FiUserCheck />}
+          </div>
         </div>
         <div className="overflow-hidden">
           <p className="font-semibold text-[11px] truncate">{name}</p>

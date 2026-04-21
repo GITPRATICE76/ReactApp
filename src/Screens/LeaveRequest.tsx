@@ -234,7 +234,7 @@ export default function LeaveRequests() {
           <thead className="bg-gray-100">
             <tr>
               <th className="p-2 border">Employee</th>
-              <th className="p-2 border">Leave Type</th>
+              {/* <th className="p-2 border">Leave Type</th> */}
               <th className="p-2 border">From</th>
               <th className="p-2 border">To</th>
               <th className="p-2 border">Days</th>
@@ -257,7 +257,7 @@ export default function LeaveRequests() {
               leaveRequests.map((leave) => (
                 <tr key={leave.id} className="hover:bg-gray-50">
                   <td className="p-2 border">{leave.employeeName}</td>
-                  <td className="p-2 border">{leave.leaveType}</td>
+                  {/* <td className="p-2 border">{leave.leaveType}</td> */}
                   <td className="p-2 border">
                     {new Date(leave.from).toLocaleDateString("en-GB")}
                   </td>

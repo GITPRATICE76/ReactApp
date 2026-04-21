@@ -22,10 +22,6 @@ export default function EmployeeLeaveApply() {
   const [reason, setReason] = useState("");
 
   const handleApplyLeave = async () => {
-    if (!leaveType) {
-      toast.error("Please select leave type");
-      return;
-    }
     if (!reason) {
       toast.error("Please Fill Reason");
       return;
@@ -37,13 +33,11 @@ export default function EmployeeLeaveApply() {
 
     const today = new Date().toISOString().split("T")[0];
 
-    // ❌ Block casual leave for today
     if (leaveType === "CASUAL" && fromDate === today) {
       toast.error("Cannot apply Casual Leave for today itself");
       return;
     }
 
-    // ❌ Block Sick Leave for past/future
     if (leaveType === "SICK" && fromDate !== today) {
       toast.error("Sick Leave can only be applied for today");
       return;
@@ -64,7 +58,7 @@ export default function EmployeeLeaveApply() {
     try {
       await axiosInstance.post(APPLY_LEAVE_URL, {
         user_id: Number(userId),
-        leave_type: leaveType,
+        leave_type: "CASUAL",
         from_date: fromDate,
         to_date: toDate,
         reason: reason,
@@ -100,7 +94,7 @@ export default function EmployeeLeaveApply() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div>
+          {/* <div>
             <label className="text-sm font-medium text-[#1e40af]">
               Leave Type
             </label>
@@ -109,12 +103,9 @@ export default function EmployeeLeaveApply() {
               value={leaveType}
               onChange={(e) => setLeaveType(e.target.value)}
             >
-              <option value="">Select Leave Type</option>
-
-              <option value="SICK">Sick Leave</option>
               <option value="CASUAL">Casual Leave</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
