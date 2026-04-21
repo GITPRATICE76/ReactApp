@@ -21,7 +21,7 @@ export default function CreateAccount({ onClose }: { onClose?: () => void }) {
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  // const [password, setPassword] = useState<string>("");
   const [department, setDepartment] = useState<string>("");
   const [team, setTeam] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});

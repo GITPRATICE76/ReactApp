@@ -125,7 +125,7 @@ export default function Sidebar() {
         {role === "RO" && (
           <MenuItem
             icon={<FiHome />}
-            label="RO Dashboard"
+            label="SELF Dashboard"
             open={open}
             active={location.pathname === "/ro/ro_dashboard"}
             onClick={() => navigate("/ro/ro_dashboard")}

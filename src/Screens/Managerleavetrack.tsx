@@ -201,11 +201,11 @@ function StatCard({ title, value, sub }: any) {
   );
 }
 
-function Notification({ text, time }: any) {
-  return (
-    <div className="flex justify-between">
-      <p>{text}</p>
-      <span className="text-xs text-gray-400">{time}</span>
-    </div>
-  );
-}
+// function Notification({ text, time }: any) {
+//   return (
+//     <div className="flex justify-between">
+//       <p>{text}</p>
+//       <span className="text-xs text-gray-400">{time}</span>
+//     </div>
+//   );
+// }
