@@ -24,8 +24,8 @@ export default function Navbar() {
   }
 
   const today = new Date().toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 
@@ -77,12 +77,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "20px",
   },
   date: {
-    fontSize: "14px",
+    fontSize: "17px",
     color: "#1e40af",
     fontWeight: 500,
   },
   welcome: {
-    fontSize: "14px",
+    fontSize: "17px",
     color: "#1e40af",
     fontWeight: 600,
     margin: "0px -23px 0px 0px",

@@ -21,6 +21,12 @@ export default function EmployeeLeaveApply() {
 
   const [reason, setReason] = useState("");
 
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const minDate = tomorrow.toISOString().split("T")[0];
+
   const handleApplyLeave = async () => {
     if (!reason) {
       toast.error("Please Fill Reason");
@@ -31,20 +37,8 @@ export default function EmployeeLeaveApply() {
       return;
     }
 
-    const today = new Date().toISOString().split("T")[0];
-
-    if (leaveType === "CASUAL" && fromDate === today) {
+    if (leaveType === "CASUAL" && fromDate === minDate) {
       toast.error("Cannot apply Casual Leave for today itself");
-      return;
-    }
-
-    if (leaveType === "SICK" && fromDate !== today) {
-      toast.error("Sick Leave can only be applied for today");
-      return;
-    }
-
-    if (leaveType === "SICK" && toDate !== today) {
-      toast.error("Sick Leave must be for today only");
       return;
     }
 
@@ -74,8 +68,6 @@ export default function EmployeeLeaveApply() {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }
   };
-
-  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -115,18 +107,9 @@ export default function EmployeeLeaveApply() {
               <input
                 type="date"
                 value={fromDate}
-                min={
-                  leaveType === "CASUAL"
-                    ? new Date(Date.now() + 86400000)
-                        .toISOString()
-                        .split("T")[0]
-                    : leaveType === "SICK"
-                      ? today
-                      : undefined
-                }
-                max={leaveType === "SICK" ? today : undefined}
+                min={minDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="w-full mt-1 border rounded-lg px-3 py-2"
+                className="w-80 mt-1 border rounded-lg px-3 py-2"
               />
             </div>
 
@@ -135,8 +118,7 @@ export default function EmployeeLeaveApply() {
               <input
                 type="date"
                 value={toDate}
-                min={leaveType === "SICK" ? today : fromDate}
-                max={leaveType === "SICK" ? today : undefined}
+                min={minDate}
                 onChange={(e) => setToDate(e.target.value)}
                 className="w-full mt-1 border rounded-lg px-3 py-2"
               />
