@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { FiBell, FiUsers } from "react-icons/fi";
-
 import axiosInstance from "../Routes/axiosInstance";
-
 import { ED_URL } from "../services/userapi.service";
+import { FiBell, FiUsers, FiClock, FiCheckCircle, FiXCircle, FiActivity } from "react-icons/fi";
 
 export default function Managerleavetrack() {
   const [data, setData] = useState<any>(null);
@@ -20,7 +12,6 @@ export default function Managerleavetrack() {
     const fetchDashboard = async () => {
       try {
         const res = await axiosInstance.get(ED_URL);
-
         setData(res.data);
       } catch (err: any) {
         setError("Failed to load dashboard");
@@ -28,184 +19,121 @@ export default function Managerleavetrack() {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, []);
 
-  if (loading) return <div className="p-6">Loading dashboard...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (loading) return <div className="p-4 text-xs font-black text-slate-400 uppercase animate-pulse">Loading tracker...</div>;
+  if (error) return <div className="p-4 text-xs font-black text-rose-500 uppercase">{error}</div>;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold">Manager Leave Management</h1>
-        <p className="text-sm text-gray-500">
-          Overview of your leave status and activities
-        </p>
+    <div className="space-y-4 w-full p-4 bg-[#fcfdfe] min-h-screen">
+      {/* HEADER */}
+      <div className="flex flex-col gap-1 px-1">
+        <h1 className="text-xl font-black text-slate-800 tracking-tight">Leave Management</h1>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Personal & Team Leave Overview</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard
-          title="Total Leave Request"
-          value={data.total_leaves_taken}
-          sub="Approved"
-        />
-        <StatCard
-          title="Pending Requests"
-          value={data.pending_requests}
-          sub="Awaiting approval"
-        />
-        <StatCard
-          title="Rejected Requests"
-          value={data.rejected_requests}
-          sub="Rejected"
-        />
-        <StatCard
-          title="Casual Leaves"
-          value={`${data.casual_leaves} days`}
-          sub="Approved"
-        />
-        <StatCard
-          title="Sick Leaves"
-          value={`${data.sick_leaves} days`}
-          sub="Approved"
-        />
-        <StatCard
-          title="Currently On Leave"
-          value={data.currently_on_leave ? "Yes" : "No"}
-          sub="Today"
-        />
+      {/* STATS GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <StatCard title="Total Requests" value={data.total_leaves_taken} sub="Approved" color="indigo" icon={<FiActivity size={14}/>} />
+        <StatCard title="Pending" value={data.pending_requests} sub="Awaiting Action" color="amber" icon={<FiClock size={14}/>} />
+        <StatCard title="Rejected" value={data.rejected_requests} sub="Disapproved" color="rose" icon={<FiXCircle size={14}/>} />
+        <StatCard title="Casual" value={data.casual_leaves} sub="Days Taken" color="purple" icon={<FiCheckCircle size={14}/>} />
+        <StatCard title="Sick" value={data.sick_leaves} sub="Days Taken" color="emerald" icon={<FiCheckCircle size={14}/>} />
+        <StatCard title="On Leave" value={data.currently_on_leave ? "YES" : "NO"} sub="Status Today" color="blue" icon={<FiUsers size={14}/>} />
       </div>
 
-      {/* 🔥 NEW SECTION: Team Members On Leave */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FiUsers />
-            Members Currently On Leave
-          </CardTitle>
-        </CardHeader>
+      <div className="grid grid-cols-12 gap-4">
+        {/* TEAM MEMBERS ON LEAVE */}
+        <div className="col-span-12 lg:col-span-4">
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm h-full">
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <FiUsers className="text-indigo-600" />Team Members Currently On Leave
+            </h2>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              {data.team_total_on_leave === 0 ? (
+                <div className="py-8 text-center border-2 border-dashed border-slate-50 rounded-xl">
+                    <p className="text-[10px] font-bold text-slate-300 uppercase italic">All members present</p>
+                </div>
+              ) : (
+                data.team_members_on_leave?.map((member: any) => (
+                  <div key={member.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-xs font-black text-slate-700">{member.name}</span>
+                    <span className="text-[9px] font-black bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full uppercase">On Leave</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
 
-        <CardContent className="text-sm space-y-2">
-          {data.team_total_on_leave === 0 ? (
-            <p className="text-gray-500">No team members are on leave today.</p>
-          ) : (
-            data.team_members_on_leave?.map((member: any) => (
-              <div
-                key={member.id}
-                className="flex justify-between border-b pb-1"
-              >
-                <span>{member.name}</span>
-                <span className="text-xs text-gray-400">On Leave</span>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-      {/* 🔥 NEW SECTION: Leave Remarks */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FiBell /> Leave Remarks
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="text-sm overflow-x-auto">
-          {!data.leave_remarks || data.leave_remarks.length === 0 ? (
-            <p className="text-gray-500">No remarks available.</p>
-          ) : (
-            <table className="w-full border text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-2 border">Leave Type</th>
-                  <th className="p-2 border">From</th>
-                  <th className="p-2 border">To</th>
-                  <th className="p-2 border">Days</th>
-                  <th className="p-2 border">Status</th>
-                  <th className="p-2 border">Remarks</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {data.leave_remarks.map((item: any) => (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2 border">{item.leave_type}</td>
-
-                    <td className="p-2 border">
-                      {new Date(item.from_date).toLocaleDateString("en-GB")}
-                    </td>
-                    <td className="p-2 border">
-                      {new Date(item.to_date).toLocaleDateString("en-GB")}
-                    </td>
-
-                    <td className="p-2 border">{item.days}</td>
-
-                    <td className="p-2 border">
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          item.status === "APPROVED"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-red-100 text-red-600"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-
-                    <td className="p-2 border">
-                      {item.remarks || "No remarks"}
-                    </td>
+        {/* LEAVE REMARKS TABLE */}
+        <div className="col-span-12 lg:col-span-8">
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm overflow-hidden">
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <FiBell className="text-amber-500" /> Recent Remarks
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-50">
+                    <th className="pb-3 text-[9px] font-black text-slate-400 uppercase">Type</th>
+                    <th className="pb-3 text-[9px] font-black text-slate-400 uppercase">Period</th>
+                    <th className="pb-3 text-[9px] font-black text-slate-400 uppercase text-center">Days</th>
+                    <th className="pb-3 text-[9px] font-black text-slate-400 uppercase">Status</th>
+                    <th className="pb-3 text-[9px] font-black text-slate-400 uppercase">Remarks</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </CardContent>
-      </Card>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notifications */}
-
-        {/* Leave Status */}
-        {/* <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiUsers />
-              Current Month Leave Summary
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="text-sm space-y-2">
-            <p>
-              Total Leaves Taken: <b>{data.total_leaves_taken}</b>
-            </p>
-          </CardContent>
-        </Card> */}
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {data.leave_remarks?.map((item: any) => (
+                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 text-[11px] font-bold text-slate-700">{item.leave_type}</td>
+                      <td className="py-3 text-[10px] font-bold text-slate-500">
+                        {new Date(item.from_date).toLocaleDateString("en-GB")} - {new Date(item.to_date).toLocaleDateString("en-GB")}
+                      </td>
+                      <td className="py-3 text-[11px] font-black text-slate-700 text-center">{item.days}</td>
+                      <td className="py-3">
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${
+                          item.status === "APPROVED" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-[10px] font-medium text-slate-500 max-w-[150px] truncate">
+                        {item.remarks || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ================= Reusable Components ================= */
+/* ================= COMPACT SUB-COMPONENTS ================= */
 
-function StatCard({ title, value, sub }: any) {
+function StatCard({ title, value, sub, color, icon }: any) {
+  const colors: any = {
+    indigo: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    amber: "text-amber-600 bg-amber-50 border-amber-100",
+    rose: "text-rose-600 bg-rose-50 border-rose-100",
+    purple: "text-purple-600 bg-purple-50 border-purple-100",
+    emerald: "text-emerald-600 bg-emerald-50 border-emerald-100",
+    blue: "text-blue-600 bg-blue-50 border-blue-100",
+  };
+
   return (
-    <Card>
-      <CardContent className="p-4 space-y-1">
-        <p className="text-xs text-gray-500">{title}</p>
-        <p className="text-2xl font-semibold">{value}</p>
-        <p className="text-xs text-gray-400">{sub}</p>
-      </CardContent>
-    </Card>
+    <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`p-1.5 rounded-lg border ${colors[color]}`}>{icon}</div>
+        <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter truncate">{title}</p>
+      </div>
+      <p className={`text-lg font-black tracking-tight leading-none text-slate-800`}>{value}</p>
+      <p className="text-[8px] font-bold text-slate-400 truncate mt-1.5 uppercase tracking-tighter">{sub}</p>
+    </div>
   );
 }
-
-// function Notification({ text, time }: any) {
-//   return (
-//     <div className="flex justify-between">
-//       <p>{text}</p>
-//       <span className="text-xs text-gray-400">{time}</span>
-//     </div>
-//   );
-// }

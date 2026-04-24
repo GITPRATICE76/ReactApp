@@ -1,30 +1,18 @@
 import { useState } from "react";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-
+import { Card, CardContent } from "../components/ui/card";
 import { APPLY_LEAVE_URL } from "../services/userapi.service";
-
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
+import { FiSend, FiCalendar, FiEdit3 } from "react-icons/fi";
 
 export default function EmployeeLeaveApply() {
-  const [leaveType, setLeaveType] = useState("");
-
   const [fromDate, setFromDate] = useState("");
-
   const [toDate, setToDate] = useState("");
-
   const [reason, setReason] = useState("");
 
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
-
   const minDate = tomorrow.toISOString().split("T")[0];
 
   const handleApplyLeave = async () => {
@@ -37,13 +25,7 @@ export default function EmployeeLeaveApply() {
       return;
     }
 
-    if (leaveType === "CASUAL" && fromDate === minDate) {
-      toast.error("Cannot apply Casual Leave for today itself");
-      return;
-    }
-
     const userId = localStorage.getItem("userid");
-
     if (!userId) {
       toast.error("User not logged in");
       return;
@@ -59,95 +41,93 @@ export default function EmployeeLeaveApply() {
       });
 
       toast.success("Leave applied successfully");
-
       setFromDate("");
       setToDate("");
       setReason("");
-      setLeaveType(" ");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to apply leave");
     }
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#1e40af]">Apply Leave</h1>
-        <p className="text-sm text-gray-500">
-          Submit your leave request for approval
-        </p>
+    <div className="bg-[#f8fafc] h-screen overflow-hidden p-4 lg:p-8 font-sans">
+      <div className="max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Apply <span className="text-blue-600">Leave</span>
+          </h1>
+          <p className="text-slate-400 text-xs font-medium">Submit your absence request for manager approval.</p>
+        </div>
+
+        <Card className="overflow-hidden border-slate-200 shadow-xl shadow-blue-900/5 rounded-3xl bg-white relative">
+          {/* Top Decorative Accent */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 to-indigo-500" />
+          
+          <CardContent className="p-8 space-y-6">
+            {/* Dates Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[1.5px]">
+                  <FiCalendar className="text-blue-500" /> From Date
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  min={minDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[1.5px]">
+                  <FiCalendar className="text-blue-500" /> To Date
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  min={fromDate || minDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Reason Textarea */}
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[1.5px]">
+                <FiEdit3 className="text-blue-500" /> Reason for Leave
+              </label>
+              <textarea
+                rows={4}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-300 resize-none"
+                placeholder="Briefly describe why you are taking leave..."
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-4">
+              <button
+                onClick={handleApplyLeave}
+                className="w-full md:w-auto flex items-center justify-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-slate-200 active:scale-95"
+              >
+                <FiSend /> Submit Request
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Note / Info */}
+        <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
+          <div className="p-1 bg-blue-100 rounded text-blue-600 text-xs">ℹ</div>
+          <p className="text-[11px] text-blue-800 leading-relaxed">
+            <b>Note:</b> Casual leave requests must be submitted at least 24 hours in advance. Once submitted, your reporting officer will receive a notification for approval.
+          </p>
+        </div>
       </div>
-
-      {/* Leave Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Leave Details</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {/* <div>
-            <label className="text-sm font-medium text-[#1e40af]">
-              Leave Type
-            </label>
-            <select
-              className="w-full mt-1 border rounded-lg px-3 py-2"
-              value={leaveType}
-              onChange={(e) => setLeaveType(e.target.value)}
-            >
-              <option value="CASUAL">Casual Leave</option>
-            </select>
-          </div> */}
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-[#1e40af]">From</label>
-
-              <input
-                type="date"
-                value={fromDate}
-                min={minDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-80 mt-1 border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium  text-[#1e40af]">To</label>
-              <input
-                type="date"
-                value={toDate}
-                min={minDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full mt-1 border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-
-          {/* Reason */}
-          <div>
-            <label className="text-sm font-medium  text-[#1e40af]">
-              Reason
-            </label>
-            <textarea
-              rows={3}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full mt-1 border rounded-lg px-3 py-2"
-              placeholder="Enter reason for leave"
-            />
-          </div>
-
-          {/* Button */}
-          <button
-            onClick={handleApplyLeave}
-            className="bg-[#1e40af] text-white px-6 py-2 rounded-lg text-sm"
-          >
-            Apply Leave
-          </button>
-        </CardContent>
-      </Card>
     </div>
   );
 }

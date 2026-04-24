@@ -1,221 +1,137 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { FiBell, FiUsers } from "react-icons/fi";
-
+import { FiBell, FiUsers, FiClock, FiCheckCircle, FiXCircle, FiActivity } from "react-icons/fi";
 import axiosInstance from "../Routes/axiosInstance";
-
 import { ED_URL } from "../services/userapi.service";
 
 export default function Employeedashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        // const token = localStorage.getItem("token");
         const res = await axiosInstance.get(ED_URL);
-
         setData(res.data);
-      } catch (err: any) {
-        setError("Failed to load dashboard");
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, []);
 
-  if (loading) return <div className="p-6">Loading dashboard...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (loading) return <div className="p-10 font-black text-slate-300 animate-pulse">LOADING...</div>;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold">Employee Leave Management</h1>
-        <p className="text-sm text-gray-500">
-          Overview of your leave status and activities
-        </p>
+    <div className="bg-[#f8fafc] min-h-screen p-6 space-y-8">
+      
+      {/* 1. TOP HEADER */}
+      <div className="mb-8">
+        <h1 className="text-[28px] font-black text-[#1e293b] leading-tight">Leave Management</h1>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Personal & Team Leave Overview</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* 2. STATS GRID (Match your screenshot's card style) */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard
-          title="Total Leave Request"
-          value={data.total_leaves_taken}
-          sub="Approved"
-        />
-        <StatCard
-          title="Pending Requests"
-          value={data.pending_requests}
-          sub="Awaiting approval"
-        />
-        <StatCard
-          title="Rejected Requests"
-          value={data.rejected_requests}
-          sub="Rejected"
-        />
-        <StatCard
-          title="Casual Leaves"
-          value={`${data.casual_leaves} days`}
-          sub="Approved"
-        />
-        <StatCard
-          title="Sick Leaves"
-          value={`${data.sick_leaves} days`}
-          sub="Approved"
-        />
-        <StatCard
-          title="Currently On Leave"
-          value={data.currently_on_leave ? "Yes" : "No"}
-          sub="Today"
-        />
+        <MetricCard label="Total Requests" value={data.total_leaves_taken} sub="Approved" icon={<FiActivity className="text-indigo-500" />} />
+        <MetricCard label="Pending" value={data.pending_requests} sub="Awaiting Action" icon={<FiClock className="text-amber-500" />} />
+        <MetricCard label="Rejected" value={data.rejected_requests} sub="Disapproved" icon={<FiXCircle className="text-rose-500" />} />
+        <MetricCard label="Casual" value={data.casual_leaves} sub="Days Taken" icon={<FiCheckCircle className="text-purple-500" />} />
+        <MetricCard label="Sick" value={data.sick_leaves} sub="Days Taken" icon={<FiCheckCircle className="text-emerald-500" />} />
+        <MetricCard label="On Leave" value={data.currently_on_leave ? "YES" : "NO"} sub="Status Today" icon={<FiUsers className="text-blue-500" />} />
       </div>
 
-      {/* 🔥 NEW SECTION: Team Members On Leave */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FiUsers /> Team Members Currently On Leave
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="text-sm space-y-2">
-          {data.team_total_on_leave === 0 ? (
-            <p className="text-gray-500">No team members are on leave today.</p>
-          ) : (
-            data.team_members_on_leave?.map((member: any) => (
-              <div
-                key={member.id}
-                className="flex justify-between border-b pb-1"
-              >
-                <span>{member.name}</span>
-                <span className="text-xs text-gray-400">On Leave</span>
+      {/* 3. MAIN CONTENT GRID */}
+      <div className="grid grid-cols-12 gap-6">
+        
+        {/* LEFT: TEAM ABSENCES */}
+        <div className="col-span-12 lg:col-span-4 bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <FiUsers className="text-indigo-600" size={18} />
+            <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Team Members Currently On Leave</h2>
+          </div>
+          
+          <div className="space-y-3">
+            {data.team_members_on_leave?.map((member: any) => (
+              <div key={member.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                <span className="text-[13px] font-black text-slate-700">{member.name}</span>
+                <span className="px-3 py-1 bg-rose-50 text-rose-600 text-[8px] font-black rounded-full uppercase">On Leave</span>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-      {/* 🔥 NEW SECTION: Leave Remarks */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FiBell /> Leave Remarks (Manager Feedback)
-          </CardTitle>
-        </CardHeader>
+            ))}
+            {data.team_total_on_leave === 0 && <p className="text-center text-slate-300 py-10 text-[10px] font-bold italic">No one is out today</p>}
+          </div>
+        </div>
 
-        <CardContent className="text-sm overflow-x-auto">
-          {!data.leave_remarks || data.leave_remarks.length === 0 ? (
-            <p className="text-gray-500">No remarks available.</p>
-          ) : (
-            <table className="w-full border text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-2 border">Leave Type</th>
-                  <th className="p-2 border">From</th>
-                  <th className="p-2 border">To</th>
-                  <th className="p-2 border">Days</th>
-                  <th className="p-2 border">Status</th>
-                  <th className="p-2 border">Remarks</th>
-                </tr>
-              </thead>
+        {/* RIGHT: RECENT REMARKS */}
+       {/* RIGHT: RECENT REMARKS */}
+<div className="col-span-12 lg:col-span-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 flex flex-col">
+  <div className="flex items-center gap-2 mb-6 shrink-0">
+    <FiBell className="text-amber-500" size={18} />
+    <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Recent Remarks</h2>
+  </div>
 
-              <tbody>
-                {data.leave_remarks.map((item: any) => (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2 border">{item.leave_type}</td>
+  {/* SCROLL CONTAINER */}
+  <div className="overflow-y-auto pr-2 max-h-[400px] custom-scrollbar">
+    <table className="w-full">
+      <thead className="sticky top-0 bg-white z-10">
+        <tr className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <th className="pb-4 bg-white">Type</th>
+          <th className="pb-4 bg-white">Period</th>
+          <th className="pb-4 text-center bg-white">Days</th>
+          <th className="pb-4 text-center bg-white">Status</th>
+          <th className="pb-4 bg-white">Remarks</th>
+        </tr>
+      </thead>
+      <tbody className="text-slate-600">
+        {data.leave_remarks?.map((item: any) => (
+          <tr key={item.id} className="border-t border-slate-50 group transition-colors">
+            <td className="py-5 text-[12px] font-black text-slate-800 uppercase">{item.leave_type}</td>
+            <td className="py-5 text-[11px] font-bold text-slate-500">
+              {new Date(item.from_date).toLocaleDateString("en-GB")} - {new Date(item.to_date).toLocaleDateString("en-GB")}
+            </td>
+            <td className="py-5 text-center text-[12px] font-black text-slate-800">{item.days}</td>
+            <td className="py-5 text-center">
+              <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase ${
+                item.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+              }`}>
+                {item.status}
+              </span>
+            </td>
+            <td className="py-5 text-[11px] text-slate-400 font-medium italic max-w-[250px] break-words">
+              {item.remarks || "No remarks"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    
+    {!data.leave_remarks?.length && (
+      <p className="text-center text-slate-300 py-20 text-[10px] font-bold italic uppercase tracking-widest">
+        No History Found
+      </p>
+    )}
+  </div>
+</div>
 
-                    <td className="p-2 border">
-                      {new Date(item.from_date).toLocaleDateString("en-GB")}
-                    </td>
-                    <td className="p-2 border">
-                      {new Date(item.to_date).toLocaleDateString("en-GB")}
-                    </td>
-
-                    <td className="p-2 border">{item.days}</td>
-
-                    <td className="p-2 border">
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          item.status === "APPROVED"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-red-100 text-red-600"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-
-                    <td className="p-2 border">
-                      {item.remarks || "No remarks"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </CardContent>
-      </Card>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notifications */}
-        {/* <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiBell /> NOTE
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-3 text-sm">
-            <Notification text="Apply leave 1 week in advance" />
-            <Notification text="Max 2 casual leaves per month" />
-            <Notification text="Sick leave requires medical proof (2+ days)" />
-          </CardContent>
-        </Card> */}
-        {/* <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FiUsers /> Monthly Leave Summary
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="text-sm space-y-2">
-            <p>
-              Total Leaves Taken: <b>{data.total_leaves_taken}</b>
-            </p>
-          </CardContent>
-        </Card> */}
       </div>
     </div>
   );
 }
 
-/* ================= Reusable Components ================= */
+/* ================= COMPONENT: METRIC CARD ================= */
 
-function StatCard({ title, value, sub }: any) {
+function MetricCard({ label, value, sub, icon }: any) {
   return (
-    <Card>
-      <CardContent className="p-4 space-y-1">
-        <p className="text-xs text-gray-500">{title}</p>
-        <p className="text-2xl font-semibold">{value}</p>
-        <p className="text-xs text-gray-400">{sub}</p>
-      </CardContent>
-    </Card>
+    <div className="bg-white p-5 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-slate-50 rounded-xl">{icon}</div>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{label}</p>
+      </div>
+      <div className="space-y-1">
+        <h3 className="text-2xl font-black text-slate-800 tracking-tighter">{value}</h3>
+        <p className="text-[8px] font-black text-slate-300 uppercase tracking-wider leading-none">{sub}</p>
+      </div>
+    </div>
   );
 }
-
-// function Notification({ text, time }: any) {
-//   return (
-//     <div className="flex justify-between">
-//       <p>{text}</p>
-//       <span className="text-xs text-gray-400">{time}</span>
-//     </div>
-//   );
-// }

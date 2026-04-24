@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../Routes/axiosInstance";
-import { Card, CardContent } from "../components/ui/card";
 import { ORG_CHART_URL } from "../services/userapi.service";
-import "react-complex-tree/lib/style-modern.css";
-import { FiUser, FiUserCheck, FiUsers } from "react-icons/fi";
+import { FiUser, FiUserCheck, FiUsers, FiHexagon } from "react-icons/fi";
 
 type OrgUser = {
   id: number;
@@ -23,114 +21,93 @@ export default function OrganizationChart() {
   }, []);
 
   const managers = users.filter((u) => u.role === "MANAGER");
-
   const departments = Array.from(
-    new Set(users.filter((u) => u.role !== "MANAGER").map((u) => u.department)),
+    new Set(users.filter((u) => u.role !== "MANAGER").map((u) => u.department))
   );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-slate-800">Organization Chart</h1>
-        {/* <button className="flex items-center gap-2 border bg-white px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
-          <Edit3 size={14} />
-          Edit Organization
-        </button> */}
-      </div>
-
-      <div className="flex flex-col items-center gap-5 mb-12">
-        {/* ================= MANAGERS (SAME LINE) ================= */}
-        <div className="bg-blue-600 text-white px-8 py-1.5 rounded-lg text-xs font-semibold">
-          MANAGERS
-        </div>
-        <div className="flex justify-center gap-6">
-          {managers.map((m) => (
-            <OrgCard
-              key={m.id}
-              name={m.name}
-              role={`${m.department} Manager`}
-              isLeader
-            />
-          ))}
+    <div className="bg-[#f8fafc] min-h-screen p-4 lg:p-8 font-sans text-slate-900">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-800">
+              Org <span className="text-blue-600">Hierarchy</span>
+            </h1>
+            <p className="text-slate-400 text-xs font-medium">Visualizing structure & team reporting lines.</p>
+          </div>
         </div>
 
-        {/* ================= DEPARTMENTS (SAME LINE) ================= */}
-        <div className="flex justify-center gap-16 items-start">
-          {departments.map((dept) => (
-            <Department key={dept} department={dept} users={users} />
-          ))}
+        {/* Chart Container */}
+        <div className="flex flex-col items-center">
+          
+          {/* Executive Level */}
+          {/* <div className="mb-2 uppercase tracking-[2px] text-[10px] font-black text-slate-400">Executive Management</div> */}
+          <div className="flex justify-center gap-4 mb-16 relative">
+            {managers.map((m) => (
+              <OrgCard 
+                key={m.id} 
+                name={m.name} 
+                role={`${m.department} Lead`} 
+                variant="manager" 
+              />
+            ))}
+            {/* Visual connector line down */}
+            {/* <div className="absolute -bottom-10 left-1/2 w-px h-10 bg-slate-200 hidden md:block"></div> */}
+          </div>
+
+          {/* Department Level */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 w-full relative">
+            {departments.map((dept) => (
+              <Department key={dept} department={dept} users={users} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ================= DEPARTMENT ================= */
-
-function Department({
-  department,
-  users,
-}: {
-  department: string;
-  users: OrgUser[];
-}) {
+function Department({ department, users }: { department: string; users: OrgUser[] }) {
   const teams = Array.from(
-    new Set(
-      users
-        .filter((u) => u.department === department && u.team)
-        .map((u) => u.team!),
-    ),
+    new Set(users.filter((u) => u.department === department && u.team).map((u) => u.team!))
   ).sort();
 
   return (
-    <div className="flex flex-col items-center gap-5 min-w-[220px]">
-      {/* Department Title */}
-      <div className="bg-blue-600 text-white px-6 py-1.5 rounded-lg text-xs font-semibold">
+    <div className="flex flex-col items-center">
+      {/* Department Label */}
+      <div className="flex items-center gap-2 bg-slate-800 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-8 shadow-lg ring-4 ring-slate-100">
+        <FiHexagon className="text-blue-400" />
         {department}
       </div>
 
-      {/* Teams (horizontal) */}
-      <div className="flex gap-4 items-start">
+      {/* Teams Grid */}
+      <div className="flex flex-wrap justify-center gap-6">
         {teams.map((team) => {
-          const ro = users.find(
-            (u) =>
-              u.role === "RO" && u.department === department && u.team === team,
-          );
-
-          const employees = users.filter(
-            (u) =>
-              u.role === "EMPLOYEE" &&
-              u.department === department &&
-              u.team === team,
-          );
+          const ro = users.find(u => u.role === "RO" && u.department === department && u.team === team);
+          const employees = users.filter(u => u.role === "EMPLOYEE" && u.department === department && u.team === team);
 
           return (
-            <div
-              key={team}
-              className="flex flex-col items-center min-w-[160px]"
-            >
-              {/* TL or fallback */}
+            <div key={team} className="flex flex-col items-center bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+               <div className="text-[9px] font-black text-blue-500 uppercase mb-2 tracking-tighter">Team {team}</div>
+              
+              {/* Reporting Officer (TL) */}
               {ro ? (
-                <OrgCard name={ro.name} role={`TL (${team})`} />
+                <OrgCard name={ro.name} role="Team Leader" variant="ro" />
               ) : (
-                <OrgCard name="No TL" role={`Team (${team})`} />
+                <div className="w-[140px] py-2 border-2 border-dashed border-slate-100 rounded-xl flex items-center justify-center text-[10px] text-slate-300 font-bold">No Lead</div>
               )}
 
-              {/* Employees */}
-              <div className="mt-2 flex flex-col gap-1.5 items-center">
-                {employees.length === 0 ? (
-                  <p className="text-[10px] text-gray-400">No employees</p>
-                ) : (
-                  employees.map((emp) => (
-                    <OrgCard
-                      key={emp.id}
-                      name={emp.name}
-                      role={emp.team!}
-                      compact
-                    />
-                  ))
-                )}
+              {/* Employees Stack */}
+              <div className="mt-3 w-full flex flex-col gap-1">
+                {employees.map((emp) => (
+                  <div key={emp.id} className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors group">
+                    <div className="h-5 w-5 rounded bg-white flex items-center justify-center text-slate-400 group-hover:text-blue-600 border border-slate-100 text-[10px]">
+                      <FiUser />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-600 truncate">{emp.name}</span>
+                  </div>
+                ))}
               </div>
             </div>
           );
@@ -140,55 +117,31 @@ function Department({
   );
 }
 
-/* ================= CARD ================= */
-
-function OrgCard({
-  name,
-  role,
-  isLeader,
-  compact,
-}: {
-  name: string;
-  role: string;
-  isLeader?: boolean;
-  compact?: boolean;
-}) {
+function OrgCard({ name, role, variant }: { name: string; role: string; variant?: "manager" | "ro" }) {
+  const isManager = variant === "manager";
+  
   return (
-    <Card
-      className={`rounded-lg bg-white shadow-sm ${
-        isLeader ? "ring-1 ring-gray-300" : ""
-      } ${compact ? "w-[150px]" : "w-[170px]"}`}
-    >
-      <CardContent
-        className={`flex items-center gap-2 ${compact ? "p-1.5" : "p-2"}`}
-      >
-        <div
-          className={`rounded-full bg-gray-200 overflow-hidden ${
-            compact ? "w-7 h-7" : "w-8 h-8"
-          }`}
-        >
-          {/* <img
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
-            alt={name}
-          /> */}
-
-          <div
-            className={`rounded-full flex items-center justify-center ${
-              compact ? "w-7 h-7 text-xs" : "w-8 h-8 text-sm"
-            } ${
-              isLeader
-                ? "bg-blue-100 text-blue-600"
-                : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {isLeader ? <FiUsers /> : compact ? <FiUser /> : <FiUserCheck />}
-          </div>
-        </div>
-        <div className="overflow-hidden">
-          <p className="font-semibold text-[11px] truncate">{name}</p>
-          <p className="text-[10px] text-gray-500 truncate">{role}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`
+      relative rounded-2xl flex items-center gap-3 px-4 py-3 border transition-all
+      ${isManager 
+        ? "bg-white border-blue-100 shadow-xl shadow-blue-900/5 w-[200px]" 
+        : "bg-white border-slate-100 shadow-sm w-[150px]"}
+    `}>
+      <div className={`
+        flex-shrink-0 rounded-xl flex items-center justify-center font-bold
+        ${isManager ? "h-10 w-10 bg-blue-600 text-white" : "h-8 w-8 bg-slate-100 text-slate-500"}
+      `}>
+        {isManager ? <FiUsers size={18} /> : <FiUserCheck size={14} />}
+      </div>
+      
+      <div className="overflow-hidden">
+        <h4 className={`font-black text-slate-800 leading-none truncate ${isManager ? "text-xs" : "text-[10px]"}`}>
+          {name}
+        </h4>
+        <p className={`text-slate-400 font-bold mt-1 uppercase tracking-tighter ${isManager ? "text-[9px]" : "text-[8px]"}`}>
+          {role}
+        </p>
+      </div>
+    </div>
   );
 }
