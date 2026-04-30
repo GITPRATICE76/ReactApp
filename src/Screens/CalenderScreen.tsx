@@ -16,7 +16,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-
 export default function LeaveCalendar() {
   const [events, setEvents] = useState<any[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -44,16 +43,14 @@ export default function LeaveCalendar() {
         type: "HOLIDAY",
       }));
 
-      
-
       const leaveEvents = leaves.map((l: any) => ({
-  title: `${l.name} - ${l.leave_type}`,
-  start: new Date(l.from_date),
-  end: new Date(l.to_date),
-  allDay: true,
-  type: l.leave_type,
-  status: l.status, // Add this line
-}));
+        title: `${l.name} - ${l.leave_type}`,
+        start: new Date(l.from_date),
+        end: new Date(l.to_date),
+        allDay: true,
+        type: l.leave_type,
+        status: l.status, // Add this line
+      }));
 
       setEvents([...holidayEvents, ...leaveEvents]);
     } catch (err) {
@@ -61,39 +58,37 @@ export default function LeaveCalendar() {
     }
   };
 
-  
+  const eventStyleGetter = (event: any) => {
+    let color = "#3b82f6"; // Default Blue (Casual Approved)
 
-const eventStyleGetter = (event: any) => {
-  let color = "#3b82f6"; // Default Blue (Casual Approved)
-  
-  // 1. Check Status First
-  if (event.status === "PENDING") {
-    color = "#f59e0b"; // Amber for Pending
-  } else {
-    // 2. Otherwise color by Type
-    if (event.type === "SICK") color = "#ef4444"; // Red
-    if (event.type === "HOLIDAY") color = "#8b5cf6"; // Purple
-  }
+    // 1. Check Status First
+    if (event.status === "PENDING") {
+      color = "#f59e0b"; // Amber for Pending
+    } else {
+      // 2. Otherwise color by Type
+      if (event.type === "SICK") color = "#ef4444"; // Red
+      if (event.type === "HOLIDAY") color = "#8b5cf6"; // Purple
+    }
 
-  return {
-    className: "hover:brightness-90 transition-all",
-    style: {
-      backgroundColor: `${color}15`, // Slightly more transparent (15%) for a cleaner look
-      color: color,
-      borderRadius: "6px",
-      borderLeft: `4px solid ${color}`,
-      fontSize: "10px",
-      fontWeight: "900", // Extra bold for MNC standard
-      padding: "2px 6px",
-      borderTop: "none",
-      borderRight: "none",
-      borderBottom: "none",
-    },
+    return {
+      className: "hover:brightness-90 transition-all",
+      style: {
+        backgroundColor: `${color}15`, // Slightly more transparent (15%) for a cleaner look
+        color: color,
+        borderRadius: "6px",
+        borderLeft: `4px solid ${color}`,
+        fontSize: "10px",
+        fontWeight: "900", // Extra bold for MNC standard
+        padding: "2px 6px",
+        borderTop: "none",
+        borderRight: "none",
+        borderBottom: "none",
+      },
+    };
   };
-};
 
   function CustomToolbar(props: any) {
-    const { label, onNavigate } = props;
+    const { label, onNavigate, date } = props;
     return (
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-1 bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
@@ -107,7 +102,7 @@ const eventStyleGetter = (event: any) => {
             onClick={() => onNavigate("TODAY")}
             className="px-4 py-1.5 text-xs font-black uppercase tracking-wider text-slate-700 hover:bg-slate-50 rounded-lg"
           >
-            Current Month
+            {new Date(date).getFullYear()}
           </button>
           <button
             onClick={() => onNavigate("NEXT")}
@@ -116,7 +111,7 @@ const eventStyleGetter = (event: any) => {
             <FiChevronRight />
           </button>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <FiCalendar className="text-blue-600 text-xl" />
           <span className="text-xl font-black text-slate-800 tracking-tight">
@@ -134,9 +129,10 @@ const eventStyleGetter = (event: any) => {
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Team Leave <span className="text-blue-600">Calendar</span>
           </h1>
-          <p className="text-slate-400 text-xs font-medium">Coordinate availability and public holidays.</p>
+          <p className="text-slate-400 text-xs font-medium">
+            Coordinate availability and public holidays.
+          </p>
         </div>
-        
 
         <div className="rounded-2xl overflow-hidden border border-slate-100">
           <Calendar
@@ -150,6 +146,7 @@ const eventStyleGetter = (event: any) => {
             onNavigate={(date: Date) => setCurrentDate(date)}
             defaultView="month"
             views={{ month: true }}
+            showAllEvents
             popup
             components={{
               toolbar: CustomToolbar,
@@ -159,14 +156,14 @@ const eventStyleGetter = (event: any) => {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-4 mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-  <Legend color="#3b82f6" label="Approved" />
-  <Legend color="#f59e0b" label="Pending" /> {/* Added Pending */}
-  <Legend color="#ef4444" label="Sick Leave" />
-  <Legend color="#8b5cf6" label="Public Holiday" />
-  <div className="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">
-    {events.length} Events this month
-  </div>
-</div>
+          <Legend color="#3b82f6" label="Approved" />
+          <Legend color="#f59e0b" label="Pending" /> {/* Added Pending */}
+          <Legend color="#ef4444" label="Sick Leave" />
+          <Legend color="#8b5cf6" label="Public Holiday" />
+          <div className="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            {events.length} Events this month
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -175,8 +172,13 @@ const eventStyleGetter = (event: any) => {
 function Legend({ color, label }: any) {
   return (
     <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-slate-200 shadow-sm">
-      <div style={{ backgroundColor: color }} className="w-2.5 h-2.5 rounded-full shadow-sm"></div>
-      <span className="text-[11px] font-black text-slate-600 uppercase tracking-tight">{label}</span>
+      <div
+        style={{ backgroundColor: color }}
+        className="w-2.5 h-2.5 rounded-full shadow-sm"
+      ></div>
+      <span className="text-[11px] font-black text-slate-600 uppercase tracking-tight">
+        {label}
+      </span>
     </div>
   );
 }
