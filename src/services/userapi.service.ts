@@ -1,3 +1,5 @@
+import axiosInstance from "../Routes/axiosInstance";
+
 export const LOGIN_URL = "/login";
 
 export const CREATEACCOUNT_URL = "/createaccount";
@@ -21,3 +23,12 @@ export const LEAVE_HISTORY_URL = "/leave/history";
 export const DROPDOWN_URL = "/usercode/details";
 
 export const DELETE_LEAVE_URL = "/leave/delete";
+
+export const GET_REPORTING = "/reporting-to";
+
+export const GET_USER_HISTORY = (userId: number | string) =>
+  `/leave-history/${userId}`;
+
+export const getUserHistory = async (userId: number | string) => {
+  return axiosInstance.get(GET_USER_HISTORY(userId));
+};

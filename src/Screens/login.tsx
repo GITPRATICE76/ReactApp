@@ -8,10 +8,10 @@ import axiosInstance from "../Routes/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../services/userapi.service";
 import companyLogo from "../assets/craftsiliconlogo-removebg-preview.png";
-import Logo from "../assets/ChatGPT_Image_Feb_16__2026__09_53_46_AM-removebg-preview.png";
+// import Logo from "../assets/ChatGPT_Image_Feb_16__2026__09_53_46_AM-removebg-preview.png";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-
+ 
 interface MyToken {
   id: number;
   name: string;
@@ -20,18 +20,18 @@ interface MyToken {
   exp: number;
   team?: string;
 }
-
+ 
 export default function Login() {
-  const [Username, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showVersion, setShowVersion] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-
+ 
   const navigate = useNavigate();
   const versionRef = useRef<HTMLDivElement | null>(null);
-
+ 
+  // ✅ Auto-fill email from cookie
   useEffect(() => {
     const savedEmail = Cookies.get("rememberedEmail");
     if (savedEmail) {
@@ -39,7 +39,8 @@ export default function Login() {
       setRememberMe(true);
     }
   }, []);
-
+ 
+  // Close About popup
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -49,47 +50,42 @@ export default function Login() {
         setShowVersion(false);
       }
     }
-
+ 
     if (showVersion) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
+ 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showVersion]);
-
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setLoading(true);
-
+ 
     try {
-      const res = await axiosInstance.post(LOGIN_URL, {
-        Username,
-        Password,
-      });
-
+      const res = await axiosInstance.post(LOGIN_URL, { email, password });
       const { token } = res.data;
-
+ 
       localStorage.setItem("token", token);
-
+ 
       const decoded: MyToken = jwtDecode(token);
-
+ 
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("role", decoded.role);
       localStorage.setItem("username", decoded.name);
       localStorage.setItem("userid", decoded.id.toString());
       localStorage.setItem("team", decoded.team ?? "");
-
+ 
+      // ✅ Store email in cookie if Remember Me checked
       if (rememberMe) {
-        Cookies.set("rememberedEmail", Username, { expires: 7 });
+        Cookies.set("rememberedEmail", email, { expires: 7 });
       } else {
         Cookies.remove("rememberedEmail");
       }
-
+ 
       toast.success("Logged in successfully");
-
+ 
       if (decoded.role === "MANAGER" || decoded.role === "RO") {
         navigate("/manager");
       } else {
@@ -97,59 +93,59 @@ export default function Login() {
       }
     } catch (error) {
       toast.error("Invalid credentials");
-    } finally {
-      setLoading(false);
     }
   };
-
+ 
   return (
     <div className="h-screen w-screen flex">
       {/* LEFT PANEL */}
       <div className="hidden md:flex w-1/2 h-full flex-col justify-center items-center bg-gradient-to-br from-blue-900 to-blue-700 text-white px-16">
         <img src={companyLogo} alt="Company Logo" className="w-40 mb-10" />
-
+ 
         <Lottie animationData={animationData} loop={true} className="w-96" />
-
-        <h2 className="text-3xl font-semibold mt-10">Leave Management Tool</h2>
+ 
+        <h2 className="text-3xl font-semibold mt-10">
+          Leave Request Management
+        </h2>
         <p className="text-base text-white/80 mt-4 text-center max-w-md">
           Streamline employee leave tracking and approvals efficiently.
         </p>
       </div>
-
+ 
       {/* RIGHT PANEL */}
       <div className="w-full md:w-1/2 h-full flex items-center justify-center bg-gray-50 px-10 relative">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <img src={Logo} alt="App Logo" className="w-28 mx-auto mb-6" />
-            <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
+            {/* <img src={Logo} alt="App Logo" className="w-28 mx-auto mb-6" /> */}
+            {/* <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2> */}
             <p className="text-gray-500 text-sm mt-2">
-              Please login to your account
+              Please Enter Login Credentials
             </p>
           </div>
-
+ 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username */}
+            {/* Email */}
             <div>
-              <label className="text-sm text-gray-600">Username </label>
+              <label className="text-sm text-gray-600">Email Address</label>
               <Input
-                type="Username"
-                value={Username}
+                type="email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your Username"
+                placeholder="Enter your email"
                 className="mt-2 h-12"
                 required
               />
             </div>
-
+ 
             {/* Password */}
             <div>
               <label className="text-sm text-gray-600">Password</label>
               <div className="relative mt-2">
                 <Input
-                  type={showPassword ? "text" : "Password"}
-                  value={Password}
+                  type={showPassword ? "text" : "password"}
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your Password"
+                  placeholder="Enter your password"
                   className="h-12 pr-10"
                   required
                 />
@@ -161,8 +157,7 @@ export default function Login() {
                 ></i>
               </div>
             </div>
-
-            {/* Remember Me */}
+ 
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -171,17 +166,16 @@ export default function Login() {
               />
               <label className="text-sm text-gray-600">Remember me</label>
             </div>
-
+ 
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full h-12 rounded-lg bg-blue-900 hover:bg-blue-800 text-base disabled:opacity-50"
+              className="w-full h-12 rounded-lg bg-blue-900 hover:bg-blue-800 text-base"
             >
-              {loading ? "Logging in..." : "Login"}
+              Login
             </Button>
           </form>
         </div>
-
+ 
         {/* Bottom Right Version */}
         <div className="absolute bottom-6 right-8 text-sm text-gray-500 flex gap-4">
           <span>Version 1.0</span>
@@ -192,7 +186,7 @@ export default function Login() {
             About
           </button>
         </div>
-
+ 
         {showVersion && (
           <div
             ref={versionRef}
@@ -206,3 +200,5 @@ export default function Login() {
     </div>
   );
 }
+ 
+ 

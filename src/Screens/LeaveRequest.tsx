@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import { toast } from "react-toastify";
-import {  FiX } from "react-icons/fi";
+import { FiX, FiSearch, FiRefreshCw, FiTrash2, FiCalendar, FiClock, FiCheck, FiChevronUp, FiChevronDown } from "react-icons/fi";
 import {
   GET_LEAVES_URL,
   ACTION_URL,
   DELETE_LEAVE_URL,
   LEAVE_HISTORY_URL,
 } from "../services/userapi.service";
-import { FiSearch, FiRefreshCw, FiTrash2, FiCalendar, FiClock, FiCheck } from "react-icons/fi";
 
 type LeaveRequest = {
   id: number;
@@ -23,6 +22,11 @@ type LeaveRequest = {
   Created: string;
   employeeId: number;
 };
+
+type SortConfig = {
+  key: keyof LeaveRequest;
+  direction: "asc" | "desc";
+} | null;
 
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
@@ -45,6 +49,9 @@ export default function LeaveRequests() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
+  
+  // New Sorting State
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const managerId = Number(localStorage.getItem("userid"));
   const userId = localStorage.getItem("userid");
@@ -73,6 +80,34 @@ export default function LeaveRequests() {
     }
   };
 
+  // Sorting Logic
+  const handleSort = (key: keyof LeaveRequest) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = useMemo(() => {
+    const sortableItems = [...leaveRequests];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        if (aValue < bValue) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [leaveRequests, sortConfig]);
+
   const fetchEmployeeHistory = async (user_id: number, name: string) => {
     try {
       const res = await axiosInstance.post(LEAVE_HISTORY_URL, { user_id });
@@ -89,6 +124,7 @@ export default function LeaveRequests() {
 
   const handleRefresh = () => {
     setEmployeeSearch(""); setSearchTerm(""); setFromFilter(""); setToFilter(""); setStatusFilter("ALL");
+    setSortConfig(null);
     fetchLeaves(1, { employee: "", search: "", start: "", end: "", status: "ALL" });
     setRotate(true);
     setTimeout(() => setRotate(false), 600);
@@ -122,6 +158,12 @@ export default function LeaveRequests() {
   };
 
   const totalPages = Math.ceil(totalRecords / rowsPerPage);
+
+  // Helper to render sort icons
+  const getSortIcon = (key: keyof LeaveRequest) => {
+    if (sortConfig?.key !== key) return <div className="w-4" />;
+    return sortConfig.direction === "asc" ? <FiChevronUp className="text-indigo-400" /> : <FiChevronDown className="text-indigo-400" />;
+  };
 
   if (loading) return <div className="p-10 text-xs font-black text-slate-400 uppercase animate-pulse">Loading requests...</div>;
 
@@ -162,135 +204,137 @@ export default function LeaveRequests() {
 
       {/* TABLE SECTION */}
       <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
-  
-  <div className="w-full overflow-x-auto">
-    <table className="min-w-[900px] w-full text-left border-collapse">
-         <thead className="bg-[#1e293b] text-white">
-  <tr className="border-b border-slate-700">
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left">Employee</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left">From</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-center">Days</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left">Created</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left">Reason</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-center">Status</th>
-    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-right pr-10">Actions</th>
-  </tr>
-</thead>
-          <tbody className="divide-y divide-slate-50">
-            {leaveRequests.length === 0 ? (
-              <tr><td colSpan={7} className="text-center py-12 text-slate-400 font-medium italic">No requests found</td></tr>
-            ) : (
-              leaveRequests.map((leave) => (
-                <tr key={leave.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-slate-800 text-sm">{leave.employeeName}</p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase">{leave.leaveType || 'General Leave'}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <span>{new Date(leave.from).toLocaleDateString("en-GB")}</span>
-                      <span className="text-slate-300">→</span>
-                      <span>{new Date(leave.to).toLocaleDateString("en-GB")}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg text-xs font-black">{leave.days}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col">
+        <div className="w-full overflow-x-auto">
+          <table className="min-w-[900px] w-full text-left border-collapse">
+            <thead className="bg-[#1e293b] text-white">
+              <tr className="border-b border-slate-700">
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => handleSort('employeeName')}>
+                  <div className="flex items-center gap-1">Employee {getSortIcon('employeeName')}</div>
+                </th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => handleSort('from')}>
+                  <div className="flex items-center gap-1">From {getSortIcon('from')}</div>
+                </th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-center cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => handleSort('days')}>
+                  <div className="flex items-center justify-center gap-1">Days {getSortIcon('days')}</div>
+                </th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => handleSort('Created')}>
+                  <div className="flex items-center gap-1">Created {getSortIcon('Created')}</div>
+                </th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-left">Reason</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-center cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => handleSort('status')}>
+                  <div className="flex items-center justify-center gap-1">Status {getSortIcon('status')}</div>
+                </th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-right pr-10">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {sortedData.length === 0 ? (
+                <tr><td colSpan={7} className="text-center py-12 text-slate-400 font-medium italic">No requests found</td></tr>
+              ) : (
+                sortedData.map((leave) => (
+                  <tr key={leave.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="font-bold text-slate-800 text-sm">{leave.employeeName}</p>
+                      <p className="text-[10px] text-slate-400 font-medium uppercase">{leave.leaveType || 'General Leave'}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <span>{new Date(leave.from).toLocaleDateString("en-GB")}</span>
+                        <span className="text-slate-300">→</span>
+                        <span>{new Date(leave.to).toLocaleDateString("en-GB")}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg text-xs font-black">{leave.days}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <FiCalendar size={12} className="text-slate-400" />
-                            {new Date(leave.Created).toLocaleDateString()}
+                          <FiCalendar size={12} className="text-slate-400" />
+                          {new Date(leave.Created).toLocaleDateString()}
                         </span>
                         <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
-                            <FiClock size={12} className="text-slate-300" />
-                            {new Date(leave.Created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          <FiClock size={12} className="text-slate-300" />
+                          {new Date(leave.Created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-xs text-slate-500 italic max-w-[150px] truncate" title={leave.reason}>"{leave.reason}"</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 text-[10px] font-black rounded-full border ${
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-xs text-slate-500 italic max-w-[150px] truncate" title={leave.reason}>"{leave.reason}"</p>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`px-3 py-1 text-[10px] font-black rounded-full border ${
                         leave.status === "PENDING" ? "bg-amber-50 text-amber-600 border-amber-100" :
                         leave.status === "APPROVED" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                         "bg-rose-50 text-rose-600 border-rose-100"
-                    }`}>
-                      {leave.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end items-center gap-2">
-  {/* SLOT 1: HISTORY (Always visible) */}
-  <div className="w-[85px] flex justify-end">
-    <button
-      onClick={() => fetchEmployeeHistory(leave.user_id, leave.employeeName)}
-      className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-lg text-[10px] font-black transition-all active:scale-95 flex items-center gap-1"
-    >
-      <FiCheck /> History
-    </button>
-    
-  </div>
+                      }`}>
+                        {leave.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        <div className="w-[85px] flex justify-end">
+                          <button
+                            onClick={() => fetchEmployeeHistory(leave.user_id, leave.employeeName)}
+                            className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-lg text-[10px] font-black transition-all active:scale-95 flex items-center gap-1"
+                          >
+                            <FiCheck /> History
+                          </button>
+                        </div>
+                        <div className="w-[40px] flex justify-end">
+                          {leave.status !== "APPROVED" && (
+                            <button
+                              onClick={() => openActionModal(leave.id, "APPROVED")}
+                              className="p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition-all active:scale-95"
+                              title="Approve"
+                            >
+                              <FiCheck size={16} />
+                            </button>
+                          )}
+                        </div>
+                        <div className="w-[40px] flex justify-end">
+                          {leave.status !== "REJECTED" && (
+                            <button
+                              onClick={() => openActionModal(leave.id, "REJECTED")}
+                              className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-all active:scale-95"
+                              title="Reject"
+                            >
+                              <FiX size={16} />
+                            </button>
+                          )}
+                        </div>
+                        <div className="w-[35px] flex justify-center">
+                          {leave.status === "PENDING" && (
+                            <button
+                              onClick={() => { setDeleteId(leave.id); setShowDeleteModal(true); }}
+                              className="p-2 text-slate-300 hover:text-rose-600 transition-colors"
+                              title="Delete"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
 
-{/* SLOT 2: APPROVE */}
-<div className="w-[40px] flex justify-end">
-  {leave.status !== "APPROVED" && (
-    <button
-      onClick={() => openActionModal(leave.id, "APPROVED")}
-      className="p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition-all active:scale-95"
-      title="Approve"
-    >
-      <FiCheck size={16} />
-    </button>
-  )}
-</div>
-
-{/* SLOT 3: REJECT */}
-<div className="w-[40px] flex justify-end">
-  {leave.status !== "REJECTED" && (
-    <button
-      onClick={() => openActionModal(leave.id, "REJECTED")}
-      className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-all active:scale-95"
-      title="Reject"
-    >
-      <FiX size={16} />
-    </button>
-  )}
-</div>
-
-  {/* SLOT 4: DELETE */}
-  <div className="w-[35px] flex justify-center">
-    {leave.status === "PENDING" && (
-      <button
-        onClick={() => { setDeleteId(leave.id); setShowDeleteModal(true); }}
-        className="p-2 text-slate-300 hover:text-rose-600 transition-colors"
-        title="Delete"
-      >
-        <FiTrash2 size={16} />
-      </button>
-    )}
-  </div>
-</div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-
-        {/* PAGINATION */}
-        <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
+          {/* PAGINATION */}
+          <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
             <p className="text-[10px] font-black text-slate-400 uppercase">Showing {leaveRequests.length} of {totalRecords} records</p>
             <div className="flex gap-1">
-                <button disabled={currentPage === 1} onClick={() => fetchLeaves(currentPage - 1)} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black disabled:opacity-30">PREV</button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                    <button key={i} onClick={() => fetchLeaves(i + 1)} className={`w-8 h-8 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${currentPage === i + 1 ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-white border border-slate-200 text-slate-600"}`}>
-                        {i + 1}
-                    </button>
-                ))}
-                <button disabled={currentPage === totalPages} onClick={() => fetchLeaves(currentPage + 1)} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black disabled:opacity-30">NEXT</button>
+              <button disabled={currentPage === 1} onClick={() => fetchLeaves(currentPage - 1)} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black disabled:opacity-30">PREV</button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button key={i} onClick={() => fetchLeaves(i + 1)} className={`w-8 h-8 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${currentPage === i + 1 ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-white border border-slate-200 text-slate-600"}`}>
+                  {i + 1}
+                </button>
+              ))}
+              <button disabled={currentPage === totalPages} onClick={() => fetchLeaves(currentPage + 1)} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black disabled:opacity-30">NEXT</button>
             </div>
+          </div>
         </div>
       </div>
 
@@ -380,7 +424,6 @@ export default function LeaveRequests() {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }

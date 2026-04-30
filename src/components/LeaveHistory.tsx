@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../Routes/axiosInstance";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { LEAVE_HISTORY_URL } from "../services/userapi.service";
 import { toast } from "react-toastify";
+import { FiChevronUp, FiChevronDown } from "react-icons/fi"; // Added icons
 
 type LeaveHistory = {
   id: number;
@@ -17,6 +18,11 @@ type LeaveHistory = {
   days: number;
 };
 
+type SortConfig = {
+  key: keyof LeaveHistory;
+  direction: "asc" | "desc";
+} | null;
+
 export default function LeaveHistory() {
   const [historyData, setHistoryData] = useState<LeaveHistory[]>([]);
   const [startDate, setStartDate] = useState("");
@@ -26,6 +32,9 @@ export default function LeaveHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  
+  // New: Sort State
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const rowsPerPage = 10;
   const totalPages = Math.ceil(totalRecords / rowsPerPage);
@@ -56,6 +65,30 @@ export default function LeaveHistory() {
     }
   };
 
+  // New: Sorting Logic
+  const handleSort = (key: keyof LeaveHistory) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = useMemo(() => {
+    const sortableItems = [...historyData];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [historyData, sortConfig]);
+
   useEffect(() => {
     fetchLeaveHistory();
   }, []);
@@ -65,6 +98,7 @@ export default function LeaveHistory() {
     setStartDate("");
     setEndDate("");
     setStatusFilter("ALL");
+    setSortConfig(null);
     setCurrentPage(1);
     fetchLeaveHistory(1, { search: "", start: "", end: "", status: "ALL" });
   };
@@ -122,14 +156,18 @@ export default function LeaveHistory() {
     );
   };
 
+  // Helper for Sort Icons
+  const SortIcon = ({ column }: { column: keyof LeaveHistory }) => {
+    if (sortConfig?.key !== column) return <div className="w-3 h-3 opacity-20" />;
+    return sortConfig.direction === "asc" ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />;
+  };
+
   return (
     <div className="bg-[#f8fafc] min-h-screen p-2 lg:p-5 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200">
         
-        {/* Top Decorative Gradient Bar */}
         <div className="h-1.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500" />
 
-        {/* Header Section */}
         <div className="px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
           <div>
             <h1 className="text-xl font-extrabold tracking-tight text-slate-900 leading-tight">
@@ -154,7 +192,6 @@ export default function LeaveHistory() {
           </div>
         </div>
 
-        {/* Filters Section */}
         <div className="mx-6 mb-4 p-1.5 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1.5">
           <input
             type="text"
@@ -186,72 +223,78 @@ export default function LeaveHistory() {
           </select>
           <button
             onClick={() => fetchLeaveHistory(1)}
-            className="bg-blue-600 hover:bg-indigo-600 text-white font-bold w-40 ml-9 py-2 rounded-xl transition-all text-xs"
+            className="bg-blue-600 hover:bg-indigo-600 text-white font-bold w-full sm:w-40 py-2 rounded-xl transition-all text-xs lg:justify-self-end"
           >
             Search
           </button>
         </div>
 
-     
-     {/* Table Section */}
-<div className="overflow-x-auto px-6 pb-2">
-  <table className="w-full text-left border-separate border-spacing-y-1.5">
-    <thead>
-      {/* Changed: Added bg-slate-800 and rounded corners for the header row */}
-      <tr className="bg-slate-800 text-slate-200 text-[9px] uppercase tracking-[1.5px] font-black">
-        <th className="px-4 py-2.5 rounded-l-xl">Employee</th>
-        <th className="px-4 py-2.5">Allocation</th>
-        <th className="px-4 py-2.5">Duration</th>
-        <th className="px-4 py-2.5 text-center">Days</th>
-        <th className="px-4 py-2.5 rounded-r-xl">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {loading ? (
-        <tr><td colSpan={5} className="py-10 text-center font-bold text-slate-300 animate-pulse text-xs">Loading...</td></tr>
-      ) : historyData.length === 0 ? (
-        <tr><td colSpan={5} className="py-10 text-center text-slate-400 text-xs">No records found.</td></tr>
-      ) : (
-        historyData.map((row) => (
-          <tr key={row.id} className="group hover:scale-[1.005] transition-all duration-200">
-            <td className="px-4 py-2 bg-white border-y border-l border-slate-100 rounded-l-xl group-hover:bg-slate-50/50">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center font-bold border border-blue-100 text-xs">
-                  {row.employee_name.charAt(0)}
-                </div>
-                <div>
-                  <div className="font-bold text-slate-900 text-xs">{row.employee_name}</div>
-                  <div className="text-[9px] font-bold text-blue-500 uppercase tracking-tight">{row.leave_type}</div>
-                </div>
-              </div>
-            </td>
-            <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50">
-              <div className="text-xs font-semibold text-slate-700">{row.team}</div>
-              <div className="text-[10px] text-slate-400 font-medium">{row.department}</div>
-            </td>
-            <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                <span>{new Date(row.from_date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}</span>
-                <span className="text-slate-300">→</span>
-                <span>{new Date(row.to_date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}</span>
-              </div>
-            </td>
-            <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50 text-center">
-              <div className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-black text-[10px]">
-                {row.days}D
-              </div>
-            </td>
-            <td className="px-4 py-2 bg-white border-y border-r border-slate-100 rounded-r-xl group-hover:bg-slate-50/50">
-              <StatusBadge status={row.status} />
-            </td>
-          </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-</div>
+        <div className="overflow-x-auto px-6 pb-2">
+          <table className="w-full text-left border-separate border-spacing-y-1.5">
+            <thead>
+              <tr className="bg-slate-800 text-slate-200 text-[9px] uppercase tracking-[1.5px] font-black">
+                <th className="px-4 py-2.5 rounded-l-xl cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('employee_name')}>
+                  <div className="flex items-center gap-1">Employee <SortIcon column="employee_name"/></div>
+                </th>
+                <th className="px-4 py-2.5 cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('team')}>
+                   <div className="flex items-center gap-1">Allocation <SortIcon column="team"/></div>
+                </th>
+                <th className="px-4 py-2.5 cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('from_date')}>
+                   <div className="flex items-center gap-1">Duration <SortIcon column="from_date"/></div>
+                </th>
+                <th className="px-4 py-2.5 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('days')}>
+                   <div className="flex items-center justify-center gap-1">Days <SortIcon column="days"/></div>
+                </th>
+                <th className="px-4 py-2.5 rounded-r-xl cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('status')}>
+                   <div className="flex items-center gap-1">Status <SortIcon column="status"/></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={5} className="py-10 text-center font-bold text-slate-300 animate-pulse text-xs">Loading...</td></tr>
+              ) : sortedData.length === 0 ? (
+                <tr><td colSpan={5} className="py-10 text-center text-slate-400 text-xs">No records found.</td></tr>
+              ) : (
+                sortedData.map((row) => (
+                  <tr key={row.id} className="group hover:scale-[1.005] transition-all duration-200">
+                    <td className="px-4 py-2 bg-white border-y border-l border-slate-100 rounded-l-xl group-hover:bg-slate-50/50">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center font-bold border border-blue-100 text-xs">
+                          {row.employee_name.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-xs">{row.employee_name}</div>
+                          <div className="text-[9px] font-bold text-blue-500 uppercase tracking-tight">{row.leave_type}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50">
+                      <div className="text-xs font-semibold text-slate-700">{row.team}</div>
+                      <div className="text-[10px] text-slate-400 font-medium">{row.department}</div>
+                    </td>
+                    <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                        <span>{new Date(row.from_date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}</span>
+                        <span className="text-slate-300">→</span>
+                        <span>{new Date(row.to_date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 bg-white border-y border-slate-100 group-hover:bg-slate-50/50 text-center">
+                      <div className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-black text-[10px]">
+                        {row.days}D
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 bg-white border-y border-r border-slate-100 rounded-r-xl group-hover:bg-slate-50/50">
+                      <StatusBadge status={row.status} />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Custom Pagination Section */}
         <div className="px-6 py-4 border-t border-slate-50 bg-slate-50/30 flex flex-row items-center justify-between">
           <div className="text-[11px] font-bold text-slate-400">
             Page <span className="text-blue-600">{currentPage}</span> of {totalPages}

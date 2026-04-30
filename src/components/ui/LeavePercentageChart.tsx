@@ -43,9 +43,12 @@ export default function LeavePercentageChart({
           </Pie>
 
           <Tooltip
-  formatter={(value: number | undefined) =>
-    `${(value ?? 0).toFixed(2)}%`
-  }
+  formatter={(value) => {
+    if (typeof value === "number") {
+      return `${value.toFixed(2)}%`;
+    }
+    return value;
+  }}
 />
         </PieChart>
       </ResponsiveContainer>
