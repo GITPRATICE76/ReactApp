@@ -166,7 +166,9 @@ export default function Managerdashboard() {
                   <InfoCard
                     label="% On Leave"
                     value={`${selectedDay.leave_percentage.toFixed(1)}%`}
-                    color="rose"
+                    color={
+                      selectedDay.leave_percentage > 8 ? "rose" : "default"
+                    } // or any fallback color
                   />
                   <InfoCard
                     label="% Remaining"

@@ -36,7 +36,9 @@ export default function Navbar() {
           <FiUser size={18} />
         </div>
         <div className="flex flex-col">
-         
+          {/* <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+            System Access
+          </span> */}
           <span className="text-sm font-bold text-slate-800 leading-none">
             Welcome{username ? `, ${username}` : " back"}!
           </span>
